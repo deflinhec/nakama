@@ -60,13 +60,17 @@ type jsMatchHandlers struct {
 }
 
 type RuntimeJavascriptCallbacks struct {
-	Rpc              map[string]string
-	Before           map[string]string
-	After            map[string]string
-	Matchmaker       string
-	TournamentEnd    string
-	TournamentReset  string
-	LeaderboardReset string
+	Rpc                            map[string]string
+	Before                         map[string]string
+	After                          map[string]string
+	Matchmaker                     string
+	TournamentEnd                  string
+	TournamentReset                string
+	LeaderboardReset               string
+	PurchaseNotificationApple      string
+	SubscriptionNotificationApple  string
+	PurchaseNotificationGoogle     string
+	SubscriptionNotificationGoogle string
 }
 
 type RuntimeJavascriptInitModule struct {
@@ -96,11 +100,17 @@ func (im *RuntimeJavascriptInitModule) mappings(r *goja.Runtime) map[string]func
 		"registerTournamentEnd":                           im.registerTournamentEnd(r),
 		"registerTournamentReset":                         im.registerTournamentReset(r),
 		"registerLeaderboardReset":                        im.registerLeaderboardReset(r),
+		"registerPurchaseNotificationApple":               im.registerPurchaseNotificationApple(r),
+		"registerSubscriptionNotificationApple":           im.registerSubscriptionNotificationApple(r),
+		"registerPurchaseNotificationGoogle":              im.registerPurchaseNotificationGoogle(r),
+		"registerSubscriptionNotificationGoogle":          im.registerSubscriptionNotificationGoogle(r),
 		"registerMatch":                                   im.registerMatch(r),
 		"registerBeforeGetAccount":                        im.registerBeforeGetAccount(r),
 		"registerAfterGetAccount":                         im.registerAfterGetAccount(r),
 		"registerBeforeUpdateAccount":                     im.registerBeforeUpdateAccount(r),
 		"registerAfterUpdateAccount":                      im.registerAfterUpdateAccount(r),
+		"registerBeforeDeleteAccount":                     im.registerBeforeDeleteAccount(r),
+		"registerAfterDeleteAccount":                      im.registerAfterDeleteAccount(r),
 		"registerBeforeAuthenticateApple":                 im.registerBeforeAuthenticateApple(r),
 		"registerAfterAuthenticateApple":                  im.registerAfterAuthenticateApple(r),
 		"registerBeforeAuthenticateCustom":                im.registerBeforeAuthenticateCustom(r),
@@ -359,6 +369,14 @@ func (im *RuntimeJavascriptInitModule) registerBeforeUpdateAccount(r *goja.Runti
 
 func (im *RuntimeJavascriptInitModule) registerAfterUpdateAccount(r *goja.Runtime) func(goja.FunctionCall) goja.Value {
 	return im.registerHook(r, RuntimeExecutionModeAfter, "registerAfterUpdateAccount", "updateaccount")
+}
+
+func (im *RuntimeJavascriptInitModule) registerBeforeDeleteAccount(r *goja.Runtime) func(goja.FunctionCall) goja.Value {
+	return im.registerHook(r, RuntimeExecutionModeBefore, "registerBeforeDeleteAccount", "deleteaccount")
+}
+
+func (im *RuntimeJavascriptInitModule) registerAfterDeleteAccount(r *goja.Runtime) func(goja.FunctionCall) goja.Value {
+	return im.registerHook(r, RuntimeExecutionModeAfter, "registerAfterDeleteAccount", "deleteaccount")
 }
 
 func (im *RuntimeJavascriptInitModule) registerBeforeAuthenticateApple(r *goja.Runtime) func(goja.FunctionCall) goja.Value {
@@ -1222,6 +1240,82 @@ func (im *RuntimeJavascriptInitModule) registerLeaderboardReset(r *goja.Runtime)
 	}
 }
 
+func (im *RuntimeJavascriptInitModule) registerPurchaseNotificationApple(r *goja.Runtime) func(call goja.FunctionCall) goja.Value {
+	return func(f goja.FunctionCall) goja.Value {
+		fn := f.Argument(0)
+		_, ok := goja.AssertFunction(fn)
+		if !ok {
+			panic(r.NewTypeError("expects a function"))
+		}
+
+		fnKey, err := im.extractHookFn("registerPurchaseNotificationApple")
+		if err != nil {
+			panic(r.NewGoError(err))
+		}
+		im.registerCallbackFn(RuntimeExecutionModePurchaseNotificationApple, "", fnKey)
+		im.announceCallbackFn(RuntimeExecutionModePurchaseNotificationApple, "")
+
+		return goja.Undefined()
+	}
+}
+
+func (im *RuntimeJavascriptInitModule) registerSubscriptionNotificationApple(r *goja.Runtime) func(call goja.FunctionCall) goja.Value {
+	return func(f goja.FunctionCall) goja.Value {
+		fn := f.Argument(0)
+		_, ok := goja.AssertFunction(fn)
+		if !ok {
+			panic(r.NewTypeError("expects a function"))
+		}
+
+		fnKey, err := im.extractHookFn("registerSubscriptionNotificationApple")
+		if err != nil {
+			panic(r.NewGoError(err))
+		}
+		im.registerCallbackFn(RuntimeExecutionModeSubscriptionNotificationApple, "", fnKey)
+		im.announceCallbackFn(RuntimeExecutionModeSubscriptionNotificationApple, "")
+
+		return goja.Undefined()
+	}
+}
+
+func (im *RuntimeJavascriptInitModule) registerPurchaseNotificationGoogle(r *goja.Runtime) func(call goja.FunctionCall) goja.Value {
+	return func(f goja.FunctionCall) goja.Value {
+		fn := f.Argument(0)
+		_, ok := goja.AssertFunction(fn)
+		if !ok {
+			panic(r.NewTypeError("expects a function"))
+		}
+
+		fnKey, err := im.extractHookFn("registerPurchaseNotificationGoogle")
+		if err != nil {
+			panic(r.NewGoError(err))
+		}
+		im.registerCallbackFn(RuntimeExecutionModePurchaseNotificationGoogle, "", fnKey)
+		im.announceCallbackFn(RuntimeExecutionModePurchaseNotificationGoogle, "")
+
+		return goja.Undefined()
+	}
+}
+
+func (im *RuntimeJavascriptInitModule) registerSubscriptionNotificationGoogle(r *goja.Runtime) func(call goja.FunctionCall) goja.Value {
+	return func(f goja.FunctionCall) goja.Value {
+		fn := f.Argument(0)
+		_, ok := goja.AssertFunction(fn)
+		if !ok {
+			panic(r.NewTypeError("expects a function"))
+		}
+
+		fnKey, err := im.extractHookFn("registerSubscriptionNotificationGoogle")
+		if err != nil {
+			panic(r.NewGoError(err))
+		}
+		im.registerCallbackFn(RuntimeExecutionModeSubscriptionNotificationGoogle, "", fnKey)
+		im.announceCallbackFn(RuntimeExecutionModeSubscriptionNotificationGoogle, "")
+
+		return goja.Undefined()
+	}
+}
+
 func (im *RuntimeJavascriptInitModule) registerMatch(r *goja.Runtime) func(goja.FunctionCall) goja.Value {
 	return func(f goja.FunctionCall) goja.Value {
 		name := getJsString(r, f.Argument(0))
@@ -1446,5 +1540,13 @@ func (im *RuntimeJavascriptInitModule) registerCallbackFn(mode RuntimeExecutionM
 		im.Callbacks.TournamentReset = fn
 	case RuntimeExecutionModeLeaderboardReset:
 		im.Callbacks.LeaderboardReset = fn
+	case RuntimeExecutionModePurchaseNotificationApple:
+		im.Callbacks.PurchaseNotificationApple = fn
+	case RuntimeExecutionModeSubscriptionNotificationApple:
+		im.Callbacks.SubscriptionNotificationApple = fn
+	case RuntimeExecutionModePurchaseNotificationGoogle:
+		im.Callbacks.PurchaseNotificationGoogle = fn
+	case RuntimeExecutionModeSubscriptionNotificationGoogle:
+		im.Callbacks.SubscriptionNotificationGoogle = fn
 	}
 }
