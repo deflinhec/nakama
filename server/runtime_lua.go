@@ -1273,13 +1273,14 @@ func openLuaModules(logger *zap.Logger, rootPath string, paths []string) (*Runti
 	}
 
 	stdLibs := map[string]lua.LGFunction{
-		lua.LoadLibName:   OpenPackage(moduleCache),
-		lua.BaseLibName:   lua.OpenBase,
-		lua.TabLibName:    lua.OpenTable,
-		lua.OsLibName:     OpenOs,
-		lua.StringLibName: lua.OpenString,
-		lua.MathLibName:   lua.OpenMath,
-		Bit32LibName:      OpenBit32,
+		lua.LoadLibName:      OpenPackage(moduleCache),
+		lua.BaseLibName:      lua.OpenBase,
+		lua.TabLibName:       lua.OpenTable,
+		lua.OsLibName:        OpenOs,
+		lua.StringLibName:    lua.OpenString,
+		lua.MathLibName:      lua.OpenMath,
+		lua.CoroutineLibName: lua.OpenCoroutine,
+		Bit32LibName:         OpenBit32,
 	}
 
 	return moduleCache, modulePaths, stdLibs, nil
