@@ -86,6 +86,8 @@ type ConsoleClient interface {
 	GetLeaderboard(ctx context.Context, in *LeaderboardRequest, opts ...grpc.CallOption) (*Leaderboard, error)
 	// Get current state of a running match
 	GetMatchState(ctx context.Context, in *MatchStateRequest, opts ...grpc.CallOption) (*MatchState, error)
+	// Send signal to specific match id
+	SendMatchSignal(ctx context.Context, in *MatchSignalRequest, opts ...grpc.CallOption) (*MatchSignalResponse, error)
 	// Get runtime info
 	GetRuntime(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RuntimeInfo, error)
 	// Perform runtime module hotfix
@@ -437,6 +439,15 @@ func (c *consoleClient) GetMatchState(ctx context.Context, in *MatchStateRequest
 	return out, nil
 }
 
+func (c *consoleClient) SendMatchSignal(ctx context.Context, in *MatchSignalRequest, opts ...grpc.CallOption) (*MatchSignalResponse, error) {
+	out := new(MatchSignalResponse)
+	err := c.cc.Invoke(ctx, "/nakama.console.Console/SendMatchSignal", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *consoleClient) GetRuntime(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RuntimeInfo, error) {
 	out := new(RuntimeInfo)
 	err := c.cc.Invoke(ctx, "/nakama.console.Console/GetRuntime", in, out, opts...)
@@ -782,6 +793,8 @@ type ConsoleServer interface {
 	GetLeaderboard(context.Context, *LeaderboardRequest) (*Leaderboard, error)
 	// Get current state of a running match
 	GetMatchState(context.Context, *MatchStateRequest) (*MatchState, error)
+	// Send signal to specific match id
+	SendMatchSignal(context.Context, *MatchSignalRequest) (*MatchSignalResponse, error)
 	// Get runtime info
 	GetRuntime(context.Context, *emptypb.Empty) (*RuntimeInfo, error)
 	// Perform runtime module hotfix
@@ -943,6 +956,9 @@ func (UnimplementedConsoleServer) GetLeaderboard(context.Context, *LeaderboardRe
 }
 func (UnimplementedConsoleServer) GetMatchState(context.Context, *MatchStateRequest) (*MatchState, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMatchState not implemented")
+}
+func (UnimplementedConsoleServer) SendMatchSignal(context.Context, *MatchSignalRequest) (*MatchSignalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendMatchSignal not implemented")
 }
 func (UnimplementedConsoleServer) GetRuntime(context.Context, *emptypb.Empty) (*RuntimeInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRuntime not implemented")
@@ -1604,6 +1620,24 @@ func _Console_GetMatchState_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ConsoleServer).GetMatchState(ctx, req.(*MatchStateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Console_SendMatchSignal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MatchSignalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsoleServer).SendMatchSignal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.console.Console/SendMatchSignal",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsoleServer).SendMatchSignal(ctx, req.(*MatchSignalRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2296,6 +2330,10 @@ var Console_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMatchState",
 			Handler:    _Console_GetMatchState_Handler,
+		},
+		{
+			MethodName: "SendMatchSignal",
+			Handler:    _Console_SendMatchSignal_Handler,
 		},
 		{
 			MethodName: "GetRuntime",
