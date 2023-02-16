@@ -5,6 +5,7 @@
     "tasks": [
         {
             "label": "Launch services",
+            "type":"shell",
             "command": "docker-compose",
             "args": [
                 "up", "-d",
@@ -20,6 +21,7 @@
         },
         {
             "label": "Migrate up",
+            "type":"shell",
             "command": "go",
             "args": [
                 "run", "main.go",
@@ -39,6 +41,7 @@
         },
         {
             "label": "Build image",
+            "type":"shell",
             "command": "docker",
             "args": [
                 "build", "./",
