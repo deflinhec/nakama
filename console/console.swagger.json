@@ -1855,6 +1855,45 @@
         ]
       }
     },
+    "/v2/console/match/{id}/signal/{signal}": {
+      "post": {
+        "summary": "Send signal to specific match id",
+        "operationId": "Console_SendMatchSignal",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/consoleMatchSignalResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "Match ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "signal",
+            "description": "Signal",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Console"
+        ]
+      }
+    },
     "/v2/console/match/{id}/state": {
       "get": {
         "summary": "Get current state of a running match",
@@ -3442,6 +3481,15 @@
         "node": {
           "type": "string",
           "title": "The node name"
+        }
+      }
+    },
+    "consoleMatchSignalResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "string",
+          "title": "Match Signal Result"
         }
       }
     },
