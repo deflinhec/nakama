@@ -431,7 +431,7 @@ service Console {
     };
   }
 
-  // Withdraw amount of currency from user.
+  // Deposit amount of currency to user account.
   rpc WalletDeposit (WalletTransactionRequest) returns (WalletBalanceResponse) {
     option (google.api.http) = {
       post: "/v2/console/wallet/{currency}/deposit",
@@ -439,7 +439,7 @@ service Console {
     };
   }
 
-  // Withdraw amount of currency from user.
+  // Withdraw amount of currency from user account.
   rpc WalletWithdraw (WalletTransactionRequest) returns (WalletBalanceResponse) {
     option (google.api.http) = {
       post: "/v2/console/wallet/{currency}/withdraw",
@@ -447,11 +447,9 @@ service Console {
     };
   }
 
-  // Withdraw amount of currency from user.
+  // Withdraw amount of currency from user account.
   rpc WalletBalance (WalletBalanceRequest) returns (WalletBalanceResponse) {
-    option (google.api.http) = {
-      get: "/v2/console/wallet/{currency}/{user_id}",
-    };
+    option (google.api.http).get = "/v2/console/wallet/{currency}";
   }
 }
 
