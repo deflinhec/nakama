@@ -2553,9 +2553,48 @@
         ]
       }
     },
+    "/v2/console/wallet/{currency}": {
+      "get": {
+        "summary": "Withdraw amount of currency from user account.",
+        "operationId": "Console_WalletBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/consoleWalletBalanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "currency",
+            "description": "The currency type.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user_id",
+            "description": "The user ID this wallet item belongs to.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Console"
+        ]
+      }
+    },
     "/v2/console/wallet/{currency}/deposit": {
       "post": {
-        "summary": "Withdraw amount of currency from user.",
+        "summary": "Deposit amount of currency to user account.",
         "operationId": "Console_WalletDeposit",
         "responses": {
           "200": {
@@ -2610,7 +2649,7 @@
     },
     "/v2/console/wallet/{currency}/withdraw": {
       "post": {
-        "summary": "Withdraw amount of currency from user.",
+        "summary": "Withdraw amount of currency from user account.",
         "operationId": "Console_WalletWithdraw",
         "responses": {
           "200": {
@@ -2656,45 +2695,6 @@
                 }
               }
             }
-          }
-        ],
-        "tags": [
-          "Console"
-        ]
-      }
-    },
-    "/v2/console/wallet/{currency}/{user_id}": {
-      "get": {
-        "summary": "Withdraw amount of currency from user.",
-        "operationId": "Console_WalletBalance",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/consoleWalletBalanceResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "currency",
-            "description": "The currency type.",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "user_id",
-            "description": "The user ID this wallet item belongs to.",
-            "in": "path",
-            "required": true,
-            "type": "string"
           }
         ],
         "tags": [

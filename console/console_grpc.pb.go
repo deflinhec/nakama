@@ -150,11 +150,11 @@ type ConsoleClient interface {
 	UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Write a new storage object or replace an existing one.
 	WriteStorageObject(ctx context.Context, in *WriteStorageObjectRequest, opts ...grpc.CallOption) (*api.StorageObjectAck, error)
-	// Withdraw amount of currency from user.
+	// Deposit amount of currency to user account.
 	WalletDeposit(ctx context.Context, in *WalletTransactionRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
-	// Withdraw amount of currency from user.
+	// Withdraw amount of currency from user account.
 	WalletWithdraw(ctx context.Context, in *WalletTransactionRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
-	// Withdraw amount of currency from user.
+	// Withdraw amount of currency from user account.
 	WalletBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
 }
 
@@ -890,11 +890,11 @@ type ConsoleServer interface {
 	UpdateGroup(context.Context, *UpdateGroupRequest) (*emptypb.Empty, error)
 	// Write a new storage object or replace an existing one.
 	WriteStorageObject(context.Context, *WriteStorageObjectRequest) (*api.StorageObjectAck, error)
-	// Withdraw amount of currency from user.
+	// Deposit amount of currency to user account.
 	WalletDeposit(context.Context, *WalletTransactionRequest) (*WalletBalanceResponse, error)
-	// Withdraw amount of currency from user.
+	// Withdraw amount of currency from user account.
 	WalletWithdraw(context.Context, *WalletTransactionRequest) (*WalletBalanceResponse, error)
-	// Withdraw amount of currency from user.
+	// Withdraw amount of currency from user account.
 	WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceResponse, error)
 	mustEmbedUnimplementedConsoleServer()
 }
