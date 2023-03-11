@@ -12,6 +12,9 @@
             "program": "${workspaceFolder}",
             "args": [
                 "--name", "nakama1",
+                "--metrics.prometheus_port", "9100", 
+                "--socket.server_key", "deficasino",
+                "--session.single_socket", "true",
                 "--database.address", "root@localhost:26257",
                 "--logger.level", "DEBUG", 
                 "--session.token_expiry_sec", "7200",
