@@ -400,6 +400,26 @@ export enum UserRole {
   USER_ROLE_READONLY = 4,
 }
 
+export interface WalletBalanceResponse {
+  // The amount to withdraw.
+	balance?:string
+  // The currency type.
+	currency?:string
+  // The order id of transaction.
+	order_id?:string
+  // The user ID this wallet item belongs to.
+	user_id?:string
+}
+
+export interface WalletDepositRequest {
+  // The amount to withdraw.
+	amount?:string
+  // The order id of transaction.
+	order_id?:string
+  // The user ID this wallet item belongs to.
+	user_id?:string
+}
+
 /** An individual update to a user's wallet. */
 export interface WalletLedger {
   // The changeset.
@@ -424,6 +444,15 @@ export interface WalletLedgerList {
 	next_cursor?:string
   // The cursor to send when retrieving the previous page newer, if any.
 	prev_cursor?:string
+}
+
+export interface WalletWithdrawRequest {
+  // The amount to withdraw.
+	amount?:string
+  // The order id of transaction.
+	order_id?:string
+  // The user ID this wallet item belongs to.
+	user_id?:string
 }
 
 export interface WriteStorageObjectRequest {
@@ -1281,9 +1310,9 @@ export class ConsoleService {
 
   /** Send signal to specific match id */
   sendMatchSignal(auth_token: string, id: string, signal: string): Observable<MatchSignalResponse> {
-    id = encodeURIComponent(String(id))
-    signal = encodeURIComponent(String(signal))
-    const urlPath = `/v2/console/match/${id}/signal/${signal}`;
+		id = encodeURIComponent(String(id))
+		signal = encodeURIComponent(String(signal))
+		const urlPath = `/v2/console/match/${id}/signal/${signal}`;
     let params = new HttpParams();
     return this.httpClient.post<MatchSignalResponse>(this.config.host + urlPath, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
   }
@@ -1461,6 +1490,31 @@ export class ConsoleService {
 		const urlPath = `/v2/console/user`;
     let params = new HttpParams();
     return this.httpClient.post(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
+  }
+
+  /** Withdraw amount of currency from user. */
+  walletDeposit(auth_token: string, currency: string, body: WalletDepositRequest): Observable<WalletBalanceResponse> {
+		currency = encodeURIComponent(String(currency))
+		const urlPath = `/v2/console/wallet/${currency}/deposit`;
+    let params = new HttpParams();
+    return this.httpClient.post<WalletBalanceResponse>(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
+  }
+
+  /** Withdraw amount of currency from user. */
+  walletWithdraw(auth_token: string, currency: string, body: WalletWithdrawRequest): Observable<WalletBalanceResponse> {
+		currency = encodeURIComponent(String(currency))
+		const urlPath = `/v2/console/wallet/${currency}/withdraw`;
+    let params = new HttpParams();
+    return this.httpClient.post<WalletBalanceResponse>(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
+  }
+
+  /** Withdraw amount of currency from user. */
+  walletBalance(auth_token: string, currency: string, user_id: string): Observable<WalletBalanceResponse> {
+		currency = encodeURIComponent(String(currency))
+		user_id = encodeURIComponent(String(user_id))
+		const urlPath = `/v2/console/wallet/${currency}/${user_id}`;
+    let params = new HttpParams();
+    return this.httpClient.get<WalletBalanceResponse>(this.config.host + urlPath, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
   }
 
   private getTokenAuthHeaders(token: string): HttpHeaders {

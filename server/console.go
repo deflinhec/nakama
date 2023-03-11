@@ -124,6 +124,11 @@ var restrictedMethods = map[string]console.UserRole{
 	"/nakama.console.Console/UnlinkGoogle":              console.UserRole_USER_ROLE_MAINTAINER,
 	"/nakama.console.Console/UnlinkSteam":               console.UserRole_USER_ROLE_MAINTAINER,
 
+	// Wallet
+	"/nakama.console.Console/WalletBalance":  console.UserRole_USER_ROLE_MAINTAINER,
+	"/nakama.console.Console/WalletDeposit":  console.UserRole_USER_ROLE_MAINTAINER,
+	"/nakama.console.Console/WalletWithdraw": console.UserRole_USER_ROLE_MAINTAINER,
+
 	// User
 	"/nakama.console.Console/AddUser":    console.UserRole_USER_ROLE_ADMIN,
 	"/nakama.console.Console/DeleteUser": console.UserRole_USER_ROLE_ADMIN,

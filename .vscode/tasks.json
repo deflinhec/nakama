@@ -47,7 +47,7 @@
                 "build", "./",
                 "--file", "build/Dockerfile.local",
                 "--build-arg", "version=0.0.0",
-                "-t", "heroiclabs/nakama:develop",
+                "-t", "registry.deflinhec.dev/nakama:latest",
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
