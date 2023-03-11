@@ -150,6 +150,12 @@ type ConsoleClient interface {
 	UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Write a new storage object or replace an existing one.
 	WriteStorageObject(ctx context.Context, in *WriteStorageObjectRequest, opts ...grpc.CallOption) (*api.StorageObjectAck, error)
+	// Withdraw amount of currency from user.
+	WalletDeposit(ctx context.Context, in *WalletTransactionRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
+	// Withdraw amount of currency from user.
+	WalletWithdraw(ctx context.Context, in *WalletTransactionRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
+	// Withdraw amount of currency from user.
+	WalletBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
 }
 
 type consoleClient struct {
@@ -727,6 +733,33 @@ func (c *consoleClient) WriteStorageObject(ctx context.Context, in *WriteStorage
 	return out, nil
 }
 
+func (c *consoleClient) WalletDeposit(ctx context.Context, in *WalletTransactionRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error) {
+	out := new(WalletBalanceResponse)
+	err := c.cc.Invoke(ctx, "/nakama.console.Console/WalletDeposit", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consoleClient) WalletWithdraw(ctx context.Context, in *WalletTransactionRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error) {
+	out := new(WalletBalanceResponse)
+	err := c.cc.Invoke(ctx, "/nakama.console.Console/WalletWithdraw", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consoleClient) WalletBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error) {
+	out := new(WalletBalanceResponse)
+	err := c.cc.Invoke(ctx, "/nakama.console.Console/WalletBalance", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ConsoleServer is the server API for Console service.
 // All implementations must embed UnimplementedConsoleServer
 // for forward compatibility
@@ -857,6 +890,12 @@ type ConsoleServer interface {
 	UpdateGroup(context.Context, *UpdateGroupRequest) (*emptypb.Empty, error)
 	// Write a new storage object or replace an existing one.
 	WriteStorageObject(context.Context, *WriteStorageObjectRequest) (*api.StorageObjectAck, error)
+	// Withdraw amount of currency from user.
+	WalletDeposit(context.Context, *WalletTransactionRequest) (*WalletBalanceResponse, error)
+	// Withdraw amount of currency from user.
+	WalletWithdraw(context.Context, *WalletTransactionRequest) (*WalletBalanceResponse, error)
+	// Withdraw amount of currency from user.
+	WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceResponse, error)
 	mustEmbedUnimplementedConsoleServer()
 }
 
@@ -1052,6 +1091,15 @@ func (UnimplementedConsoleServer) UpdateGroup(context.Context, *UpdateGroupReque
 }
 func (UnimplementedConsoleServer) WriteStorageObject(context.Context, *WriteStorageObjectRequest) (*api.StorageObjectAck, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WriteStorageObject not implemented")
+}
+func (UnimplementedConsoleServer) WalletDeposit(context.Context, *WalletTransactionRequest) (*WalletBalanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WalletDeposit not implemented")
+}
+func (UnimplementedConsoleServer) WalletWithdraw(context.Context, *WalletTransactionRequest) (*WalletBalanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WalletWithdraw not implemented")
+}
+func (UnimplementedConsoleServer) WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WalletBalance not implemented")
 }
 func (UnimplementedConsoleServer) mustEmbedUnimplementedConsoleServer() {}
 
@@ -2200,6 +2248,60 @@ func _Console_WriteStorageObject_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Console_WalletDeposit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WalletTransactionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsoleServer).WalletDeposit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.console.Console/WalletDeposit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsoleServer).WalletDeposit(ctx, req.(*WalletTransactionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Console_WalletWithdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WalletTransactionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsoleServer).WalletWithdraw(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.console.Console/WalletWithdraw",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsoleServer).WalletWithdraw(ctx, req.(*WalletTransactionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Console_WalletBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WalletBalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsoleServer).WalletBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.console.Console/WalletBalance",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsoleServer).WalletBalance(ctx, req.(*WalletBalanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Console_ServiceDesc is the grpc.ServiceDesc for Console service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -2458,6 +2560,18 @@ var Console_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "WriteStorageObject",
 			Handler:    _Console_WriteStorageObject_Handler,
+		},
+		{
+			MethodName: "WalletDeposit",
+			Handler:    _Console_WalletDeposit_Handler,
+		},
+		{
+			MethodName: "WalletWithdraw",
+			Handler:    _Console_WalletWithdraw_Handler,
+		},
+		{
+			MethodName: "WalletBalance",
+			Handler:    _Console_WalletBalance_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
