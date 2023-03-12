@@ -431,27 +431,6 @@ service Console {
     };
   }
 
-  // Deposit amount of currency to user account.
-  rpc WalletDeposit (WalletTransactionRequest) returns (WalletBalanceResponse) {
-    option (google.api.http) = {
-      post: "/v2/console/wallet/{currency}/deposit",
-      body: "*"
-    };
-  }
-
-  // Withdraw amount of currency from user account.
-  rpc WalletWithdraw (WalletTransactionRequest) returns (WalletBalanceResponse) {
-    option (google.api.http) = {
-      post: "/v2/console/wallet/{currency}/withdraw",
-      body: "*"
-    };
-  }
-
-  // Get currency balance of from user account.
-  rpc WalletBalance (WalletBalanceRequest) returns (WalletBalanceResponse) {
-    option (google.api.http).get = "/v2/console/wallet/{currency}/{user_id}";
-  }
-
 }
 
 // API Explorer List of Endpoints response message
@@ -1100,33 +1079,4 @@ message GetWalletLedgerRequest{
   uint32 limit = 2;
   // Cursor to retrieve a page of records from
   string cursor = 3;
-}
-
-message WalletBalanceRequest {
-  // The user ID this wallet item belongs to.
-  string user_id = 1;
-  // The currency type.
-  string currency = 2;
-}
-
-message WalletTransactionRequest {
-  // The user ID this wallet item belongs to.
-  string user_id = 1;
-  // The order id of transaction.
-  string order_id = 2;
-  // The currency type.
-  string currency = 3;
-  // The amount to withdraw.
-  int64 amount = 4;
-}
-
-message WalletBalanceResponse {
-  // The user ID this wallet item belongs to.
-  string user_id = 1;
-  // The order id of transaction.
-  string order_id = 2;
-  // The currency type.
-  string currency = 3;
-  // The amount to withdraw.
-  int64 balance = 4;
 }
