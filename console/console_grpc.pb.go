@@ -154,7 +154,7 @@ type ConsoleClient interface {
 	WalletDeposit(ctx context.Context, in *WalletTransactionRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
 	// Withdraw amount of currency from user account.
 	WalletWithdraw(ctx context.Context, in *WalletTransactionRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
-	// Withdraw amount of currency from user account.
+	// Get currency balance of from user account.
 	WalletBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
 }
 
@@ -894,7 +894,7 @@ type ConsoleServer interface {
 	WalletDeposit(context.Context, *WalletTransactionRequest) (*WalletBalanceResponse, error)
 	// Withdraw amount of currency from user account.
 	WalletWithdraw(context.Context, *WalletTransactionRequest) (*WalletBalanceResponse, error)
-	// Withdraw amount of currency from user account.
+	// Get currency balance of from user account.
 	WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceResponse, error)
 	mustEmbedUnimplementedConsoleServer()
 }

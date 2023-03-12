@@ -447,10 +447,11 @@ service Console {
     };
   }
 
-  // Withdraw amount of currency from user account.
+  // Get currency balance of from user account.
   rpc WalletBalance (WalletBalanceRequest) returns (WalletBalanceResponse) {
-    option (google.api.http).get = "/v2/console/wallet/{currency}";
+    option (google.api.http).get = "/v2/console/wallet/{currency}/{user_id}";
   }
+
 }
 
 // API Explorer List of Endpoints response message

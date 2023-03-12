@@ -42,13 +42,8 @@
         {
             "label": "Build image",
             "type":"shell",
-            "command": "docker",
-            "args": [
-                "build", "./",
-                "--file", "build/Dockerfile.local",
-                "--build-arg", "version=0.0.0",
-                "-t", "registry.deflinhec.dev/nakama:latest",
-            ],
+            "command": "make",
+            "args": ["image"],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
