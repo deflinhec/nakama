@@ -2555,7 +2555,7 @@
     },
     "/v2/console/wallet/{currency}": {
       "get": {
-        "summary": "Withdraw amount of currency from user account.",
+        "summary": "Get currency balance of from user account.",
         "operationId": "Console_WalletBalance",
         "responses": {
           "200": {

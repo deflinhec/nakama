@@ -47,6 +47,7 @@
                 "build", "./",
                 "--file", "build/Dockerfile.local",
                 "--build-arg", "version=0.0.0",
+                "--build-arg", "commit='$(git rev-parse --short HEAD 2>/dev/null)'",
                 "-t", "registry.deflinhec.dev/nakama:latest",
             ],
             "options": {

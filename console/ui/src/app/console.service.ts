@@ -1492,7 +1492,7 @@ export class ConsoleService {
     return this.httpClient.post(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
   }
 
-  /** Withdraw amount of currency from user account. */
+  /** Get currency balance of from user account. */
   walletBalance(auth_token: string, currency: string, user_id?: string): Observable<WalletBalanceResponse> {
 		currency = encodeURIComponent(String(currency))
 		const urlPath = `/v2/console/wallet/${currency}`;
