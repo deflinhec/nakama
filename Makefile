@@ -11,6 +11,9 @@ image:
 		--file build/Dockerfile.local \
 		--tag registry.deflinhec.dev/nakama:latest
 
+publish:
+	docker push registry.deflinhec.dev/nakama:latest
+
 default: image
 
 
