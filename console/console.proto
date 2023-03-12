@@ -449,7 +449,7 @@ service Console {
 
   // Get currency balance of from user account.
   rpc WalletBalance (WalletBalanceRequest) returns (WalletBalanceResponse) {
-    option (google.api.http).get = "/v2/console/wallet/{currency}";
+    option (google.api.http).get = "/v2/console/wallet/{currency}/{user_id}";
   }
 
 }
