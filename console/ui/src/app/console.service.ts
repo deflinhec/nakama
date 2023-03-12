@@ -1492,17 +1492,6 @@ export class ConsoleService {
     return this.httpClient.post(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
   }
 
-  /** Get currency balance of from user account. */
-  walletBalance(auth_token: string, currency: string, user_id?: string): Observable<WalletBalanceResponse> {
-		currency = encodeURIComponent(String(currency))
-		const urlPath = `/v2/console/wallet/${currency}`;
-    let params = new HttpParams();
-    if (user_id) {
-      params = params.set('user_id', user_id);
-    }
-    return this.httpClient.get<WalletBalanceResponse>(this.config.host + urlPath, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
-  }
-
   /** Deposit amount of currency to user account. */
   walletDeposit(auth_token: string, currency: string, body: WalletDepositRequest): Observable<WalletBalanceResponse> {
 		currency = encodeURIComponent(String(currency))
@@ -1517,6 +1506,15 @@ export class ConsoleService {
 		const urlPath = `/v2/console/wallet/${currency}/withdraw`;
     let params = new HttpParams();
     return this.httpClient.post<WalletBalanceResponse>(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
+  }
+
+  /** Get currency balance of from user account. */
+  walletBalance(auth_token: string, currency: string, user_id: string): Observable<WalletBalanceResponse> {
+		currency = encodeURIComponent(String(currency))
+		user_id = encodeURIComponent(String(user_id))
+		const urlPath = `/v2/console/wallet/${currency}/${user_id}`;
+    let params = new HttpParams();
+    return this.httpClient.get<WalletBalanceResponse>(this.config.host + urlPath, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
   }
 
   private getTokenAuthHeaders(token: string): HttpHeaders {
