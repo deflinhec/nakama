@@ -23,7 +23,7 @@ import {
 } from '../../console.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot} from '@angular/router';
 import {AuthenticationService} from '../../authentication.service';
-import * as ace from 'ace-builds';
+import JSONEditor from 'jsoneditor';
 import {Observable} from 'rxjs';
 
 @Component({
@@ -33,7 +33,7 @@ import {Observable} from 'rxjs';
 export class WalletComponent implements OnInit, AfterViewInit {
   @ViewChild('editor') private editor: ElementRef<HTMLElement>;
 
-  private aceEditor: ace.Ace.Editor;
+  private jsonEditor: JSONEditor;
   public error = '';
   public account: ApiAccount;
   public walletLedger: Array<WalletLedger> = [];
@@ -92,16 +92,9 @@ export class WalletComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    ace.config.set('fontSize', '14px');
-    ace.config.set('printMarginColumn', 0);
-    ace.config.set('useWorker', true);
-    ace.config.set('highlightSelectedWord', true);
-    ace.config.set('fontFamily', '"Courier New", Courier, monospace');
-    this.aceEditor = ace.edit(this.editor.nativeElement);
-    this.aceEditor.setReadOnly(!this.updateAllowed());
-
-    const value = JSON.stringify(JSON.parse(this.account.wallet), null, 2);
-    this.aceEditor.session.setValue(value);
+    let options = {mode:!this.updateAllowed()?'view':null};
+    this.jsonEditor = new JSONEditor(this.editor.nativeElement, options);
+    this.jsonEditor.set(JSON.parse(this.account.wallet));
   }
 
   updateWallet(): void {
@@ -111,7 +104,7 @@ export class WalletComponent implements OnInit, AfterViewInit {
 
     let wallet = '';
     try {
-      wallet = JSON.stringify(JSON.parse(this.aceEditor.session.getValue()));
+      wallet = JSON.stringify(this.jsonEditor.get());
     } catch (e) {
       this.error = e;
       this.updating = false;

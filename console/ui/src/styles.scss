@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "~@ng-select/ng-select/themes/default.theme.css";
+@import "jsoneditor/dist/jsoneditor.min.css";
 
 /* Colors */
 $brand-purple: #7668ED;
@@ -558,4 +559,6 @@ a {
   justify-content: center;
 }
 
-
+.jsoneditor-menu {
+  background-color: #7668ED;
+}

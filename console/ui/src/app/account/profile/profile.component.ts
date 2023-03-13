@@ -17,7 +17,7 @@ import {ApiAccount, ConsoleService, UpdateAccountRequest, UserRole} from '../../
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthenticationService} from '../../authentication.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import * as ace from 'ace-builds';
+import JSONEditor from 'jsoneditor';
 
 @Component({
   templateUrl: './profile.component.html',
@@ -26,7 +26,7 @@ import * as ace from 'ace-builds';
 export class ProfileComponent implements OnInit, AfterViewInit {
   @ViewChild('editor') private editor: ElementRef<HTMLElement>;
 
-  private aceEditor: ace.Ace.Editor;
+  private jsonEditor: JSONEditor;
   public error = '';
   public account: ApiAccount;
   public accountForm: FormGroup;
@@ -68,16 +68,9 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    ace.config.set('fontSize', '14px');
-    ace.config.set('printMarginColumn', 0);
-    ace.config.set('useWorker', true);
-    ace.config.set('highlightSelectedWord', true);
-    ace.config.set('fontFamily', '"Courier New", Courier, monospace');
-    this.aceEditor = ace.edit(this.editor.nativeElement);
-    this.aceEditor.setReadOnly(!this.updateAllowed());
-
-    const value = JSON.stringify(JSON.parse(this.account.user.metadata), null, 2)
-    this.aceEditor.session.setValue(value);
+    let options = {mode:!this.updateAllowed()?'view':null};
+    this.jsonEditor = new JSONEditor(this.editor.nativeElement, options);
+    this.jsonEditor.set(JSON.parse(this.account.user.metadata));
   }
 
   updateAccount(): void {
@@ -87,7 +80,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
 
     let metadata = '';
     try {
-      metadata = JSON.stringify(JSON.parse(this.aceEditor.session.getValue()));
+      metadata = JSON.stringify(this.jsonEditor.get());
     } catch (e) {
       this.error = e;
       this.updating = false;
