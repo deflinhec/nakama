@@ -23,7 +23,7 @@ import {
 } from '../../console.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot} from '@angular/router';
 import {AuthenticationService} from '../../authentication.service';
-import JSONEditor from 'jsoneditor';
+import {JSONEditor, JSONContent} from 'vanilla-jsoneditor';
 import {Observable} from 'rxjs';
 
 @Component({
@@ -92,9 +92,13 @@ export class WalletComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    let options = {mode:!this.updateAllowed()?'view':null};
-    this.jsonEditor = new JSONEditor(this.editor.nativeElement, options);
-    this.jsonEditor.set(JSON.parse(this.account.wallet));
+    this.jsonEditor = new JSONEditor({
+      target: this.editor.nativeElement,
+      props: {
+        readOnly: !this.updateAllowed(),
+        content:{text:this.account.wallet},
+      },
+    });
   }
 
   updateWallet(): void {
