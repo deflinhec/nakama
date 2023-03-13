@@ -22,7 +22,7 @@ import {
   MatchState,
   RealtimeUserPresence
 } from '../console.service';
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {UntypedFormBuilder, UntypedFormGroup} from "@angular/forms";
 import {catchError, mergeMap} from "rxjs/operators";
 
 @Component({
@@ -37,10 +37,10 @@ export class MatchesComponent implements OnInit {
   public matchSignalResult: Array<string> = [];
   public matchSignalError: Array<string> = [];
   public updated = false;
-  public signalForm: FormGroup;
-  public searchForm1: FormGroup;
-  public searchForm2: FormGroup;
-  public searchForm3: FormGroup; //Authoritative
+  public signalForm: UntypedFormGroup;
+  public searchForm1: UntypedFormGroup;
+  public searchForm2: UntypedFormGroup;
+  public searchForm3: UntypedFormGroup; //Authoritative
   public type: number
   public activeType = 'All';
   public readonly types = ['All', 'Authoritative', 'Relayed'];
@@ -50,7 +50,7 @@ export class MatchesComponent implements OnInit {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly formBuilder: FormBuilder,
+    private readonly formBuilder: UntypedFormBuilder,
     private readonly consoleService: ConsoleService,
   ) {
     this.signalForm = this.formBuilder.group({

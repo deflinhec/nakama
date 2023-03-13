@@ -17,7 +17,7 @@ import {ActivatedRoute, ActivatedRouteSnapshot, Resolve, Router, RouterStateSnap
 import JSONEditor from 'jsoneditor';
 import {ApiStorageObject, ConsoleService, UserRole, WriteStorageObjectRequest} from '../console.service';
 import {Observable} from 'rxjs';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {AuthenticationService} from '../authentication.service';
 
 @Component({
@@ -30,7 +30,7 @@ export class StorageObjectComponent implements OnInit, AfterViewInit {
   private jsonEditor: JSONEditor;
   public error = '';
   public object: ApiStorageObject;
-  public objectForm: FormGroup;
+  public objectForm: UntypedFormGroup;
   public updating = false;
   public updated = false;
 
@@ -66,7 +66,7 @@ export class StorageObjectComponent implements OnInit, AfterViewInit {
     private readonly router: Router,
     private readonly consoleService: ConsoleService,
     private readonly authService: AuthenticationService,
-    private readonly formBuilder: FormBuilder,
+    private readonly formBuilder: UntypedFormBuilder,
   ) {}
 
   ngAfterViewInit(): void {

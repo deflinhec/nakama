@@ -16,7 +16,7 @@ import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/
 import {ApiAccount, ConsoleService, UpdateAccountRequest, UserRole} from '../../console.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthenticationService} from '../../authentication.service';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import JSONEditor from 'jsoneditor';
 
 @Component({
@@ -29,7 +29,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   private jsonEditor: JSONEditor;
   public error = '';
   public account: ApiAccount;
-  public accountForm: FormGroup;
+  public accountForm: UntypedFormGroup;
   public updating = false;
   public updated = false;
 
@@ -38,7 +38,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     private readonly router: Router,
     private readonly consoleService: ConsoleService,
     private readonly authService: AuthenticationService,
-    private readonly formBuilder: FormBuilder,
+    private readonly formBuilder: UntypedFormBuilder,
   ) {}
 
   ngOnInit(): void {
