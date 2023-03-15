@@ -2344,7 +2344,6 @@ func checkRuntimeLuaVM(logger *zap.Logger, config Config, version string, stdLib
 	vm.PreloadModule("nakama", nakamaModule.Loader)
 
 	preload := vm.GetField(vm.GetField(vm.Get(lua.EnvironIndex), "package"), "preload")
-
 	for _, name := range moduleCache.Names {
 		module, ok := moduleCache.Modules[name]
 		if !ok {
