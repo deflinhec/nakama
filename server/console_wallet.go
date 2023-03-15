@@ -99,9 +99,9 @@ func (s *ConsoleServer) WalletWithdraw(ctx context.Context, in *console.WalletTr
 	NotificationSend(ctx, s.logger, s.db, s.router, map[uuid.UUID][]*api.Notification{
 		uid: {{
 			Id:         uuid.Must(uuid.NewV4()).String(),
-			Subject:    "wallet_update",
+			Subject:    "wallet_transfer",
 			Content:    string(content),
-			Code:       NotificationCodeWalletUpdate,
+			Code:       NotificationCodeWalletTransfer,
 			SenderId:   "",
 			Persistent: false,
 			CreateTime: &timestamppb.Timestamp{Seconds: time.Now().UTC().Unix()},
@@ -163,9 +163,9 @@ func (s *ConsoleServer) WalletDeposit(ctx context.Context, in *console.WalletTra
 	NotificationSend(ctx, s.logger, s.db, s.router, map[uuid.UUID][]*api.Notification{
 		uid: {{
 			Id:         uuid.Must(uuid.NewV4()).String(),
-			Subject:    "wallet_update",
+			Subject:    "wallet_transfer",
 			Content:    string(content),
-			Code:       NotificationCodeWalletUpdate,
+			Code:       NotificationCodeWalletTransfer,
 			SenderId:   "",
 			Persistent: false,
 			CreateTime: &timestamppb.Timestamp{Seconds: time.Now().UTC().Unix()},
