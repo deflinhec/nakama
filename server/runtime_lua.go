@@ -91,8 +91,28 @@ func (m *RuntimeLuaModule) Hotfix(states ...*lua.LState) error {
 	return nil
 }
 
+type ModuleNames []string
+
+func (a ModuleNames) Len() int {
+	return len(a)
+}
+
+func (a ModuleNames) Less(i, j int) bool {
+	init := strings.HasSuffix(a[i], "init")
+	if init && strings.HasSuffix(a[j], "init") {
+		return strings.Count(a[i], ".") < strings.Count(a[j], ".")
+	} else if init {
+		return true
+	}
+	return strings.Count(a[i], ".") < strings.Count(a[j], ".")
+}
+
+func (a ModuleNames) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+
 type RuntimeLuaModuleCache struct {
-	Names   []string
+	Names   ModuleNames
 	Modules map[string]*RuntimeLuaModule
 }
 
@@ -100,8 +120,8 @@ func (mc *RuntimeLuaModuleCache) Add(m *RuntimeLuaModule) {
 	mc.Names = append(mc.Names, m.Name)
 	mc.Modules[m.Name] = m
 
-	// Ensure modules will be listed in ascending order of names.
-	sort.Strings(mc.Names)
+	// Process init scripts with ascending depth order before all other scripts.
+	sort.Sort(mc.Names)
 }
 
 type RuntimeProviderLua struct {
@@ -2139,20 +2159,7 @@ func (r *RuntimeLua) loadModules(moduleCache *RuntimeLuaModuleCache) error {
 		fns[module.Name] = f
 	}
 
-	// Process init scripts with ascending depth order before all other scripts.
-	names := make([]string, 0, len(moduleCache.Names))
 	for _, name := range moduleCache.Names {
-		names = append(names, name)
-	}
-	sort.Slice(names, func(i, j int) bool {
-		init := strings.HasSuffix(names[i], "init")
-		if init && strings.HasSuffix(names[j], "init") {
-			return strings.Count(names[i], ".") < strings.Count(names[j], ".")
-		}
-		return init
-	})
-
-	for _, name := range names {
 		fn, ok := fns[name]
 		if !ok {
 			r.logger.Fatal("Failed to find named module in prepared functions", zap.String("name", name))
@@ -2337,6 +2344,7 @@ func checkRuntimeLuaVM(logger *zap.Logger, config Config, version string, stdLib
 	vm.PreloadModule("nakama", nakamaModule.Loader)
 
 	preload := vm.GetField(vm.GetField(vm.Get(lua.EnvironIndex), "package"), "preload")
+
 	for _, name := range moduleCache.Names {
 		module, ok := moduleCache.Modules[name]
 		if !ok {
