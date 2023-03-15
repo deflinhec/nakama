@@ -91,8 +91,28 @@ func (m *RuntimeLuaModule) Hotfix(states ...*lua.LState) error {
 	return nil
 }
 
+type ModuleNames []string
+
+func (a ModuleNames) Len() int {
+	return len(a)
+}
+
+func (a ModuleNames) Less(i, j int) bool {
+	init := strings.HasSuffix(a[i], "init")
+	if init && strings.HasSuffix(a[j], "init") {
+		return strings.Count(a[i], ".") < strings.Count(a[j], ".")
+	} else if init {
+		return true
+	}
+	return strings.Count(a[i], ".") < strings.Count(a[j], ".")
+}
+
+func (a ModuleNames) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+
 type RuntimeLuaModuleCache struct {
-	Names   []string
+	Names   ModuleNames
 	Modules map[string]*RuntimeLuaModule
 }
 
@@ -100,8 +120,8 @@ func (mc *RuntimeLuaModuleCache) Add(m *RuntimeLuaModule) {
 	mc.Names = append(mc.Names, m.Name)
 	mc.Modules[m.Name] = m
 
-	// Ensure modules will be listed in ascending order of names.
-	sort.Strings(mc.Names)
+	// Process init scripts with ascending depth order before all other scripts.
+	sort.Sort(mc.Names)
 }
 
 type RuntimeProviderLua struct {
