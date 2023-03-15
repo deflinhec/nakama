@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/gorilla/handlers"
 	"github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
@@ -55,6 +56,8 @@ type Metrics interface {
 	CountWebsocketClosed(delta int64)
 	GaugeSessions(value float64)
 	GaugePresences(value float64)
+
+	GaugeOnlineStatus(userID uuid.UUID, online bool)
 
 	Matchmaker(tickets, activeTickets float64, processTime time.Duration)
 
@@ -415,6 +418,16 @@ func (m *LocalMetrics) GaugeSessions(value float64) {
 // Set the absolute value of currently tracked presences.
 func (m *LocalMetrics) GaugePresences(value float64) {
 	m.PrometheusScope.Gauge("presences").Update(value)
+}
+
+func (m *LocalMetrics) GaugeOnlineStatus(userID uuid.UUID, online bool) {
+	scope := m.PrometheusScope
+	scope = scope.Tagged(map[string]string{"user_id": userID.String()})
+	if online {
+		scope.Gauge("player_online_status").Update(1)
+	} else {
+		scope.Gauge("player_online_status").Update(0)
+	}
 }
 
 // Record a set of matchmaker metrics.

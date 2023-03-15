@@ -181,6 +181,7 @@ func (s *testMetrics) CountWebsocketOpened(delta int64)                         
 func (s *testMetrics) CountWebsocketClosed(delta int64)                                     {}
 func (s *testMetrics) GaugeSessions(value float64)                                          {}
 func (s *testMetrics) GaugePresences(value float64)                                         {}
+func (s *testMetrics) GaugeOnlineStatus(userID uuid.UUID, online bool)                      {}
 func (s *testMetrics) Matchmaker(tickets, activeTickets float64, processTime time.Duration) {}
 func (s *testMetrics) PresenceEvent(dequeueElapsed, processElapsed time.Duration)           {}
 func (s *testMetrics) StorageWriteRejectCount(tags map[string]string, delta int64)          {}

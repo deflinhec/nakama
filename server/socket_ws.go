@@ -100,6 +100,9 @@ func NewSocketWsAcceptor(logger *zap.Logger, config Config, sessionRegistry Sess
 		// Mark the start of the session.
 		metrics.CountWebsocketOpened(1)
 
+		// Mark the online status of the user.
+		metrics.GaugeOnlineStatus(userID, true)
+
 		// Wrap the connection for application handling.
 		session := NewSessionWS(logger, config, format, sessionID, userID, username, vars, expiry, clientIP, clientPort, lang, protojsonMarshaler, protojsonUnmarshaler, conn, sessionRegistry, statusRegistry, matchmaker, tracker, metrics, pipeline, runtime)
 
@@ -135,5 +138,12 @@ func NewSocketWsAcceptor(logger *zap.Logger, config Config, sessionRegistry Sess
 
 		// Mark the end of the session.
 		metrics.CountWebsocketClosed(1)
+
+		// Mark the online status of the user. Considers of single user having multiple sessions.
+		metrics.GaugeOnlineStatus(userID,
+			len(tracker.ListLocalSessionIDByStream(PresenceStream{
+				Mode: StreamModeNotifications, Subject: userID,
+			})) > 0,
+		)
 	}
 }
