@@ -2139,7 +2139,20 @@ func (r *RuntimeLua) loadModules(moduleCache *RuntimeLuaModuleCache) error {
 		fns[module.Name] = f
 	}
 
+	// Process init scripts with ascending depth order before all other scripts.
+	names := make([]string, 0, len(moduleCache.Names))
 	for _, name := range moduleCache.Names {
+		names = append(names, name)
+	}
+	sort.Slice(names, func(i, j int) bool {
+		init := strings.HasSuffix(names[i], "init")
+		if init && strings.HasSuffix(names[j], "init") {
+			return strings.Count(names[i], ".") < strings.Count(names[j], ".")
+		}
+		return init
+	})
+
+	for _, name := range names {
 		fn, ok := fns[name]
 		if !ok {
 			r.logger.Fatal("Failed to find named module in prepared functions", zap.String("name", name))
