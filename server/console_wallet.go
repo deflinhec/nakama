@@ -8,11 +8,14 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
+	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama/v3/console"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *ConsoleServer) WalletBalance(ctx context.Context, in *console.WalletBalanceRequest) (*console.WalletBalanceResponse, error) {
@@ -86,12 +89,26 @@ func (s *ConsoleServer) WalletWithdraw(ctx context.Context, in *console.WalletTr
 		"execution": "withdraw",
 	}, in.Amount)
 
-	return &console.WalletBalanceResponse{
+	response := &console.WalletBalanceResponse{
 		OrderId:  in.OrderId,
 		UserId:   in.UserId,
 		Currency: in.Currency,
 		Balance:  results[0].Updated[currency],
-	}, nil
+	}
+	content, _ := json.Marshal(response)
+	NotificationSend(ctx, s.logger, s.db, s.router, map[uuid.UUID][]*api.Notification{
+		uid: {{
+			Id:         uuid.Must(uuid.NewV4()).String(),
+			Subject:    "wallet_update",
+			Content:    string(content),
+			Code:       NotificationCodeWalletUpdate,
+			SenderId:   "",
+			Persistent: false,
+			CreateTime: &timestamppb.Timestamp{Seconds: time.Now().UTC().Unix()},
+		}},
+	})
+
+	return response, nil
 }
 
 func (s *ConsoleServer) WalletDeposit(ctx context.Context, in *console.WalletTransactionRequest) (*console.WalletBalanceResponse, error) {
@@ -136,10 +153,24 @@ func (s *ConsoleServer) WalletDeposit(ctx context.Context, in *console.WalletTra
 		"execution": "deposit",
 	}, in.Amount)
 
-	return &console.WalletBalanceResponse{
+	response := &console.WalletBalanceResponse{
 		OrderId:  in.OrderId,
 		UserId:   in.UserId,
 		Currency: in.Currency,
 		Balance:  results[0].Updated[currency],
-	}, nil
+	}
+	content, _ := json.Marshal(response)
+	NotificationSend(ctx, s.logger, s.db, s.router, map[uuid.UUID][]*api.Notification{
+		uid: {{
+			Id:         uuid.Must(uuid.NewV4()).String(),
+			Subject:    "wallet_update",
+			Content:    string(content),
+			Code:       NotificationCodeWalletUpdate,
+			SenderId:   "",
+			Persistent: false,
+			CreateTime: &timestamppb.Timestamp{Seconds: time.Now().UTC().Unix()},
+		}},
+	})
+
+	return response, nil
 }
