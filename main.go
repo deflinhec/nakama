@@ -170,6 +170,7 @@ func main() {
 
 	apiServer := server.StartApiServer(logger, startupLogger, db, jsonpbMarshaler, jsonpbUnmarshaler, config, version, socialClient, leaderboardCache, leaderboardRankCache, sessionRegistry, sessionCache, statusRegistry, matchRegistry, matchmaker, tracker, router, streamManager, metrics, pipeline, runtime)
 	consoleServer := server.StartConsoleServer(logger, startupLogger, db, config, tracker, router, streamManager, metrics, sessionCache, consoleSessionCache, loginAttemptCache, statusRegistry, statusHandler, runtimeInfo, matchRegistry, configWarnings, semver, leaderboardCache, leaderboardRankCache, leaderboardScheduler, apiServer, runtime, cookie)
+	consulService := server.StartConsulAgent(logger, startupLogger, db, config, semver)
 
 	gaenabled := len(os.Getenv("NAKAMA_TELEMETRY")) < 1
 	console.UIFS.Nt = !gaenabled
@@ -204,6 +205,7 @@ func main() {
 		// No grace period.
 		startupLogger.Info("Shutdown started")
 	}
+	consulService.Stop()
 
 	// Stop any running authoritative matches and do not accept any new ones.
 	select {
