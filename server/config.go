@@ -46,6 +46,7 @@ type Config interface {
 	GetConsole() *ConsoleConfig
 	GetLeaderboard() *LeaderboardConfig
 	GetMatchmaker() *MatchmakerConfig
+	GetConsul() *ConsulConfig
 	GetIAP() *IAPConfig
 
 	Clone() (Config, error)
@@ -439,6 +440,7 @@ type config struct {
 	Console          *ConsoleConfig     `yaml:"console" json:"console" usage:"Console settings."`
 	Leaderboard      *LeaderboardConfig `yaml:"leaderboard" json:"leaderboard" usage:"Leaderboard settings."`
 	Matchmaker       *MatchmakerConfig  `yaml:"matchmaker" json:"matchmaker" usage:"Matchmaker settings."`
+	Consul           *ConsulConfig      `yaml:"consul" json:"consul" usage:"Consul settings."`
 	IAP              *IAPConfig         `yaml:"iap" json:"iap" usage:"In-App Purchase settings."`
 }
 
@@ -464,6 +466,7 @@ func NewConfig(logger *zap.Logger) *config {
 		Console:          NewConsoleConfig(),
 		Leaderboard:      NewLeaderboardConfig(),
 		Matchmaker:       NewMatchmakerConfig(),
+		Consul:           NewConsulConfig(),
 		IAP:              NewIAPConfig(),
 	}
 }
@@ -481,6 +484,7 @@ func (c *config) Clone() (Config, error) {
 	configConsole := *(c.Console)
 	configLeaderboard := *(c.Leaderboard)
 	configMatchmaker := *(c.Matchmaker)
+	configConsul := *(c.Consul)
 	configIAP := *(c.IAP)
 	nc := &config{
 		Name:             c.Name,
@@ -498,6 +502,7 @@ func (c *config) Clone() (Config, error) {
 		Console:          &configConsole,
 		Leaderboard:      &configLeaderboard,
 		Matchmaker:       &configMatchmaker,
+		Consul:           &configConsul,
 		IAP:              &configIAP,
 	}
 	nc.Socket.CertPEMBlock = make([]byte, len(c.Socket.CertPEMBlock))
@@ -583,6 +588,10 @@ func (c *config) GetLeaderboard() *LeaderboardConfig {
 
 func (c *config) GetMatchmaker() *MatchmakerConfig {
 	return c.Matchmaker
+}
+
+func (c *config) GetConsul() *ConsulConfig {
+	return c.Consul
 }
 
 func (c *config) GetIAP() *IAPConfig {
@@ -955,6 +964,20 @@ func NewMatchmakerConfig() *MatchmakerConfig {
 		BatchPoolSize: 32,
 		RevPrecision:  false,
 		RevThreshold:  1,
+	}
+}
+
+type ConsulConfig struct {
+	Address string `yaml:"address" json:"address" usage:"The IP address of the consul server. Default localhost."`
+	Port    int    `yaml:"port" json:"port" usage:"Consul service discovery port. Default 8500."`
+	TTLms   int    `yaml:"ttl" json:"ttl" usage:"Consul service healthcheck ttl in milliseconds. Default 5000."`
+}
+
+func NewConsulConfig() *ConsulConfig {
+	return &ConsulConfig{
+		Address: "localhost",
+		Port:    8500,
+		TTLms:   5000,
 	}
 }
 
