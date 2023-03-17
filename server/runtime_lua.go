@@ -72,19 +72,35 @@ type RuntimeLuaModule struct {
 	Content []byte
 }
 
-func (m *RuntimeLuaModule) Hotfix(states ...*lua.LState) error {
+func (m *RuntimeLuaModule) Hotfix(logger *zap.Logger, states ...*lua.LState) error {
 	content, err := ioutil.ReadFile(m.Path)
 	if err != nil {
 		return err
 	}
-	for _, l := range states {
-		f, err := l.Load(bytes.NewReader(content), m.Path)
-		if err != nil {
-			return err
-		}
-		l.Push(f)
-		if err := l.PCall(0, lua.MultRet, nil); err != nil {
-			return err
+	for _, state := range states {
+		if reg, ok := state.Get(lua.RegistryIndex).(*lua.LTable); ok {
+			if tb, ok := state.GetField(reg, "_LOADED").(*lua.LTable); ok {
+				if mt, ok := tb.Metatable.(*lua.LTable); ok {
+					if mt.RawGetString(m.Name) != lua.LNil {
+						state.Push(state.NewFunction(lua.OpenString))
+						state.Push(lua.LString(lua.StringLibName))
+						if err = state.PCall(1, 0, nil); err != nil {
+							return err
+						}
+						f, err := state.Load(bytes.NewReader(content), m.Path)
+						if err != nil {
+							return err
+						}
+						state.Push(f)
+						if err = state.PCall(0, 1, nil); err != nil {
+							return err
+						}
+						logger.Info("Hotfix", zap.String("module", m.Name))
+						mt.RawSetString(m.Name, state.Get(1))
+						state.Pop(1)
+					}
+				}
+			}
 		}
 	}
 	m.Content = content
@@ -1195,7 +1211,7 @@ func NewRuntimeProviderLua(logger, startupLogger *zap.Logger, db *sql.DB, protoj
 		if !ok {
 			return fmt.Errorf("module '%v' not found", module)
 		}
-		return m.Hotfix(vms...)
+		return m.Hotfix(startupLogger, vms...)
 	}
 
 	if config.GetRuntime().GetLuaReadOnlyGlobals() {
@@ -1236,7 +1252,7 @@ func NewRuntimeProviderLua(logger, startupLogger *zap.Logger, db *sql.DB, protoj
 				luaEnv:    RuntimeLuaConvertMapString(vm, config.GetRuntime().Environment),
 				callbacks: callbacksGlobals,
 			}
-			vms = append(vms, r.vm)
+			vms = append(vms, vm)
 			return r
 		}
 	} else {
