@@ -84,5 +84,5 @@ func (s *consulAgent) updateTTL(check func() error) {
 }
 
 func (s *consulAgent) Stop() {
-	s.stopped.Store(false)
+	s.stopped.Store(true)
 }
