@@ -2260,6 +2260,19 @@ func (r *RuntimeLua) InvokeFunction(execMode RuntimeExecutionMode, fn *lua.LFunc
 
 func (r *RuntimeLua) invokeFunction(l *lua.LState, fn *lua.LFunction, ctx *lua.LTable, payloads ...lua.LValue) (lua.LValue, error, codes.Code, bool) {
 	l.Push(LSentinel)
+	// Load stdlibs
+	for name, lib := range map[string]lua.LGFunction{
+		lua.StringLibName: lua.OpenString,
+		lua.TabLibName:    lua.OpenTable,
+		lua.MathLibName:   lua.OpenMath,
+		lua.BaseLibName:   lua.OpenBase,
+		lua.OsLibName:     OpenOs,
+	} {
+		l.Push(l.NewFunction(lib))
+		l.Push(lua.LString(name))
+		l.Call(1, 0)
+	}
+
 	l.Push(fn)
 
 	nargs := 1
