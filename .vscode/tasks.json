@@ -40,7 +40,7 @@
             ],
         },
         {
-            "label": "Build image",
+            "label": "Build Image (nakama)",
             "type":"shell",
             "command": "make",
             "args": ["image"],
@@ -51,6 +51,26 @@
                 "kind": "build",
                 "isDefault": true
             },
+        },
+        {
+            "label": "Build Image (nakama-pluginbuilder)",
+            "type":"shell",
+            "command": "make",
+            "args": ["pluginbuilder-image"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+        },
+        {
+            "label": "Build Images",
+            "dependsOn": [
+                "Build Image (nakama)", 
+                "Build Image (nakama-pluginbuilder)"
+            ]
         },
     ]
   }
