@@ -2941,7 +2941,7 @@ func (n *RuntimeLuaNakamaModule) walletLedgerList(l *lua.LState) int {
 func (n *RuntimeLuaNakamaModule) storageList(l *lua.LState) int {
 	userIDString := l.OptString(1, "")
 	collection := l.OptString(2, "")
-	limit := l.CheckInt(3)
+	limit := l.OptInt(3, 100)
 	cursor := l.OptString(4, "")
 
 	userID := uuid.Nil
