@@ -5476,7 +5476,7 @@ func (n *RuntimeLuaNakamaModule) storageList(l *lua.LState) int {
 	userIDString := l.OptString(1, "")
 	collection := l.OptString(2, "")
 
-	limit := l.CheckInt(3)
+	limit := l.OptInt(3, 100)
 	if limit < 0 {
 		l.ArgError(3, "limit must not be negative")
 		return 0
