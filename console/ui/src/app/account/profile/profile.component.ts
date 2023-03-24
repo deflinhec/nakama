@@ -17,7 +17,7 @@ import {ApiAccount, ConsoleService, UpdateAccountRequest, UserRole} from '../../
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthenticationService} from '../../authentication.service';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
-import {JSONEditor} from 'vanilla-jsoneditor';
+import {JSONEditor, TextContent} from 'vanilla-jsoneditor';
 
 @Component({
   templateUrl: './profile.component.html',
@@ -84,7 +84,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
 
     let metadata = '';
     try {
-      metadata = JSON.stringify(this.jsonEditor.get());
+      metadata = (this.jsonEditor.get() as TextContent).text;
     } catch (e) {
       this.error = e;
       this.updating = false;
