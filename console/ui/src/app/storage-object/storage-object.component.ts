@@ -14,7 +14,7 @@
 
 import {AfterViewInit, Component, ElementRef, Injectable, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot} from '@angular/router';
-import {JSONEditor} from 'vanilla-jsoneditor';
+import {JSONEditor, TextContent} from 'vanilla-jsoneditor';
 import {ApiStorageObject, ConsoleService, UserRole, WriteStorageObjectRequest} from '../console.service';
 import {Observable} from 'rxjs';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
@@ -86,7 +86,7 @@ export class StorageObjectComponent implements OnInit, AfterViewInit {
 
     let value = '';
     try {
-      value = JSON.stringify(this.jsonEditor.get());
+      value = (this.jsonEditor.get() as TextContent).text;
     } catch (e) {
       this.error = e;
       this.updating = false;

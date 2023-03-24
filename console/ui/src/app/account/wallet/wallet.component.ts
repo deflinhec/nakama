@@ -23,7 +23,7 @@ import {
 } from '../../console.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot} from '@angular/router';
 import {AuthenticationService} from '../../authentication.service';
-import {JSONEditor, JSONContent} from 'vanilla-jsoneditor';
+import {JSONEditor, TextContent} from 'vanilla-jsoneditor';
 import {Observable} from 'rxjs';
 
 @Component({
@@ -108,7 +108,7 @@ export class WalletComponent implements OnInit, AfterViewInit {
 
     let wallet = '';
     try {
-      wallet = JSON.stringify(this.jsonEditor.get());
+      wallet = (this.jsonEditor.get() as TextContent).text;
     } catch (e) {
       this.error = e;
       this.updating = false;
