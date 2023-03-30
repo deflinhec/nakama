@@ -28,6 +28,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/heroiclabs/nakama-common/api"
@@ -72,39 +73,46 @@ type RuntimeLuaModule struct {
 	Content []byte
 }
 
-func (m *RuntimeLuaModule) Hotfix(logger *zap.Logger, states ...*lua.LState) error {
+func (m *RuntimeLuaModule) Hotfix(vm *lua.LState) error {
+	vm.Push(vm.NewFunction(lua.OpenString))
+	vm.Push(lua.LString(lua.StringLibName))
+	vm.Call(1, 0)
+
 	content, err := ioutil.ReadFile(m.Path)
 	if err != nil {
 		return err
 	}
-	for _, state := range states {
-		if reg, ok := state.Get(lua.RegistryIndex).(*lua.LTable); ok {
-			if tb, ok := state.GetField(reg, "_LOADED").(*lua.LTable); ok {
-				if mt, ok := tb.Metatable.(*lua.LTable); ok {
-					if mt.RawGetString(m.Name) != lua.LNil {
-						state.Push(state.NewFunction(lua.OpenString))
-						state.Push(lua.LString(lua.StringLibName))
-						if err = state.PCall(1, 0, nil); err != nil {
-							return err
-						}
-						f, err := state.Load(bytes.NewReader(content), m.Path)
-						if err != nil {
-							return err
-						}
-						state.Push(f)
-						if err = state.PCall(0, 1, nil); err != nil {
-							return err
-						}
-						logger.Info("Hotfix", zap.String("module", m.Name))
-						mt.RawSetString(m.Name, state.Get(1))
-						state.Pop(1)
-					}
-				}
-			}
-		}
+	f, err := vm.Load(bytes.NewReader(content), m.Name)
+	if err != nil {
+		return err
+	}
+	vm.Push(f)
+	if err = vm.PCall(0, -1, nil); err != nil {
+		return err
 	}
 	m.Content = content
 	return nil
+}
+
+func (m *RuntimeLuaModule) Patch(vm *lua.LState) error {
+	// Update preload function
+	preload := vm.GetField(vm.GetField(vm.Get(lua.EnvironIndex), "package"), "preload")
+	f, err := vm.Load(bytes.NewReader(m.Content), m.Name)
+	if err != nil {
+		return err
+	}
+	vm.SetField(preload, m.Name, f)
+
+	// Update preload function
+	loaded := vm.GetField(vm.Get(lua.RegistryIndex), "_LOADED")
+	lv := vm.GetField(loaded, m.Name)
+	if !lua.LVAsBool(lv) {
+		// Not yet evaluated
+		return nil
+	}
+
+	vm.Push(f)
+	return vm.PCall(0, -1, nil)
 }
 
 type ModuleNames []string
@@ -155,6 +163,7 @@ type RuntimeProviderLua struct {
 	metrics              Metrics
 	router               MessageRouter
 	stdLibs              map[string]lua.LGFunction
+	modulePatchRegistry  *LocalRuntimeLuaModulePatchRegistry
 
 	once         *sync.Once
 	poolCh       chan *RuntimeLua
@@ -173,6 +182,11 @@ func NewRuntimeProviderLua(logger, startupLogger *zap.Logger, db *sql.DB, protoj
 	if err != nil {
 		// Errors already logged in the function call above.
 		return nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, err
+	}
+
+	modulePatchRegistry := &LocalRuntimeLuaModulePatchRegistry{
+		MapOf:  &MapOf[uuid.UUID, chan *RuntimeLuaModule]{},
+		logger: startupLogger,
 	}
 
 	once := &sync.Once{}
@@ -206,6 +220,7 @@ func NewRuntimeProviderLua(logger, startupLogger *zap.Logger, db *sql.DB, protoj
 		leaderboardRankCache: leaderboardRankCache,
 		sessionRegistry:      sessionRegistry,
 		matchRegistry:        matchRegistry,
+		modulePatchRegistry:  modulePatchRegistry,
 		tracker:              tracker,
 		metrics:              metrics,
 		router:               router,
@@ -222,7 +237,7 @@ func NewRuntimeProviderLua(logger, startupLogger *zap.Logger, db *sql.DB, protoj
 
 	matchProvider.RegisterCreateFn("lua",
 		func(ctx context.Context, logger *zap.Logger, id uuid.UUID, node string, stopped *atomic.Bool, name string) (RuntimeMatchCore, error) {
-			return NewRuntimeLuaMatchCore(logger, name, db, protojsonMarshaler, protojsonUnmarshaler, config, version, socialClient, leaderboardCache, leaderboardRankCache, leaderboardScheduler, sessionRegistry, sessionCache, statusRegistry, matchRegistry, tracker, metrics, streamManager, router, stdLibs, once, localCache, eventFn, nil, nil, id, node, stopped, name, matchProvider)
+			return NewRuntimeLuaMatchCore(logger, name, db, protojsonMarshaler, protojsonUnmarshaler, config, version, socialClient, leaderboardCache, leaderboardRankCache, leaderboardScheduler, sessionRegistry, sessionCache, statusRegistry, matchRegistry, tracker, metrics, streamManager, router, stdLibs, once, localCache, eventFn, nil, nil, id, node, stopped, name, matchProvider, modulePatchRegistry)
 		},
 	)
 
@@ -1203,15 +1218,40 @@ func NewRuntimeProviderLua(logger, startupLogger *zap.Logger, db *sql.DB, protoj
 	}
 
 	// Perform module hotfix.
-	vms := make([]*lua.LState, 0)
 	moduleHotfixFunction = func(ctx context.Context, module string) error {
-		module = strings.ReplaceAll(module, filepath.Ext(module), "")
-		module = strings.ReplaceAll(module, string(os.PathSeparator), ".")
-		m, ok := moduleCache.Modules[module]
+		counts := uint32(0)
+		name := strings.ReplaceAll(module, filepath.Ext(module), "")
+		name = strings.ReplaceAll(name, string(os.PathSeparator), ".")
+		m, ok := moduleCache.Modules[name]
 		if !ok {
 			return fmt.Errorf("module '%v' not found", module)
 		}
-		return m.Hotfix(startupLogger, vms...)
+		for {
+			select {
+			case <-ctx.Done():
+				// Context cancelled
+				return ctx.Err()
+			case r := <-runtimeProviderLua.poolCh:
+				runtimeProviderLua.poolCh <- r
+				if counts == 0 {
+					if err := m.Hotfix(r.vm); err != nil {
+						return err
+					}
+					modulePatchRegistry.Post(m)
+				} else if err := m.Patch(r.vm); err != nil {
+					startupLogger.Warn("Failed to patch module",
+						zap.String("module", module), zap.Error(err))
+				}
+				counts++
+				if counts >= runtimeProviderLua.currentCount.Load() {
+					startupLogger.Info("Lua runtime pool patched",
+						zap.String("module", module), zap.Uint32("count", counts))
+					return nil
+				}
+			default:
+				time.Sleep(100 * time.Millisecond)
+			}
+		}
 	}
 
 	if config.GetRuntime().GetLuaReadOnlyGlobals() {
@@ -1252,7 +1292,6 @@ func NewRuntimeProviderLua(logger, startupLogger *zap.Logger, db *sql.DB, protoj
 				luaEnv:    RuntimeLuaConvertMapString(vm, config.GetRuntime().Environment),
 				callbacks: callbacksGlobals,
 			}
-			vms = append(vms, vm)
 			return r
 		}
 	} else {
@@ -1263,7 +1302,6 @@ func NewRuntimeProviderLua(logger, startupLogger *zap.Logger, db *sql.DB, protoj
 			if err != nil {
 				logger.Fatal("Failed to initialize Lua runtime", zap.Error(err))
 			}
-			vms = append(vms, r.vm)
 			return r
 		}
 	}
