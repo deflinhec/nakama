@@ -19,6 +19,7 @@ syntax = "proto3";
 
 package nakama.console;
 
+import "api.provider.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
@@ -67,9 +68,9 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 /**
  * The developer console RPC protocol service built with GRPC.
  */
-service Wallet {
+service WalletProvider {
   // Deposit amount of currency to user account.
-  rpc WalletDeposit (WalletTransactionRequest) returns (WalletBalanceResponse) {
+  rpc DepositFromWalletProvider (nakama.wallet.api.TransactionRequest) returns (nakama.wallet.api.BalanceResponse) {
     option (google.api.http) = {
       post: "/v2/console/wallet/{currency}/deposit",
       body: "*"
@@ -77,7 +78,7 @@ service Wallet {
   }
 
   // Withdraw amount of currency from user account.
-  rpc WalletWithdraw (WalletTransactionRequest) returns (WalletBalanceResponse) {
+  rpc WithdrawFromWalletProvider (nakama.wallet.api.TransactionRequest) returns (nakama.wallet.api.BalanceResponse) {
     option (google.api.http) = {
       post: "/v2/console/wallet/{currency}/withdraw",
       body: "*"
@@ -85,37 +86,8 @@ service Wallet {
   }
 
   // Get currency balance of from user account.
-  rpc WalletBalance (WalletBalanceRequest) returns (WalletBalanceResponse) {
+  rpc GetWalletBalance (nakama.wallet.api.BalanceRequest) returns (nakama.wallet.api.BalanceResponse) {
     option (google.api.http).get = "/v2/console/wallet/{currency}/{user_id}";
   }
 
-}
-
-message WalletBalanceRequest {
-  // The user ID this wallet item belongs to.
-  string user_id = 1;
-  // The currency type.
-  string currency = 2;
-}
-
-message WalletTransactionRequest {
-  // The user ID this wallet item belongs to.
-  string user_id = 1;
-  // The order id of transaction.
-  string order_id = 2;
-  // The currency type.
-  string currency = 3;
-  // The amount to withdraw.
-  int64 amount = 4;
-}
-
-message WalletBalanceResponse {
-  // The user ID this wallet item belongs to.
-  string user_id = 1;
-  // The order id of transaction.
-  string order_id = 2;
-  // The currency type.
-  string currency = 3;
-  // The amount to withdraw.
-  int64 balance = 4;
 }

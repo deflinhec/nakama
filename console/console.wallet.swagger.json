@@ -11,7 +11,7 @@
   },
   "tags": [
     {
-      "name": "Wallet"
+      "name": "WalletProvider"
     }
   ],
   "host": "127.0.0.1:7351",
@@ -28,18 +28,18 @@
     "/v2/console/wallet/{currency}/deposit": {
       "post": {
         "summary": "Deposit amount of currency to user account.",
-        "operationId": "Wallet_WalletDeposit",
+        "operationId": "WalletProvider_DepositFromWalletProvider",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/consoleWalletBalanceResponse"
+              "$ref": "#/definitions/apiBalanceResponse"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -76,25 +76,25 @@
           }
         ],
         "tags": [
-          "Wallet"
+          "WalletProvider"
         ]
       }
     },
     "/v2/console/wallet/{currency}/withdraw": {
       "post": {
         "summary": "Withdraw amount of currency from user account.",
-        "operationId": "Wallet_WalletWithdraw",
+        "operationId": "WalletProvider_WithdrawFromWalletProvider",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/consoleWalletBalanceResponse"
+              "$ref": "#/definitions/apiBalanceResponse"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -131,25 +131,25 @@
           }
         ],
         "tags": [
-          "Wallet"
+          "WalletProvider"
         ]
       }
     },
     "/v2/console/wallet/{currency}/{user_id}": {
       "get": {
         "summary": "Get currency balance of from user account.",
-        "operationId": "Wallet_WalletBalance",
+        "operationId": "WalletProvider_GetWalletBalance",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/consoleWalletBalanceResponse"
+              "$ref": "#/definitions/apiBalanceResponse"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -170,13 +170,13 @@
           }
         ],
         "tags": [
-          "Wallet"
+          "WalletProvider"
         ]
       }
     }
   },
   "definitions": {
-    "consoleWalletBalanceResponse": {
+    "apiBalanceResponse": {
       "type": "object",
       "properties": {
         "user_id": {
@@ -198,7 +198,16 @@
         }
       }
     },
-    "googlerpcStatus": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
       "type": "object",
       "properties": {
         "code": {
@@ -215,15 +224,6 @@
           }
         }
       }
-    },
-    "protobufAny": {
-      "type": "object",
-      "properties": {
-        "@type": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": {}
     }
   },
   "securityDefinitions": {

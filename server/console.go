@@ -125,9 +125,9 @@ var restrictedMethods = map[string]console.UserRole{
 	"/nakama.console.Console/UnlinkSteam":               console.UserRole_USER_ROLE_MAINTAINER,
 
 	// Wallet
-	"/nakama.console.Console/WalletBalance":  console.UserRole_USER_ROLE_MAINTAINER,
-	"/nakama.console.Console/WalletDeposit":  console.UserRole_USER_ROLE_MAINTAINER,
-	"/nakama.console.Console/WalletWithdraw": console.UserRole_USER_ROLE_MAINTAINER,
+	"/nakama.console.Console/GetWalletBalance":           console.UserRole_USER_ROLE_MAINTAINER,
+	"/nakama.console.Console/DepositFromWalletProvider":  console.UserRole_USER_ROLE_MAINTAINER,
+	"/nakama.console.Console/WithdrawFromWalletProvider": console.UserRole_USER_ROLE_MAINTAINER,
 
 	// User
 	"/nakama.console.Console/AddUser":    console.UserRole_USER_ROLE_ADMIN,
@@ -141,7 +141,7 @@ type ctxConsoleRoleKey struct{}
 
 type ConsoleServer struct {
 	console.UnimplementedConsoleServer
-	console.UnimplementedWalletServer
+	console.UnimplementedWalletProviderServer
 	logger               *zap.Logger
 	db                   *sql.DB
 	config               Config
@@ -222,7 +222,7 @@ func StartConsoleServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.D
 	}
 
 	console.RegisterConsoleServer(grpcServer, s)
-	console.RegisterWalletServer(grpcServer, s)
+	console.RegisterWalletProviderServer(grpcServer, s)
 	startupLogger.Info("Starting Console server for gRPC requests", zap.Int("port", config.GetConsole().Port-3))
 	go func() {
 		listener, err := net.Listen("tcp", fmt.Sprintf("%v:%d", config.GetConsole().Address, config.GetConsole().Port-3))
@@ -265,7 +265,7 @@ func StartConsoleServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.D
 	if err := console.RegisterConsoleHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("Console server gateway registration failed", zap.Error(err))
 	}
-	if err := console.RegisterWalletHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+	if err := console.RegisterWalletProviderHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("Console wallet server gateway registration failed", zap.Error(err))
 	}
 

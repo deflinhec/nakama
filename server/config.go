@@ -46,6 +46,7 @@ type Config interface {
 	GetConsole() *ConsoleConfig
 	GetLeaderboard() *LeaderboardConfig
 	GetMatchmaker() *MatchmakerConfig
+	GetWallet() *WalletConfig
 	GetConsul() *ConsulConfig
 	GetIAP() *IAPConfig
 
@@ -441,6 +442,7 @@ type config struct {
 	Leaderboard      *LeaderboardConfig `yaml:"leaderboard" json:"leaderboard" usage:"Leaderboard settings."`
 	Matchmaker       *MatchmakerConfig  `yaml:"matchmaker" json:"matchmaker" usage:"Matchmaker settings."`
 	Consul           *ConsulConfig      `yaml:"consul" json:"consul" usage:"Consul settings."`
+	Wallet           *WalletConfig      `yaml:"wallet" json:"wallet" usage:"Wallet settings."`
 	IAP              *IAPConfig         `yaml:"iap" json:"iap" usage:"In-App Purchase settings."`
 }
 
@@ -467,6 +469,7 @@ func NewConfig(logger *zap.Logger) *config {
 		Leaderboard:      NewLeaderboardConfig(),
 		Matchmaker:       NewMatchmakerConfig(),
 		Consul:           NewConsulConfig(),
+		Wallet:           NewWalletConfig(),
 		IAP:              NewIAPConfig(),
 	}
 }
@@ -485,6 +488,7 @@ func (c *config) Clone() (Config, error) {
 	configLeaderboard := *(c.Leaderboard)
 	configMatchmaker := *(c.Matchmaker)
 	configConsul := *(c.Consul)
+	configWallet := *(c.Wallet)
 	configIAP := *(c.IAP)
 	nc := &config{
 		Name:             c.Name,
@@ -503,6 +507,7 @@ func (c *config) Clone() (Config, error) {
 		Leaderboard:      &configLeaderboard,
 		Matchmaker:       &configMatchmaker,
 		Consul:           &configConsul,
+		Wallet:           &configWallet,
 		IAP:              &configIAP,
 	}
 	nc.Socket.CertPEMBlock = make([]byte, len(c.Socket.CertPEMBlock))
@@ -592,6 +597,10 @@ func (c *config) GetMatchmaker() *MatchmakerConfig {
 
 func (c *config) GetConsul() *ConsulConfig {
 	return c.Consul
+}
+
+func (c *config) GetWallet() *WalletConfig {
+	return c.Wallet
 }
 
 func (c *config) GetIAP() *IAPConfig {
@@ -978,6 +987,18 @@ func NewConsulConfig() *ConsulConfig {
 		Address: "localhost",
 		Port:    8500,
 		TTLms:   5000,
+	}
+}
+
+type WalletConfig struct {
+	Address string `yaml:"address" json:"address" usage:"The IP address of the wallet server. Default localhost."`
+	Port    int    `yaml:"port" json:"port" usage:"Wallet service port. Default 3000."`
+}
+
+func NewWalletConfig() *WalletConfig {
+	return &WalletConfig{
+		Address: "localhost",
+		Port:    3000,
 	}
 }
 

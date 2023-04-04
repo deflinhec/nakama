@@ -15,6 +15,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/heroiclabs/nakama/v3/apiwallet"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
@@ -31,8 +32,8 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
-func request_Wallet_WalletDeposit_0(ctx context.Context, marshaler runtime.Marshaler, client WalletClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq WalletTransactionRequest
+func request_WalletProvider_DepositFromWalletProvider_0(ctx context.Context, marshaler runtime.Marshaler, client WalletProviderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq apiwallet.TransactionRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -60,13 +61,13 @@ func request_Wallet_WalletDeposit_0(ctx context.Context, marshaler runtime.Marsh
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "currency", err)
 	}
 
-	msg, err := client.WalletDeposit(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.DepositFromWalletProvider(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Wallet_WalletDeposit_0(ctx context.Context, marshaler runtime.Marshaler, server WalletServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq WalletTransactionRequest
+func local_request_WalletProvider_DepositFromWalletProvider_0(ctx context.Context, marshaler runtime.Marshaler, server WalletProviderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq apiwallet.TransactionRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -94,13 +95,13 @@ func local_request_Wallet_WalletDeposit_0(ctx context.Context, marshaler runtime
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "currency", err)
 	}
 
-	msg, err := server.WalletDeposit(ctx, &protoReq)
+	msg, err := server.DepositFromWalletProvider(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_Wallet_WalletWithdraw_0(ctx context.Context, marshaler runtime.Marshaler, client WalletClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq WalletTransactionRequest
+func request_WalletProvider_WithdrawFromWalletProvider_0(ctx context.Context, marshaler runtime.Marshaler, client WalletProviderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq apiwallet.TransactionRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -128,13 +129,13 @@ func request_Wallet_WalletWithdraw_0(ctx context.Context, marshaler runtime.Mars
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "currency", err)
 	}
 
-	msg, err := client.WalletWithdraw(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.WithdrawFromWalletProvider(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Wallet_WalletWithdraw_0(ctx context.Context, marshaler runtime.Marshaler, server WalletServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq WalletTransactionRequest
+func local_request_WalletProvider_WithdrawFromWalletProvider_0(ctx context.Context, marshaler runtime.Marshaler, server WalletProviderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq apiwallet.TransactionRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -162,13 +163,13 @@ func local_request_Wallet_WalletWithdraw_0(ctx context.Context, marshaler runtim
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "currency", err)
 	}
 
-	msg, err := server.WalletWithdraw(ctx, &protoReq)
+	msg, err := server.WithdrawFromWalletProvider(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_Wallet_WalletBalance_0(ctx context.Context, marshaler runtime.Marshaler, client WalletClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq WalletBalanceRequest
+func request_WalletProvider_GetWalletBalance_0(ctx context.Context, marshaler runtime.Marshaler, client WalletProviderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq apiwallet.BalanceRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -198,13 +199,13 @@ func request_Wallet_WalletBalance_0(ctx context.Context, marshaler runtime.Marsh
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
 	}
 
-	msg, err := client.WalletBalance(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetWalletBalance(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Wallet_WalletBalance_0(ctx context.Context, marshaler runtime.Marshaler, server WalletServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq WalletBalanceRequest
+func local_request_WalletProvider_GetWalletBalance_0(ctx context.Context, marshaler runtime.Marshaler, server WalletProviderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq apiwallet.BalanceRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -234,18 +235,18 @@ func local_request_Wallet_WalletBalance_0(ctx context.Context, marshaler runtime
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
 	}
 
-	msg, err := server.WalletBalance(ctx, &protoReq)
+	msg, err := server.GetWalletBalance(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-// RegisterWalletHandlerServer registers the http handlers for service Wallet to "mux".
-// UnaryRPC     :call WalletServer directly.
+// RegisterWalletProviderHandlerServer registers the http handlers for service WalletProvider to "mux".
+// UnaryRPC     :call WalletProviderServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterWalletHandlerFromEndpoint instead.
-func RegisterWalletHandlerServer(ctx context.Context, mux *runtime.ServeMux, server WalletServer) error {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterWalletProviderHandlerFromEndpoint instead.
+func RegisterWalletProviderHandlerServer(ctx context.Context, mux *runtime.ServeMux, server WalletProviderServer) error {
 
-	mux.Handle("POST", pattern_Wallet_WalletDeposit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_WalletProvider_DepositFromWalletProvider_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -253,12 +254,12 @@ func RegisterWalletHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.console.Wallet/WalletDeposit", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/deposit"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.console.WalletProvider/DepositFromWalletProvider", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/deposit"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Wallet_WalletDeposit_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_WalletProvider_DepositFromWalletProvider_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -266,11 +267,11 @@ func RegisterWalletHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Wallet_WalletDeposit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WalletProvider_DepositFromWalletProvider_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Wallet_WalletWithdraw_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_WalletProvider_WithdrawFromWalletProvider_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -278,12 +279,12 @@ func RegisterWalletHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.console.Wallet/WalletWithdraw", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/withdraw"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.console.WalletProvider/WithdrawFromWalletProvider", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/withdraw"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Wallet_WalletWithdraw_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_WalletProvider_WithdrawFromWalletProvider_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -291,11 +292,11 @@ func RegisterWalletHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Wallet_WalletWithdraw_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WalletProvider_WithdrawFromWalletProvider_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_Wallet_WalletBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_WalletProvider_GetWalletBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -303,12 +304,12 @@ func RegisterWalletHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.console.Wallet/WalletBalance", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/{user_id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.console.WalletProvider/GetWalletBalance", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/{user_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Wallet_WalletBalance_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_WalletProvider_GetWalletBalance_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -316,16 +317,16 @@ func RegisterWalletHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Wallet_WalletBalance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WalletProvider_GetWalletBalance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterWalletHandlerFromEndpoint is same as RegisterWalletHandler but
+// RegisterWalletProviderHandlerFromEndpoint is same as RegisterWalletProviderHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterWalletHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterWalletProviderHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -345,85 +346,85 @@ func RegisterWalletHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMu
 		}()
 	}()
 
-	return RegisterWalletHandler(ctx, mux, conn)
+	return RegisterWalletProviderHandler(ctx, mux, conn)
 }
 
-// RegisterWalletHandler registers the http handlers for service Wallet to "mux".
+// RegisterWalletProviderHandler registers the http handlers for service WalletProvider to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterWalletHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterWalletHandlerClient(ctx, mux, NewWalletClient(conn))
+func RegisterWalletProviderHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterWalletProviderHandlerClient(ctx, mux, NewWalletProviderClient(conn))
 }
 
-// RegisterWalletHandlerClient registers the http handlers for service Wallet
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "WalletClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "WalletClient"
+// RegisterWalletProviderHandlerClient registers the http handlers for service WalletProvider
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "WalletProviderClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "WalletProviderClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "WalletClient" to call the correct interceptors.
-func RegisterWalletHandlerClient(ctx context.Context, mux *runtime.ServeMux, client WalletClient) error {
+// "WalletProviderClient" to call the correct interceptors.
+func RegisterWalletProviderHandlerClient(ctx context.Context, mux *runtime.ServeMux, client WalletProviderClient) error {
 
-	mux.Handle("POST", pattern_Wallet_WalletDeposit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_WalletProvider_DepositFromWalletProvider_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.console.Wallet/WalletDeposit", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/deposit"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.console.WalletProvider/DepositFromWalletProvider", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/deposit"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Wallet_WalletDeposit_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_WalletProvider_DepositFromWalletProvider_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Wallet_WalletDeposit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WalletProvider_DepositFromWalletProvider_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Wallet_WalletWithdraw_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_WalletProvider_WithdrawFromWalletProvider_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.console.Wallet/WalletWithdraw", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/withdraw"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.console.WalletProvider/WithdrawFromWalletProvider", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/withdraw"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Wallet_WalletWithdraw_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_WalletProvider_WithdrawFromWalletProvider_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Wallet_WalletWithdraw_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WalletProvider_WithdrawFromWalletProvider_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_Wallet_WalletBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_WalletProvider_GetWalletBalance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.console.Wallet/WalletBalance", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/{user_id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.console.WalletProvider/GetWalletBalance", runtime.WithHTTPPathPattern("/v2/console/wallet/{currency}/{user_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Wallet_WalletBalance_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_WalletProvider_GetWalletBalance_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Wallet_WalletBalance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WalletProvider_GetWalletBalance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -431,17 +432,17 @@ func RegisterWalletHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 }
 
 var (
-	pattern_Wallet_WalletDeposit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v2", "console", "wallet", "currency", "deposit"}, ""))
+	pattern_WalletProvider_DepositFromWalletProvider_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v2", "console", "wallet", "currency", "deposit"}, ""))
 
-	pattern_Wallet_WalletWithdraw_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v2", "console", "wallet", "currency", "withdraw"}, ""))
+	pattern_WalletProvider_WithdrawFromWalletProvider_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v2", "console", "wallet", "currency", "withdraw"}, ""))
 
-	pattern_Wallet_WalletBalance_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4}, []string{"v2", "console", "wallet", "currency", "user_id"}, ""))
+	pattern_WalletProvider_GetWalletBalance_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4}, []string{"v2", "console", "wallet", "currency", "user_id"}, ""))
 )
 
 var (
-	forward_Wallet_WalletDeposit_0 = runtime.ForwardResponseMessage
+	forward_WalletProvider_DepositFromWalletProvider_0 = runtime.ForwardResponseMessage
 
-	forward_Wallet_WalletWithdraw_0 = runtime.ForwardResponseMessage
+	forward_WalletProvider_WithdrawFromWalletProvider_0 = runtime.ForwardResponseMessage
 
-	forward_Wallet_WalletBalance_0 = runtime.ForwardResponseMessage
+	forward_WalletProvider_GetWalletBalance_0 = runtime.ForwardResponseMessage
 )
