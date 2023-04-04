@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
@@ -17,19 +18,13 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/fatih/color"
 )
 
-// TimeFormat is the time format to use for plain (non-JSON) output.
-// This is a version of RFC3339 that contains millisecond precision.
+// TimeFormat to use for logging. This is a version of RFC3339 that contains
+// contains millisecond precision
 const TimeFormat = "2006-01-02T15:04:05.000Z0700"
-
-// TimeFormatJSON is the time format to use for JSON output.
-// This is a version of RFC3339 that contains microsecond precision.
-const TimeFormatJSON = "2006-01-02T15:04:05.000000Z07:00"
 
 // errJsonUnsupportedTypeMsg is included in log json entries, if an arg cannot be serialized to json
 const errJsonUnsupportedTypeMsg = "logging contained values that don't serialize to json"
@@ -50,12 +45,6 @@ var (
 		Warn:  color.New(color.FgHiYellow),
 		Error: color.New(color.FgHiRed),
 	}
-
-	faintBoldColor                 = color.New(color.Faint, color.Bold)
-	faintColor                     = color.New(color.Faint)
-	faintMultiLinePrefix           = faintColor.Sprint("  | ")
-	faintFieldSeparator            = faintColor.Sprint("=")
-	faintFieldSeparatorWithNewLine = faintColor.Sprint("=\n")
 )
 
 // Make sure that intLogger is a Logger
@@ -64,28 +53,18 @@ var _ Logger = &intLogger{}
 // intLogger is an internal logger implementation. Internal in that it is
 // defined entirely by this package.
 type intLogger struct {
-	json         bool
-	callerOffset int
-	name         string
-	timeFormat   string
-	timeFn       TimeFunction
-	disableTime  bool
+	json       bool
+	caller     bool
+	name       string
+	timeFormat string
 
-	// This is an interface so that it's shared by any derived loggers, since
+	// This is a pointer so that it's shared by any derived loggers, since
 	// those derived loggers share the bufio.Writer as well.
-	mutex  Locker
+	mutex  *sync.Mutex
 	writer *writer
 	level  *int32
 
-	headerColor ColorOption
-	fieldColor  ColorOption
-
 	implied []interface{}
-
-	exclude func(level Level, msg string, args ...interface{}) bool
-
-	// create subloggers with their own level setting
-	independentLevels bool
 }
 
 // New returns a configured logger.
@@ -96,12 +75,7 @@ func New(opts *LoggerOptions) Logger {
 // NewSinkAdapter returns a SinkAdapter with configured settings
 // defined by LoggerOptions
 func NewSinkAdapter(opts *LoggerOptions) SinkAdapter {
-	l := newLogger(opts)
-	if l.callerOffset > 0 {
-		// extra frames for interceptLogger.{Warn,Info,Log,etc...}, and SinkAdapter.Accept
-		l.callerOffset += 2
-	}
-	return l
+	return newLogger(opts)
 }
 
 func newLogger(opts *LoggerOptions) *intLogger {
@@ -124,59 +98,26 @@ func newLogger(opts *LoggerOptions) *intLogger {
 		mutex = new(sync.Mutex)
 	}
 
-	var (
-		primaryColor ColorOption = ColorOff
-		headerColor  ColorOption = ColorOff
-		fieldColor   ColorOption = ColorOff
-	)
-	switch {
-	case opts.ColorHeaderOnly:
-		headerColor = opts.Color
-	case opts.ColorHeaderAndFields:
-		fieldColor = opts.Color
-		headerColor = opts.Color
-	default:
-		primaryColor = opts.Color
-	}
-
 	l := &intLogger{
-		json:              opts.JSONFormat,
-		name:              opts.Name,
-		timeFormat:        TimeFormat,
-		timeFn:            time.Now,
-		disableTime:       opts.DisableTime,
-		mutex:             mutex,
-		writer:            newWriter(output, primaryColor),
-		level:             new(int32),
-		exclude:           opts.Exclude,
-		independentLevels: opts.IndependentLevels,
-		headerColor:       headerColor,
-		fieldColor:        fieldColor,
-	}
-	if opts.IncludeLocation {
-		l.callerOffset = offsetIntLogger + opts.AdditionalLocationOffset
-	}
-
-	if l.json {
-		l.timeFormat = TimeFormatJSON
-	}
-	if opts.TimeFn != nil {
-		l.timeFn = opts.TimeFn
-	}
-	if opts.TimeFormat != "" {
-		l.timeFormat = opts.TimeFormat
+		json:       opts.JSONFormat,
+		caller:     opts.IncludeLocation,
+		name:       opts.Name,
+		timeFormat: TimeFormat,
+		mutex:      mutex,
+		writer:     newWriter(output, opts.Color),
+		level:      new(int32),
 	}
 
 	l.setColorization(opts)
+
+	if opts.TimeFormat != "" {
+		l.timeFormat = opts.TimeFormat
+	}
 
 	atomic.StoreInt32(l.level, int32(level))
 
 	return l
 }
-
-// offsetIntLogger is the stack frame offset in the call stack for the caller to
-// one of the Warn, Info, Log, etc methods.
-const offsetIntLogger = 3
 
 // Log a message and a set of key/value pairs if the given level is at
 // or more severe that the threshold configured in the Logger.
@@ -185,14 +126,10 @@ func (l *intLogger) log(name string, level Level, msg string, args ...interface{
 		return
 	}
 
-	t := l.timeFn()
+	t := time.Now()
 
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
-
-	if l.exclude != nil && l.exclude(level, msg, args...) {
-		return
-	}
 
 	if l.json {
 		l.logJSON(t, name, level, msg, args...)
@@ -232,56 +169,32 @@ func trimCallerPath(path string) string {
 	return path[idx+1:]
 }
 
-// isNormal indicates if the rune is one allowed to exist as an unquoted
-// string value. This is a subset of ASCII, `-` through `~`.
-func isNormal(r rune) bool {
-	return 0x2D <= r && r <= 0x7E // - through ~
-}
+var logImplFile = regexp.MustCompile(`github.com/hashicorp/go-hclog/.+logger.go$`)
 
-// needsQuoting returns false if all the runes in string are normal, according
-// to isNormal
-func needsQuoting(str string) bool {
-	for _, r := range str {
-		if !isNormal(r) {
-			return true
-		}
-	}
-
-	return false
-}
-
-// logPlain is the non-JSON logging format function which writes directly
-// to the underlying writer the logger was initialized with.
-//
-// If the logger was initialized with a color function, it also handles
-// applying the color to the log message.
-//
-// Color Options
-//  1. No color.
-//  2. Color the whole log line, based on the level.
-//  3. Color only the header (level) part of the log line.
-//  4. Color both the header and fields of the log line.
+// Non-JSON logging format function
 func (l *intLogger) logPlain(t time.Time, name string, level Level, msg string, args ...interface{}) {
-
-	if !l.disableTime {
-		l.writer.WriteString(t.Format(l.timeFormat))
-		l.writer.WriteByte(' ')
-	}
+	l.writer.WriteString(t.Format(l.timeFormat))
+	l.writer.WriteByte(' ')
 
 	s, ok := _levelToBracket[level]
 	if ok {
-		if l.headerColor != ColorOff {
-			color := _levelToColor[level]
-			color.Fprint(l.writer, s)
-		} else {
-			l.writer.WriteString(s)
-		}
+		l.writer.WriteString(s)
 	} else {
 		l.writer.WriteString("[?????]")
 	}
 
-	if l.callerOffset > 0 {
-		if _, file, line, ok := runtime.Caller(l.callerOffset); ok {
+	offset := 3
+	if l.caller {
+		// Check if the caller is inside our package and inside
+		// a logger implementation file
+		if _, file, _, ok := runtime.Caller(3); ok {
+			match := logImplFile.MatchString(file)
+			if match {
+				offset = 4
+			}
+		}
+
+		if _, file, line, ok := runtime.Caller(offset); ok {
 			l.writer.WriteByte(' ')
 			l.writer.WriteString(trimCallerPath(file))
 			l.writer.WriteByte(':')
@@ -294,19 +207,16 @@ func (l *intLogger) logPlain(t time.Time, name string, level Level, msg string, 
 
 	if name != "" {
 		l.writer.WriteString(name)
-		if msg != "" {
-			l.writer.WriteString(": ")
-			l.writer.WriteString(msg)
-		}
-	} else if msg != "" {
-		l.writer.WriteString(msg)
+		l.writer.WriteString(": ")
 	}
+
+	l.writer.WriteString(msg)
 
 	args = append(l.implied, args...)
 
 	var stacktrace CapturedStacktrace
 
-	if len(args) > 0 {
+	if args != nil && len(args) > 0 {
 		if len(args)%2 != 0 {
 			cs, ok := args[len(args)-1].(CapturedStacktrace)
 			if ok {
@@ -320,23 +230,16 @@ func (l *intLogger) logPlain(t time.Time, name string, level Level, msg string, 
 
 		l.writer.WriteByte(':')
 
-		// Handle the field arguments, which come in pairs (key=val).
 	FOR:
 		for i := 0; i < len(args); i = i + 2 {
 			var (
-				key string
 				val string
 				raw bool
 			)
 
-			// Convert the field value to a string.
 			switch st := args[i+1].(type) {
 			case string:
 				val = st
-				if st == "" {
-					val = `""`
-					raw = true
-				}
 			case int:
 				val = strconv.FormatInt(int64(st), 10)
 			case int64:
@@ -357,20 +260,11 @@ func (l *intLogger) logPlain(t time.Time, name string, level Level, msg string, 
 				val = strconv.FormatUint(uint64(st), 10)
 			case uint8:
 				val = strconv.FormatUint(uint64(st), 10)
-			case Hex:
-				val = "0x" + strconv.FormatUint(uint64(st), 16)
-			case Octal:
-				val = "0" + strconv.FormatUint(uint64(st), 8)
-			case Binary:
-				val = "0b" + strconv.FormatUint(uint64(st), 2)
 			case CapturedStacktrace:
 				stacktrace = st
 				continue FOR
 			case Format:
 				val = fmt.Sprintf(st[0].(string), st[1:]...)
-			case Quote:
-				raw = true
-				val = strconv.Quote(string(st))
 			default:
 				v := reflect.ValueOf(st)
 				if v.Kind() == reflect.Slice {
@@ -381,57 +275,20 @@ func (l *intLogger) logPlain(t time.Time, name string, level Level, msg string, 
 				}
 			}
 
-			// Convert the field key to a string.
+			l.writer.WriteByte(' ')
 			switch st := args[i].(type) {
 			case string:
-				key = st
+				l.writer.WriteString(st)
 			default:
-				key = fmt.Sprintf("%s", st)
+				l.writer.WriteString(fmt.Sprintf("%s", st))
 			}
+			l.writer.WriteByte('=')
 
-			// Optionally apply the ANSI "faint" and "bold"
-			// SGR values to the key.
-			if l.fieldColor != ColorOff {
-				key = faintBoldColor.Sprint(key)
-			}
-
-			// Values may contain multiple lines, and that format
-			// is preserved, with each line prefixed with a "  | "
-			// to show it's part of a collection of lines.
-			//
-			// Values may also need quoting, if not all the runes
-			// in the value string are "normal", like if they
-			// contain ANSI escape sequences.
-			if strings.Contains(val, "\n") {
-				l.writer.WriteString("\n  ")
-				l.writer.WriteString(key)
-				if l.fieldColor != ColorOff {
-					l.writer.WriteString(faintFieldSeparatorWithNewLine)
-					writeIndent(l.writer, val, faintMultiLinePrefix)
-				} else {
-					l.writer.WriteString("=\n")
-					writeIndent(l.writer, val, "  | ")
-				}
-				l.writer.WriteString("  ")
-			} else if !raw && needsQuoting(val) {
-				l.writer.WriteByte(' ')
-				l.writer.WriteString(key)
-				if l.fieldColor != ColorOff {
-					l.writer.WriteString(faintFieldSeparator)
-				} else {
-					l.writer.WriteByte('=')
-				}
+			if !raw && strings.ContainsAny(val, " \t\n\r") {
 				l.writer.WriteByte('"')
-				writeEscapedForOutput(l.writer, val, true)
+				l.writer.WriteString(val)
 				l.writer.WriteByte('"')
 			} else {
-				l.writer.WriteByte(' ')
-				l.writer.WriteString(key)
-				if l.fieldColor != ColorOff {
-					l.writer.WriteString(faintFieldSeparator)
-				} else {
-					l.writer.WriteByte('=')
-				}
 				l.writer.WriteString(val)
 			}
 		}
@@ -441,106 +298,7 @@ func (l *intLogger) logPlain(t time.Time, name string, level Level, msg string, 
 
 	if stacktrace != "" {
 		l.writer.WriteString(string(stacktrace))
-		l.writer.WriteString("\n")
 	}
-}
-
-func writeIndent(w *writer, str string, indent string) {
-	for {
-		nl := strings.IndexByte(str, "\n"[0])
-		if nl == -1 {
-			if str != "" {
-				w.WriteString(indent)
-				writeEscapedForOutput(w, str, false)
-				w.WriteString("\n")
-			}
-			return
-		}
-
-		w.WriteString(indent)
-		writeEscapedForOutput(w, str[:nl], false)
-		w.WriteString("\n")
-		str = str[nl+1:]
-	}
-}
-
-func needsEscaping(str string) bool {
-	for _, b := range str {
-		if !unicode.IsPrint(b) || b == '"' {
-			return true
-		}
-	}
-
-	return false
-}
-
-const (
-	lowerhex = "0123456789abcdef"
-)
-
-var bufPool = sync.Pool{
-	New: func() interface{} {
-		return new(bytes.Buffer)
-	},
-}
-
-func writeEscapedForOutput(w io.Writer, str string, escapeQuotes bool) {
-	if !needsEscaping(str) {
-		w.Write([]byte(str))
-		return
-	}
-
-	bb := bufPool.Get().(*bytes.Buffer)
-	bb.Reset()
-
-	defer bufPool.Put(bb)
-
-	for _, r := range str {
-		if escapeQuotes && r == '"' {
-			bb.WriteString(`\"`)
-		} else if unicode.IsPrint(r) {
-			bb.WriteRune(r)
-		} else {
-			switch r {
-			case '\a':
-				bb.WriteString(`\a`)
-			case '\b':
-				bb.WriteString(`\b`)
-			case '\f':
-				bb.WriteString(`\f`)
-			case '\n':
-				bb.WriteString(`\n`)
-			case '\r':
-				bb.WriteString(`\r`)
-			case '\t':
-				bb.WriteString(`\t`)
-			case '\v':
-				bb.WriteString(`\v`)
-			default:
-				switch {
-				case r < ' ':
-					bb.WriteString(`\x`)
-					bb.WriteByte(lowerhex[byte(r)>>4])
-					bb.WriteByte(lowerhex[byte(r)&0xF])
-				case !utf8.ValidRune(r):
-					r = 0xFFFD
-					fallthrough
-				case r < 0x10000:
-					bb.WriteString(`\u`)
-					for s := 12; s >= 0; s -= 4 {
-						bb.WriteByte(lowerhex[r>>uint(s)&0xF])
-					}
-				default:
-					bb.WriteString(`\U`)
-					for s := 28; s >= 0; s -= 4 {
-						bb.WriteByte(lowerhex[r>>uint(s)&0xF])
-					}
-				}
-			}
-		}
-	}
-
-	w.Write(bb.Bytes())
 }
 
 func (l *intLogger) renderSlice(v reflect.Value) string {
@@ -559,19 +317,22 @@ func (l *intLogger) renderSlice(v reflect.Value) string {
 
 		switch sv.Kind() {
 		case reflect.String:
-			val = strconv.Quote(sv.String())
+			val = sv.String()
 		case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
 			val = strconv.FormatInt(sv.Int(), 10)
 		case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			val = strconv.FormatUint(sv.Uint(), 10)
 		default:
 			val = fmt.Sprintf("%v", sv.Interface())
-			if strings.ContainsAny(val, " \t\n\r") {
-				val = strconv.Quote(val)
-			}
 		}
 
-		buf.WriteString(val)
+		if strings.ContainsAny(val, " \t\n\r") {
+			buf.WriteByte('"')
+			buf.WriteString(val)
+			buf.WriteByte('"')
+		} else {
+			buf.WriteString(val)
+		}
 	}
 
 	buf.WriteRune(']')
@@ -637,10 +398,8 @@ func (l *intLogger) logJSON(t time.Time, name string, level Level, msg string, a
 
 func (l intLogger) jsonMapEntry(t time.Time, name string, level Level, msg string) map[string]interface{} {
 	vals := map[string]interface{}{
-		"@message": msg,
-	}
-	if !l.disableTime {
-		vals["@timestamp"] = t.Format(l.timeFormat)
+		"@message":   msg,
+		"@timestamp": t.Format("2006-01-02T15:04:05.000000Z07:00"),
 	}
 
 	var levelStr string
@@ -665,8 +424,8 @@ func (l intLogger) jsonMapEntry(t time.Time, name string, level Level, msg strin
 		vals["@module"] = name
 	}
 
-	if l.callerOffset > 0 {
-		if _, file, line, ok := runtime.Caller(l.callerOffset + 1); ok {
+	if l.caller {
+		if _, file, line, ok := runtime.Caller(4); ok {
 			vals["@caller"] = fmt.Sprintf("%s:%d", file, line)
 		}
 	}
@@ -741,7 +500,7 @@ func (l *intLogger) With(args ...interface{}) Logger {
 		args = args[:len(args)-1]
 	}
 
-	sl := l.copy()
+	sl := *l
 
 	result := make(map[string]interface{}, len(l.implied)+len(args))
 	keys := make([]string, 0, len(l.implied)+len(args))
@@ -775,13 +534,13 @@ func (l *intLogger) With(args ...interface{}) Logger {
 		sl.implied = append(sl.implied, MissingKey, extra)
 	}
 
-	return sl
+	return &sl
 }
 
 // Create a new sub-Logger that a name decending from the current name.
 // This is used to create a subsystem specific Logger.
 func (l *intLogger) Named(name string) Logger {
-	sl := l.copy()
+	sl := *l
 
 	if sl.name != "" {
 		sl.name = sl.name + "." + name
@@ -789,18 +548,18 @@ func (l *intLogger) Named(name string) Logger {
 		sl.name = name
 	}
 
-	return sl
+	return &sl
 }
 
 // Create a new sub-Logger with an explicit name. This ignores the current
 // name. This is used to create a standalone logger that doesn't fall
 // within the normal hierarchy.
 func (l *intLogger) ResetNamed(name string) Logger {
-	sl := l.copy()
+	sl := *l
 
 	sl.name = name
 
-	return sl
+	return &sl
 }
 
 func (l *intLogger) ResetOutput(opts *LoggerOptions) error {
@@ -844,11 +603,6 @@ func (l *intLogger) SetLevel(level Level) {
 	atomic.StoreInt32(l.level, int32(level))
 }
 
-// Returns the current level
-func (l *intLogger) GetLevel() Level {
-	return Level(atomic.LoadInt32(l.level))
-}
-
 // Create a *log.Logger that will send it's data through this Logger. This
 // allows packages that expect to be using the standard library log to actually
 // use this logger.
@@ -861,18 +615,10 @@ func (l *intLogger) StandardLogger(opts *StandardLoggerOptions) *log.Logger {
 }
 
 func (l *intLogger) StandardWriter(opts *StandardLoggerOptions) io.Writer {
-	newLog := *l
-	if l.callerOffset > 0 {
-		// the stack is
-		// logger.printf() -> l.Output() ->l.out.writer(hclog:stdlogAdaptor.write) -> hclog:stdlogAdaptor.dispatch()
-		// So plus 4.
-		newLog.callerOffset = l.callerOffset + 4
-	}
 	return &stdlogAdapter{
-		log:                      &newLog,
-		inferLevels:              opts.InferLevels,
-		inferLevelsWithTimestamp: opts.InferLevelsWithTimestamp,
-		forceLevel:               opts.ForceLevel,
+		log:         l,
+		inferLevels: opts.InferLevels,
+		forceLevel:  opts.ForceLevel,
 	}
 }
 
@@ -899,17 +645,4 @@ func (i *intLogger) ImpliedArgs() []interface{} {
 // Name returns the loggers name
 func (i *intLogger) Name() string {
 	return i.name
-}
-
-// copy returns a shallow copy of the intLogger, replacing the level pointer
-// when necessary
-func (l *intLogger) copy() *intLogger {
-	sl := *l
-
-	if l.independentLevels {
-		sl.level = new(int32)
-		*sl.level = *l.level
-	}
-
-	return &sl
 }

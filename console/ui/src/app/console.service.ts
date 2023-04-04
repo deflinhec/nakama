@@ -187,8 +187,12 @@ export interface Leaderboard {
 	max_size?:number
   // Additional information stored as a JSON object.
 	metadata?:string
+  // The UNIX time when the tournament is next playable. A computed value.
+	next_reset?:number
   // The operator of the leaderboard
 	operator?:number
+  // The UNIX time when the tournament was last reset. A computed value.
+	prev_reset?:number
   // Reset cron expression.
 	reset_schedule?:string
   // The current number of players in the leaderboard.
@@ -443,13 +447,13 @@ export interface ApiAccount {
 	custom_id?:string
   // The devices which belong to the user's account.
 	devices?:Array<ApiAccountDevice>
-  // The UNIX time when the user's account was disabled/banned.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the user's account was disabled/banned.
 	disable_time?:string
   // The email address of the user.
 	email?:string
   // The user object.
 	user?:ApiUser
-  // The UNIX time when the user's email was verified.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the user's email was verified.
 	verify_time?:string
   // The user's wallet data.
 	wallet?:string
@@ -471,7 +475,7 @@ export interface ApiChannelMessage {
 	code?:number
   // The content payload.
 	content?:string
-  // The UNIX time when the message was created.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the message was created.
 	create_time?:string
   // The ID of the group, or an empty string if this message was not sent through a group channel.
 	group_id?:string
@@ -483,7 +487,7 @@ export interface ApiChannelMessage {
 	room_name?:string
   // Message sender, usually a user ID.
 	sender_id?:string
-  // The UNIX time when the message was last updated.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the message was last updated.
 	update_time?:string
   // The ID of the first DM user, or an empty string if this message was not sent through a DM chat.
 	user_id_one?:string
@@ -527,7 +531,7 @@ export interface ApiFriendList {
 export interface ApiGroup {
   // A URL for an avatar image.
 	avatar_url?:string
-  // The UNIX time when the group was created.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the group was created.
 	create_time?:string
   // The id of the user who created the group.
 	creator_id?:string
@@ -547,7 +551,7 @@ export interface ApiGroup {
 	name?:string
   // Anyone can join open groups, otherwise only admins can accept members.
 	open?:boolean
-  // The UNIX time when the group was last updated.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the group was last updated.
 	update_time?:string
 }
 
@@ -561,9 +565,9 @@ export interface ApiGroupUserList {
 
 /** Represents a complete leaderboard record with all scores and associated metadata. */
 export interface ApiLeaderboardRecord {
-  // The UNIX time when the leaderboard record was created.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the leaderboard record was created.
 	create_time?:string
-  // The UNIX time when the leaderboard record expires.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the leaderboard record expires.
 	expiry_time?:string
   // The ID of the leaderboard this score belongs to.
 	leaderboard_id?:string
@@ -581,7 +585,7 @@ export interface ApiLeaderboardRecord {
 	score?:string
   // An optional subscore value.
 	subscore?:string
-  // The UNIX time when the leaderboard record was updated.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the leaderboard record was updated.
 	update_time?:string
   // The username of the score owner, if the owner is a user.
 	username?:string
@@ -621,7 +625,7 @@ export interface ApiNotification {
 	code?:number
   // Content of the notification in JSON.
 	content?:string
-  // The UNIX time when the notification was created.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the notification was created.
 	create_time?:string
   // ID of the Notification.
 	id?:string
@@ -647,7 +651,7 @@ export interface ApiPurchaseList {
 export interface ApiStorageObject {
   // The collection which stores the object.
 	collection?:string
-  // The UNIX time when the object was created.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the object was created.
 	create_time?:string
   // The key of the object within the collection.
 	key?:string
@@ -655,7 +659,7 @@ export interface ApiStorageObject {
 	permission_read?:number
   // The write access permissions for the object.
 	permission_write?:number
-  // The UNIX time when the object was last updated.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the object was last updated.
 	update_time?:string
   // The user owner of the object.
 	user_id?:string
@@ -707,7 +711,7 @@ export interface ApiUser {
 	apple_id?:string
   // A URL for an avatar image.
 	avatar_url?:string
-  // The UNIX time when the user was created.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the user was created.
 	create_time?:string
   // The display name of the user.
 	display_name?:string
@@ -735,7 +739,7 @@ export interface ApiUser {
 	steam_id?:string
   // The timezone set by the user.
 	timezone?:string
-  // The UNIX time when the user was last updated.
+  // The UNIX time (for gRPC clients) or ISO string (for REST clients) when the user was last updated.
 	update_time?:string
   // The username of the user's account.
 	username?:string

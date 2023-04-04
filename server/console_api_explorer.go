@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -110,6 +111,8 @@ func (s *ConsoleServer) CallApiEndpoint(ctx context.Context, in *console.CallApi
 func (s *ConsoleServer) extractApiCallContext(ctx context.Context, in *console.CallApiEndpointRequest, userIdOptional bool) (context.Context, error) {
 	var callCtx context.Context
 	if strings.HasPrefix(in.Method, "Authenticate") {
+		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, "/nakama.api.Nakama/"+in.Method)
+	} else if match, _ := regexp.MatchString("List([a-z]+)FromWalletProvider", in.Method); match {
 		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, "/nakama.api.Nakama/"+in.Method)
 	} else if in.UserId == "" {
 		if !userIdOptional {

@@ -26,6 +26,8 @@ import (
 
 	"github.com/heroiclabs/nakama/v3/flags"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 	"gopkg.in/yaml.v3"
 )
 
@@ -46,8 +48,11 @@ type Config interface {
 	GetConsole() *ConsoleConfig
 	GetLeaderboard() *LeaderboardConfig
 	GetMatchmaker() *MatchmakerConfig
+	GetWallet() *WalletConfig
 	GetConsul() *ConsulConfig
 	GetIAP() *IAPConfig
+	GetGoogleAuth() *GoogleAuthConfig
+	GetSatori() *SatoriConfig
 
 	Clone() (Config, error)
 }
@@ -107,6 +112,14 @@ func ParseArgs(logger *zap.Logger, args []string) Config {
 		mainConfig.GetRuntime().Env = append(mainConfig.GetRuntime().Env, fmt.Sprintf("%v=%v", k, v))
 	}
 	sort.Strings(mainConfig.GetRuntime().Env)
+
+	if mainConfig.GetGoogleAuth() != nil && mainConfig.GetGoogleAuth().CredentialsJSON != "" {
+		cnf, err := google.ConfigFromJSON([]byte(mainConfig.GetGoogleAuth().CredentialsJSON))
+		if err != nil {
+			logger.Fatal("Failed to parse Google's crendentials JSON", zap.Error(err))
+		}
+		mainConfig.GetGoogleAuth().OAuthConfig = cnf
+	}
 
 	return mainConfig
 }
@@ -399,6 +412,8 @@ func CheckConfig(logger *zap.Logger, config Config) map[string]string {
 		config.GetSocket().TLSCert = []tls.Certificate{cert}
 	}
 
+	config.GetSatori().Validate(logger)
+
 	return configWarnings
 }
 
@@ -441,7 +456,10 @@ type config struct {
 	Leaderboard      *LeaderboardConfig `yaml:"leaderboard" json:"leaderboard" usage:"Leaderboard settings."`
 	Matchmaker       *MatchmakerConfig  `yaml:"matchmaker" json:"matchmaker" usage:"Matchmaker settings."`
 	Consul           *ConsulConfig      `yaml:"consul" json:"consul" usage:"Consul settings."`
+	Wallet           *WalletConfig      `yaml:"wallet" json:"wallet" usage:"Wallet settings."`
 	IAP              *IAPConfig         `yaml:"iap" json:"iap" usage:"In-App Purchase settings."`
+	GoogleAuth       *GoogleAuthConfig  `yaml:"google_auth" json:"google_auth" usage:"Google's auth settings."`
+	Satori           *SatoriConfig      `yaml:"satori" json:"satori" usage:"Satori integration settings."`
 }
 
 // NewConfig constructs a Config struct which represents server settings, and populates it with default values.
@@ -467,7 +485,9 @@ func NewConfig(logger *zap.Logger) *config {
 		Leaderboard:      NewLeaderboardConfig(),
 		Matchmaker:       NewMatchmakerConfig(),
 		Consul:           NewConsulConfig(),
+		Wallet:           NewWalletConfig(),
 		IAP:              NewIAPConfig(),
+		Satori:           NewSatoriConfig(),
 	}
 }
 
@@ -485,6 +505,7 @@ func (c *config) Clone() (Config, error) {
 	configLeaderboard := *(c.Leaderboard)
 	configMatchmaker := *(c.Matchmaker)
 	configConsul := *(c.Consul)
+	configWallet := *(c.Wallet)
 	configIAP := *(c.IAP)
 	nc := &config{
 		Name:             c.Name,
@@ -503,6 +524,7 @@ func (c *config) Clone() (Config, error) {
 		Leaderboard:      &configLeaderboard,
 		Matchmaker:       &configMatchmaker,
 		Consul:           &configConsul,
+		Wallet:           &configWallet,
 		IAP:              &configIAP,
 	}
 	nc.Socket.CertPEMBlock = make([]byte, len(c.Socket.CertPEMBlock))
@@ -594,8 +616,20 @@ func (c *config) GetConsul() *ConsulConfig {
 	return c.Consul
 }
 
+func (c *config) GetWallet() *WalletConfig {
+	return c.Wallet
+}
+
 func (c *config) GetIAP() *IAPConfig {
 	return c.IAP
+}
+
+func (c *config) GetGoogleAuth() *GoogleAuthConfig {
+	return c.GoogleAuth
+}
+
+func (c *config) GetSatori() *SatoriConfig {
+	return c.Satori
 }
 
 // LoggerConfig is configuration relevant to logging levels and output.
@@ -981,6 +1015,18 @@ func NewConsulConfig() *ConsulConfig {
 	}
 }
 
+type WalletConfig struct {
+	Address string `yaml:"address" json:"address" usage:"The IP address of the wallet server. Default localhost."`
+	Port    int    `yaml:"port" json:"port" usage:"Wallet service port. Default 3000."`
+}
+
+func NewWalletConfig() *WalletConfig {
+	return &WalletConfig{
+		Address: "localhost",
+		Port:    3000,
+	}
+}
+
 type IAPConfig struct {
 	Apple  *IAPAppleConfig  `yaml:"apple" json:"apple" usage:"Apple App Store purchase validation configuration."`
 	Google *IAPGoogleConfig `yaml:"google" json:"google" usage:"Google Play Store purchase validation configuration."`
@@ -1015,8 +1061,52 @@ func (iapg *IAPGoogleConfig) Enabled() bool {
 	return false
 }
 
+type SatoriConfig struct {
+	Url        string `yaml:"url" json:"url" usage:"Satori URL."`
+	ApiKeyName string `yaml:"api_key_name" json:"api_key_name" usage:"Satori Api key name."`
+	ApiKey     string `yaml:"api_key" json:"api_key" usage:"Satori Api key."`
+	SigningKey string `yaml:"signing_key" json:"signing_key" usage:"Key used to sign Satori session tokens."`
+}
+
+func NewSatoriConfig() *SatoriConfig {
+	return &SatoriConfig{}
+}
+
+func (sc *SatoriConfig) Validate(logger *zap.Logger) {
+	satoriUrl, err := url.Parse(sc.Url) // Empty string is a valid URL
+	if err != nil {
+		logger.Fatal("Satori URL is invalid", zap.String("satori_url", sc.Url), zap.Error(err))
+	}
+
+	if satoriUrl.String() != "" {
+		if sc.ApiKeyName == "" {
+			logger.Fatal("Satori configuration incomplete: api_key_name not set")
+		}
+		if sc.ApiKey == "" {
+			logger.Fatal("Satori configuration incomplete: api_key not set")
+		}
+		if sc.SigningKey == "" {
+			logger.Fatal("Satori configuration incomplete: signing_key not set")
+		}
+	} else if sc.ApiKeyName != "" || sc.ApiKey != "" || sc.SigningKey != "" {
+		logger.Fatal("Satori configuration incomplete: url not set")
+	}
+}
+
 type IAPHuaweiConfig struct {
 	PublicKey    string `yaml:"public_key" json:"public_key" usage:"Huawei IAP store Base64 encoded Public Key."`
 	ClientID     string `yaml:"client_id" json:"client_id" usage:"Huawei OAuth client secret."`
 	ClientSecret string `yaml:"client_secret" json:"client_secret" usage:"Huawei OAuth app client secret."`
+}
+
+type GoogleAuthConfig struct {
+	CredentialsJSON string         `yaml:"credentials_json" json:"credentials_json" usage:"Google's Access Crendentials."`
+	OAuthConfig     *oauth2.Config `yaml:"-" json:"-"`
+}
+
+func NewGoogleAuthConfig() *GoogleAuthConfig {
+	return &GoogleAuthConfig{
+		CredentialsJSON: "",
+		OAuthConfig:     nil,
+	}
 }
