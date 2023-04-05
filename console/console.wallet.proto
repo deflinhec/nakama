@@ -17,9 +17,9 @@
  */
 syntax = "proto3";
 
-package nakama.console;
+package nakama.api.wallet;
 
-import "api.provider.proto";
+import "apiwallet/api.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
@@ -70,7 +70,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
  */
 service WalletProvider {
   // Deposit amount of currency to user account.
-  rpc DepositFromWalletProvider (nakama.wallet.api.TransactionRequest) returns (nakama.wallet.api.BalanceResponse) {
+  rpc DepositFromWalletProvider (TransactionRequest) returns (BalanceResponse) {
     option (google.api.http) = {
       post: "/v2/console/wallet/{currency}/deposit",
       body: "*"
@@ -78,7 +78,7 @@ service WalletProvider {
   }
 
   // Withdraw amount of currency from user account.
-  rpc WithdrawFromWalletProvider (nakama.wallet.api.TransactionRequest) returns (nakama.wallet.api.BalanceResponse) {
+  rpc WithdrawFromWalletProvider (TransactionRequest) returns (BalanceResponse) {
     option (google.api.http) = {
       post: "/v2/console/wallet/{currency}/withdraw",
       body: "*"
@@ -86,7 +86,7 @@ service WalletProvider {
   }
 
   // Get currency balance of from user account.
-  rpc GetWalletBalance (nakama.wallet.api.BalanceRequest) returns (nakama.wallet.api.BalanceResponse) {
+  rpc GetWalletBalance (BalanceRequest) returns (BalanceResponse) {
     option (google.api.http).get = "/v2/console/wallet/{currency}/{user_id}";
   }
 
