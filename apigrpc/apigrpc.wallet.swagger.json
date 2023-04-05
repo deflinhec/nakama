@@ -25,7 +25,7 @@
     "application/json"
   ],
   "paths": {
-    "/v2/provider/wallet/authenticate": {
+    "/v2/provider/wallet/authorize": {
       "post": {
         "summary": "Authorize a user against the wallet provider.",
         "operationId": "WalletProvider_AuthorizeWalletProvider",
@@ -62,7 +62,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiChainResponse"
+              "$ref": "#/definitions/walletChainResponse"
             }
           },
           "default": {
@@ -85,7 +85,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiAddressResponse"
+              "$ref": "#/definitions/walletAddressResponse"
             }
           },
           "default": {
@@ -116,29 +116,6 @@
     }
   },
   "definitions": {
-    "apiAddressResponse": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "type": "string",
-          "description": "Th user id."
-        }
-      },
-      "description": "Return a wallet address base on selected chain."
-    },
-    "apiChainResponse": {
-      "type": "object",
-      "properties": {
-        "names": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "The list of chain."
-        }
-      },
-      "description": "Return avaliable list of chain."
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -165,6 +142,48 @@
           }
         }
       }
+    },
+    "walletAddressResponse": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "The wallet address."
+        }
+      },
+      "description": "Return a wallet address base on selected chain."
+    },
+    "walletChainInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name."
+        },
+        "fee": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The charging fee."
+        },
+        "minimum": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The minimum balance threshold."
+        }
+      }
+    },
+    "walletChainResponse": {
+      "type": "object",
+      "properties": {
+        "info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/walletChainInfo"
+          },
+          "description": "The list of chain."
+        }
+      },
+      "description": "Return avaliable list of chain."
     }
   },
   "securityDefinitions": {
