@@ -52,3 +52,25 @@ message BalanceResponse {
     // The amount to withdraw.
     int64 balance = 4;
 }
+
+message ProviderAuthorizeRequest {
+    // The user account.
+    string account = 1;
+}
+
+message ProviderAddressRequest {
+    // The user account.
+    string account = 1;
+    // The selected chain name.
+    string chainName = 2;
+}
+
+message ProviderAddressInfo {
+    // The requested wallet address.
+    string address = 1;
+}
+
+message ProviderAddressResponse {
+    // The address info structure.
+    ProviderAddressInfo info = 1;
+}

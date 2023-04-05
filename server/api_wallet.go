@@ -17,18 +17,16 @@ package server
 import (
 	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/gofrs/uuid"
 	"github.com/heroiclabs/nakama/v3/apiwallet"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -44,18 +42,20 @@ func (s *ApiServer) AuthorizeWalletProvider(ctx context.Context, in *emptypb.Emp
 	}
 
 	// Wallet provider api specification
-	config := s.config.GetWallet()
-	context, err := json.Marshal(struct {
-		AccountId string `json:"account"`
-	}{
-		AccountId: userID.String(),
+	context, err := (&protojson.MarshalOptions{
+		UseProtoNames:   true,
+		UseEnumNumbers:  true,
+		EmitUnpopulated: false,
+	}).Marshal(&apiwallet.ProviderAuthorizeRequest{
+		Account: userID.String(),
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Error marshaling payload.")
 	}
+	config := s.config.GetWallet()
 	_, err = http.Post((&url.URL{
 		Scheme: "http", Path: "/registerAccount",
-		Host: fmt.Sprintf("%s:%d", config.Address, config.Port),
+		Host: config.Address,
 	}).String(), "application/json", bytes.NewReader(context))
 	if err != nil {
 		s.logger.Warn("Error authorize wallet provider.", zap.Error(err))
@@ -69,7 +69,7 @@ func (s *ApiServer) ListChainsFromWalletProvider(ctx context.Context, in *emptyp
 	config := s.config.GetWallet()
 	res, err := http.Get((&url.URL{
 		Scheme: "http", Path: "/getChainList",
-		Host: fmt.Sprintf("%s:%d", config.Address, config.Port),
+		Host: config.Address,
 	}).String())
 	if err != nil {
 		s.logger.Warn("Error retrieving chain info from wallet provider.", zap.Error(err))
@@ -80,30 +80,44 @@ func (s *ApiServer) ListChainsFromWalletProvider(ctx context.Context, in *emptyp
 		s.logger.Warn("Error retrieving chain info from wallet provider.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving chain info from wallet provider.")
 	}
-	payload := &struct {
-		Names []string `json:"infos"`
-	}{}
-	err = json.Unmarshal(b, payload)
+	response := &apiwallet.ChainResponse{}
+	err = (&protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(b, response)
 	if err != nil {
 		s.logger.Warn("Error retrieving chain info from wallet provider.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving chain info from wallet provider.")
 	}
-	return &apiwallet.ChainResponse{Names: payload.Names}, nil
+	return response, nil
 }
 
 func (s *ApiServer) GetAddressFromWalletProvider(ctx context.Context, in *apiwallet.AddressRequest) (*apiwallet.AddressResponse, error) {
 	userID := ctx.Value(ctxUserIDKey{}).(uuid.UUID)
 
+	_, err := GetAccount(ctx, s.logger, s.db, s.statusRegistry, userID)
+	if err != nil {
+		if err == ErrAccountNotFound {
+			return nil, status.Error(codes.NotFound, "Account not found.")
+		}
+		return nil, status.Error(codes.Internal, "Error retrieving user account.")
+	}
+
 	// Wallet provider api specification
+	context, err := (&protojson.MarshalOptions{
+		UseProtoNames:   true,
+		UseEnumNumbers:  true,
+		EmitUnpopulated: false,
+	}).Marshal(
+		&apiwallet.ProviderAddressRequest{
+			Account:   userID.String(),
+			ChainName: in.Chain,
+		})
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Error marshaling payload.")
+	}
 	config := s.config.GetWallet()
-	res, err := http.Get((&url.URL{
+	res, err := http.Post((&url.URL{
 		Scheme: "http", Path: "/getWalletInfo",
-		Host: fmt.Sprintf("%s:%d", config.Address, config.Port),
-		RawQuery: (url.Values{
-			"account":   []string{userID.String()},
-			"chainName": []string{strings.ToUpper(in.Chain)},
-		}.Encode()),
-	}).String())
+		Host: config.Address,
+	}).String(), "application/json", bytes.NewReader(context))
 	if err != nil {
 		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
@@ -113,13 +127,11 @@ func (s *ApiServer) GetAddressFromWalletProvider(ctx context.Context, in *apiwal
 		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
 	}
-	payload := &struct {
-		Address string `json:"address"`
-	}{}
-	err = json.Unmarshal(b, payload)
+	response := &apiwallet.ProviderAddressResponse{}
+	err = (&protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(b, response)
 	if err != nil {
 		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
 	}
-	return &apiwallet.AddressResponse{Address: payload.Address}, nil
+	return &apiwallet.AddressResponse{Address: response.Info.Address}, nil
 }

@@ -1017,13 +1017,11 @@ func NewConsulConfig() *ConsulConfig {
 
 type WalletConfig struct {
 	Address string `yaml:"address" json:"address" usage:"The IP address of the wallet server. Default localhost."`
-	Port    int    `yaml:"port" json:"port" usage:"Wallet service port. Default 3000."`
 }
 
 func NewWalletConfig() *WalletConfig {
 	return &WalletConfig{
-		Address: "localhost",
-		Port:    3000,
+		Address: "localhost:3001",
 	}
 }
 
