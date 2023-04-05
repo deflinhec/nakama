@@ -22,7 +22,7 @@ import (
 	"net/url"
 
 	"github.com/gofrs/uuid"
-	"github.com/heroiclabs/nakama/v3/apiwallet"
+	"github.com/heroiclabs/nakama/v3/api/apiwallet"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

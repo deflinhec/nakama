@@ -14,20 +14,20 @@
 
 syntax = "proto3";
 
-package nakama.wallet.api;
+package nakama.api.wallet;
 
-import "api.client.proto";
+import "apiwallet/api.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "github.com/heroiclabs/nakama/v3/apiwallet";
+option go_package = "github.com/heroiclabs/nakama/v3/apigrpc";
 
 option java_multiple_files = true;
-option java_outer_classname = "DeficasinoApiGrpc";
-option java_package = "com.deficasino.wallet.api";
+option java_outer_classname = "NakamaApiGrpc";
+option java_package = "com.heroiclabs.nakama.api";
 
-option csharp_namespace = "Deficasino.Protobuf";
+option csharp_namespace = "Nakama.Protobuf";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
