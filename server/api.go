@@ -37,7 +37,6 @@ import (
 	grpcgw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama/v3/apigrpc"
-	"github.com/heroiclabs/nakama/v3/apiwallet"
 	"github.com/heroiclabs/nakama/v3/social"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -65,7 +64,7 @@ type ctxFullMethodKey struct{}
 
 type ApiServer struct {
 	apigrpc.UnimplementedNakamaServer
-	apiwallet.UnimplementedWalletProviderServer
+	apigrpc.UnimplementedWalletProviderServer
 	logger               *zap.Logger
 	db                   *sql.DB
 	config               Config
@@ -135,7 +134,7 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 
 	// Register and start GRPC server.
 	apigrpc.RegisterNakamaServer(grpcServer, s)
-	apiwallet.RegisterWalletProviderServer(grpcServer, s)
+	apigrpc.RegisterWalletProviderServer(grpcServer, s)
 	startupLogger.Info("Starting API server for gRPC requests", zap.Int("port", config.GetSocket().Port-1))
 	go func() {
 		listener, err := net.Listen("tcp", fmt.Sprintf("%v:%d", config.GetSocket().Address, config.GetSocket().Port-1))
@@ -206,7 +205,7 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 	if err := apigrpc.RegisterNakamaHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("API server gateway registration failed", zap.Error(err))
 	}
-	if err := apiwallet.RegisterWalletProviderHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+	if err := apigrpc.RegisterWalletProviderHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("API wallet server gateway registration failed", zap.Error(err))
 	}
 	//if err := apigrpc.RegisterNakamaHandlerServer(ctx, grpcGateway, s); err != nil {
