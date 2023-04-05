@@ -8,7 +8,7 @@ package console
 
 import (
 	context "context"
-	apiwallet "github.com/heroiclabs/nakama/v3/apiwallet"
+	apiwallet "github.com/heroiclabs/nakama/v3/api/apiwallet"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -41,7 +41,7 @@ func NewWalletProviderClient(cc grpc.ClientConnInterface) WalletProviderClient {
 
 func (c *walletProviderClient) DepositFromWalletProvider(ctx context.Context, in *apiwallet.TransactionRequest, opts ...grpc.CallOption) (*apiwallet.BalanceResponse, error) {
 	out := new(apiwallet.BalanceResponse)
-	err := c.cc.Invoke(ctx, "/nakama.console.WalletProvider/DepositFromWalletProvider", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.api.wallet.WalletProvider/DepositFromWalletProvider", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *walletProviderClient) DepositFromWalletProvider(ctx context.Context, in
 
 func (c *walletProviderClient) WithdrawFromWalletProvider(ctx context.Context, in *apiwallet.TransactionRequest, opts ...grpc.CallOption) (*apiwallet.BalanceResponse, error) {
 	out := new(apiwallet.BalanceResponse)
-	err := c.cc.Invoke(ctx, "/nakama.console.WalletProvider/WithdrawFromWalletProvider", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.api.wallet.WalletProvider/WithdrawFromWalletProvider", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (c *walletProviderClient) WithdrawFromWalletProvider(ctx context.Context, i
 
 func (c *walletProviderClient) GetWalletBalance(ctx context.Context, in *apiwallet.BalanceRequest, opts ...grpc.CallOption) (*apiwallet.BalanceResponse, error) {
 	out := new(apiwallet.BalanceResponse)
-	err := c.cc.Invoke(ctx, "/nakama.console.WalletProvider/GetWalletBalance", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.api.wallet.WalletProvider/GetWalletBalance", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func _WalletProvider_DepositFromWalletProvider_Handler(srv interface{}, ctx cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.console.WalletProvider/DepositFromWalletProvider",
+		FullMethod: "/nakama.api.wallet.WalletProvider/DepositFromWalletProvider",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(WalletProviderServer).DepositFromWalletProvider(ctx, req.(*apiwallet.TransactionRequest))
@@ -133,7 +133,7 @@ func _WalletProvider_WithdrawFromWalletProvider_Handler(srv interface{}, ctx con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.console.WalletProvider/WithdrawFromWalletProvider",
+		FullMethod: "/nakama.api.wallet.WalletProvider/WithdrawFromWalletProvider",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(WalletProviderServer).WithdrawFromWalletProvider(ctx, req.(*apiwallet.TransactionRequest))
@@ -151,7 +151,7 @@ func _WalletProvider_GetWalletBalance_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.console.WalletProvider/GetWalletBalance",
+		FullMethod: "/nakama.api.wallet.WalletProvider/GetWalletBalance",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(WalletProviderServer).GetWalletBalance(ctx, req.(*apiwallet.BalanceRequest))
@@ -163,7 +163,7 @@ func _WalletProvider_GetWalletBalance_Handler(srv interface{}, ctx context.Conte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var WalletProvider_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "nakama.console.WalletProvider",
+	ServiceName: "nakama.api.wallet.WalletProvider",
 	HandlerType: (*WalletProviderServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

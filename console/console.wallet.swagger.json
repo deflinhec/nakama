@@ -33,7 +33,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiBalanceResponse"
+              "$ref": "#/definitions/walletBalanceResponse"
             }
           },
           "default": {
@@ -88,7 +88,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiBalanceResponse"
+              "$ref": "#/definitions/walletBalanceResponse"
             }
           },
           "default": {
@@ -143,7 +143,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiBalanceResponse"
+              "$ref": "#/definitions/walletBalanceResponse"
             }
           },
           "default": {
@@ -176,28 +176,6 @@
     }
   },
   "definitions": {
-    "apiBalanceResponse": {
-      "type": "object",
-      "properties": {
-        "user_id": {
-          "type": "string",
-          "description": "The user ID this wallet item belongs to."
-        },
-        "order_id": {
-          "type": "string",
-          "description": "The order id of transaction."
-        },
-        "currency": {
-          "type": "string",
-          "description": "The currency type."
-        },
-        "balance": {
-          "type": "string",
-          "format": "int64",
-          "description": "The amount to withdraw."
-        }
-      }
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -222,6 +200,28 @@
           "items": {
             "$ref": "#/definitions/protobufAny"
           }
+        }
+      }
+    },
+    "walletBalanceResponse": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "The user ID this wallet item belongs to."
+        },
+        "order_id": {
+          "type": "string",
+          "description": "The order id of transaction."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency type."
+        },
+        "balance": {
+          "type": "string",
+          "format": "int64",
+          "description": "The amount to withdraw."
         }
       }
     }
