@@ -24,16 +24,19 @@ option java_package = "com.heroiclabs.nakama.api";
 
 option csharp_namespace = "Nakama.Protobuf";
 
-// The identifier for a user account.
-message AccountId {
-    // The unique identifier of the user account.
-    string user_id = 1;
+message ChainInfo {
+    // The name.
+    string name = 1;
+    // The charging fee.
+    uint32 fee = 2;
+    // The minimum balance threshold.
+    uint32 minimum = 3;
 }
 
 // Return avaliable list of chain.
 message ChainResponse {
     // The list of chain.
-    repeated string names = 1;
+    repeated ChainInfo info = 1;
 }
 
 // Get a wallet address base on selected chain.
@@ -44,6 +47,6 @@ message AddressRequest {
 
 // Return a wallet address base on selected chain.
 message AddressResponse {
-    // Th user id.
+    // The wallet address.
     string address = 1;
 }

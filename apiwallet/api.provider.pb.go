@@ -241,6 +241,207 @@ func (x *BalanceResponse) GetBalance() int64 {
 	return 0
 }
 
+type ProviderAuthorizeRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// The user account.
+	Account string `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+}
+
+func (x *ProviderAuthorizeRequest) Reset() {
+	*x = ProviderAuthorizeRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_provider_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProviderAuthorizeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderAuthorizeRequest) ProtoMessage() {}
+
+func (x *ProviderAuthorizeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_provider_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderAuthorizeRequest.ProtoReflect.Descriptor instead.
+func (*ProviderAuthorizeRequest) Descriptor() ([]byte, []int) {
+	return file_api_provider_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ProviderAuthorizeRequest) GetAccount() string {
+	if x != nil {
+		return x.Account
+	}
+	return ""
+}
+
+type ProviderAddressRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// The user account.
+	Account string `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	// The selected chain name.
+	ChainName string `protobuf:"bytes,2,opt,name=chainName,proto3" json:"chainName,omitempty"`
+}
+
+func (x *ProviderAddressRequest) Reset() {
+	*x = ProviderAddressRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_provider_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProviderAddressRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderAddressRequest) ProtoMessage() {}
+
+func (x *ProviderAddressRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_provider_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderAddressRequest.ProtoReflect.Descriptor instead.
+func (*ProviderAddressRequest) Descriptor() ([]byte, []int) {
+	return file_api_provider_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ProviderAddressRequest) GetAccount() string {
+	if x != nil {
+		return x.Account
+	}
+	return ""
+}
+
+func (x *ProviderAddressRequest) GetChainName() string {
+	if x != nil {
+		return x.ChainName
+	}
+	return ""
+}
+
+type ProviderAddressInfo struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// The requested wallet address.
+	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+}
+
+func (x *ProviderAddressInfo) Reset() {
+	*x = ProviderAddressInfo{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_provider_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProviderAddressInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderAddressInfo) ProtoMessage() {}
+
+func (x *ProviderAddressInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_api_provider_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderAddressInfo.ProtoReflect.Descriptor instead.
+func (*ProviderAddressInfo) Descriptor() ([]byte, []int) {
+	return file_api_provider_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ProviderAddressInfo) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+type ProviderAddressResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// The address info structure.
+	Info *ProviderAddressInfo `protobuf:"bytes,1,opt,name=info,proto3" json:"info,omitempty"`
+}
+
+func (x *ProviderAddressResponse) Reset() {
+	*x = ProviderAddressResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_provider_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProviderAddressResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderAddressResponse) ProtoMessage() {}
+
+func (x *ProviderAddressResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_provider_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderAddressResponse.ProtoReflect.Descriptor instead.
+func (*ProviderAddressResponse) Descriptor() ([]byte, []int) {
+	return file_api_provider_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ProviderAddressResponse) GetInfo() *ProviderAddressInfo {
+	if x != nil {
+		return x.Info
+	}
+	return nil
+}
+
 var File_api_provider_proto protoreflect.FileDescriptor
 
 var file_api_provider_proto_rawDesc = []byte{
@@ -266,7 +467,24 @@ var file_api_provider_proto_rawDesc = []byte{
 	0x72, 0x49, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x18,
 	0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x12,
 	0x18, 0x0a, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x03,
-	0x52, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x42, 0x65, 0x0a, 0x19, 0x63, 0x6f, 0x6d,
+	0x52, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x22, 0x34, 0x0a, 0x18, 0x50, 0x72, 0x6f,
+	0x76, 0x69, 0x64, 0x65, 0x72, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x22,
+	0x50, 0x0a, 0x16, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x63, 0x63,
+	0x6f, 0x75, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x63, 0x63, 0x6f,
+	0x75, 0x6e, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x4e, 0x61, 0x6d, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x4e, 0x61, 0x6d,
+	0x65, 0x22, 0x2f, 0x0a, 0x13, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x41, 0x64, 0x64,
+	0x72, 0x65, 0x73, 0x73, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72,
+	0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x22, 0x55, 0x0a, 0x17, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x41, 0x64,
+	0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3a, 0x0a,
+	0x04, 0x69, 0x6e, 0x66, 0x6f, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x6e, 0x61,
+	0x6b, 0x61, 0x6d, 0x61, 0x2e, 0x77, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x2e, 0x61, 0x70, 0x69, 0x2e,
+	0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x49,
+	0x6e, 0x66, 0x6f, 0x52, 0x04, 0x69, 0x6e, 0x66, 0x6f, 0x42, 0x65, 0x0a, 0x19, 0x63, 0x6f, 0x6d,
 	0x2e, 0x68, 0x65, 0x72, 0x6f, 0x69, 0x63, 0x6c, 0x61, 0x62, 0x73, 0x2e, 0x6e, 0x61, 0x6b, 0x61,
 	0x6d, 0x61, 0x2e, 0x61, 0x70, 0x69, 0x42, 0x09, 0x4e, 0x61, 0x6b, 0x61, 0x6d, 0x61, 0x41, 0x70,
 	0x69, 0x50, 0x01, 0x5a, 0x29, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
@@ -288,18 +506,23 @@ func file_api_provider_proto_rawDescGZIP() []byte {
 	return file_api_provider_proto_rawDescData
 }
 
-var file_api_provider_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_api_provider_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_api_provider_proto_goTypes = []interface{}{
-	(*BalanceRequest)(nil),     // 0: nakama.wallet.api.BalanceRequest
-	(*TransactionRequest)(nil), // 1: nakama.wallet.api.TransactionRequest
-	(*BalanceResponse)(nil),    // 2: nakama.wallet.api.BalanceResponse
+	(*BalanceRequest)(nil),           // 0: nakama.wallet.api.BalanceRequest
+	(*TransactionRequest)(nil),       // 1: nakama.wallet.api.TransactionRequest
+	(*BalanceResponse)(nil),          // 2: nakama.wallet.api.BalanceResponse
+	(*ProviderAuthorizeRequest)(nil), // 3: nakama.wallet.api.ProviderAuthorizeRequest
+	(*ProviderAddressRequest)(nil),   // 4: nakama.wallet.api.ProviderAddressRequest
+	(*ProviderAddressInfo)(nil),      // 5: nakama.wallet.api.ProviderAddressInfo
+	(*ProviderAddressResponse)(nil),  // 6: nakama.wallet.api.ProviderAddressResponse
 }
 var file_api_provider_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	5, // 0: nakama.wallet.api.ProviderAddressResponse.info:type_name -> nakama.wallet.api.ProviderAddressInfo
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_api_provider_proto_init() }
@@ -344,6 +567,54 @@ func file_api_provider_proto_init() {
 				return nil
 			}
 		}
+		file_api_provider_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProviderAuthorizeRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_provider_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProviderAddressRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_provider_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProviderAddressInfo); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_provider_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProviderAddressResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -351,7 +622,7 @@ func file_api_provider_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_provider_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

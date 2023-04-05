@@ -25,7 +25,7 @@
     "application/json"
   ],
   "paths": {
-    "/v2/provider/wallet/authenticate": {
+    "/v2/provider/wallet/authorize": {
       "post": {
         "summary": "Authorize a user against the wallet provider.",
         "operationId": "WalletProvider_AuthorizeWalletProvider",
@@ -121,18 +121,37 @@
       "properties": {
         "address": {
           "type": "string",
-          "description": "Th user id."
+          "description": "The wallet address."
         }
       },
       "description": "Return a wallet address base on selected chain."
     },
+    "apiChainInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name."
+        },
+        "fee": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The charging fee."
+        },
+        "minimum": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The minimum balance threshold."
+        }
+      }
+    },
     "apiChainResponse": {
       "type": "object",
       "properties": {
-        "names": {
+        "info": {
           "type": "array",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/apiChainInfo"
           },
           "description": "The list of chain."
         }

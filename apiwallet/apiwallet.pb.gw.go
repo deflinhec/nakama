@@ -134,7 +134,7 @@ func RegisterWalletProviderHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.wallet.api.WalletProvider/AuthorizeWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/authenticate"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.wallet.api.WalletProvider/AuthorizeWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/authorize"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -248,7 +248,7 @@ func RegisterWalletProviderHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.wallet.api.WalletProvider/AuthorizeWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/authenticate"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.wallet.api.WalletProvider/AuthorizeWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/authorize"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -312,7 +312,7 @@ func RegisterWalletProviderHandlerClient(ctx context.Context, mux *runtime.Serve
 }
 
 var (
-	pattern_WalletProvider_AuthorizeWalletProvider_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "provider", "wallet", "authenticate"}, ""))
+	pattern_WalletProvider_AuthorizeWalletProvider_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "provider", "wallet", "authorize"}, ""))
 
 	pattern_WalletProvider_ListChainsFromWalletProvider_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "provider", "wallet", "chains"}, ""))
 
