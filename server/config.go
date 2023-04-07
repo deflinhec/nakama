@@ -50,6 +50,7 @@ type Config interface {
 	GetMatchmaker() *MatchmakerConfig
 	GetWallet() *WalletConfig
 	GetConsul() *ConsulConfig
+	GetSMTP() *SMTPConfig
 	GetIAP() *IAPConfig
 	GetGoogleAuth() *GoogleAuthConfig
 	GetSatori() *SatoriConfig
@@ -457,6 +458,7 @@ type config struct {
 	Matchmaker       *MatchmakerConfig  `yaml:"matchmaker" json:"matchmaker" usage:"Matchmaker settings."`
 	Consul           *ConsulConfig      `yaml:"consul" json:"consul" usage:"Consul settings."`
 	Wallet           *WalletConfig      `yaml:"wallet" json:"wallet" usage:"Wallet settings."`
+	SMTP             *SMTPConfig        `yaml:"smtp" json:"smtp" usage:"SMTP settings."`
 	IAP              *IAPConfig         `yaml:"iap" json:"iap" usage:"In-App Purchase settings."`
 	GoogleAuth       *GoogleAuthConfig  `yaml:"google_auth" json:"google_auth" usage:"Google's auth settings."`
 	Satori           *SatoriConfig      `yaml:"satori" json:"satori" usage:"Satori integration settings."`
@@ -486,6 +488,7 @@ func NewConfig(logger *zap.Logger) *config {
 		Matchmaker:       NewMatchmakerConfig(),
 		Consul:           NewConsulConfig(),
 		Wallet:           NewWalletConfig(),
+		SMTP:             NewSMTPConfig(),
 		IAP:              NewIAPConfig(),
 		Satori:           NewSatoriConfig(),
 	}
@@ -506,6 +509,7 @@ func (c *config) Clone() (Config, error) {
 	configMatchmaker := *(c.Matchmaker)
 	configConsul := *(c.Consul)
 	configWallet := *(c.Wallet)
+	configSMTP := *(c.SMTP)
 	configIAP := *(c.IAP)
 	nc := &config{
 		Name:             c.Name,
@@ -525,6 +529,7 @@ func (c *config) Clone() (Config, error) {
 		Matchmaker:       &configMatchmaker,
 		Consul:           &configConsul,
 		Wallet:           &configWallet,
+		SMTP:             &configSMTP,
 		IAP:              &configIAP,
 	}
 	nc.Socket.CertPEMBlock = make([]byte, len(c.Socket.CertPEMBlock))
@@ -618,6 +623,10 @@ func (c *config) GetConsul() *ConsulConfig {
 
 func (c *config) GetWallet() *WalletConfig {
 	return c.Wallet
+}
+
+func (c *config) GetSMTP() *SMTPConfig {
+	return c.SMTP
 }
 
 func (c *config) GetIAP() *IAPConfig {
@@ -1022,6 +1031,24 @@ type WalletConfig struct {
 func NewWalletConfig() *WalletConfig {
 	return &WalletConfig{
 		Address: "localhost:3001",
+	}
+}
+
+type SMTPConfig struct {
+	Email        string `yaml:"email" json:"email" usage:"The email address to use for sending emails."`
+	Password     string `yaml:"password" json:"password" usage:"The password of the account to use for sending emails."`
+	AdvertiseUrl string `yaml:"advertise_url" json:"advertise_url" usage:"The URL to advertise to clients for the SMTP server."`
+	Address      string `yaml:"address" json:"address" usage:"The IP address of the SMTP server. Default localhost."`
+	Port         int    `yaml:"port" json:"port" usage:"The port of the SMTP server. Default 25."`
+}
+
+func NewSMTPConfig() *SMTPConfig {
+	return &SMTPConfig{
+		Email:        "admin@mail.localhost.com",
+		Password:     "password",
+		AdvertiseUrl: "http://localhost:7350",
+		Address:      "localhost",
+		Port:         25,
 	}
 }
 

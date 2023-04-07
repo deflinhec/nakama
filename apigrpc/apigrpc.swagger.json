@@ -5240,6 +5240,6 @@
   ],
   "externalDocs": {
     "description": "Nakama server documentation",
-    "url": "https://heroiclabs.com/docs"
+    "url": "https://github.com/heroiclabs/nakama"
   }
 }

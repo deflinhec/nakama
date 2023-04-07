@@ -8,7 +8,7 @@ package console
 
 import (
 	context "context"
-	apiwallet "github.com/heroiclabs/nakama/v3/api/apiwallet"
+	api "github.com/heroiclabs/nakama/v3/api"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -24,11 +24,11 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WalletProviderClient interface {
 	// Deposit amount of currency to user account.
-	DepositFromWalletProvider(ctx context.Context, in *apiwallet.TransactionRequest, opts ...grpc.CallOption) (*apiwallet.BalanceResponse, error)
+	DepositFromWalletProvider(ctx context.Context, in *api.TransactionRequest, opts ...grpc.CallOption) (*api.BalanceResponse, error)
 	// Withdraw amount of currency from user account.
-	WithdrawFromWalletProvider(ctx context.Context, in *apiwallet.TransactionRequest, opts ...grpc.CallOption) (*apiwallet.BalanceResponse, error)
+	WithdrawFromWalletProvider(ctx context.Context, in *api.TransactionRequest, opts ...grpc.CallOption) (*api.BalanceResponse, error)
 	// Get currency balance of from user account.
-	GetWalletBalance(ctx context.Context, in *apiwallet.BalanceRequest, opts ...grpc.CallOption) (*apiwallet.BalanceResponse, error)
+	GetWalletBalance(ctx context.Context, in *api.BalanceRequest, opts ...grpc.CallOption) (*api.BalanceResponse, error)
 }
 
 type walletProviderClient struct {
@@ -39,27 +39,27 @@ func NewWalletProviderClient(cc grpc.ClientConnInterface) WalletProviderClient {
 	return &walletProviderClient{cc}
 }
 
-func (c *walletProviderClient) DepositFromWalletProvider(ctx context.Context, in *apiwallet.TransactionRequest, opts ...grpc.CallOption) (*apiwallet.BalanceResponse, error) {
-	out := new(apiwallet.BalanceResponse)
-	err := c.cc.Invoke(ctx, "/nakama.api.wallet.WalletProvider/DepositFromWalletProvider", in, out, opts...)
+func (c *walletProviderClient) DepositFromWalletProvider(ctx context.Context, in *api.TransactionRequest, opts ...grpc.CallOption) (*api.BalanceResponse, error) {
+	out := new(api.BalanceResponse)
+	err := c.cc.Invoke(ctx, "/nakama.console.WalletProvider/DepositFromWalletProvider", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *walletProviderClient) WithdrawFromWalletProvider(ctx context.Context, in *apiwallet.TransactionRequest, opts ...grpc.CallOption) (*apiwallet.BalanceResponse, error) {
-	out := new(apiwallet.BalanceResponse)
-	err := c.cc.Invoke(ctx, "/nakama.api.wallet.WalletProvider/WithdrawFromWalletProvider", in, out, opts...)
+func (c *walletProviderClient) WithdrawFromWalletProvider(ctx context.Context, in *api.TransactionRequest, opts ...grpc.CallOption) (*api.BalanceResponse, error) {
+	out := new(api.BalanceResponse)
+	err := c.cc.Invoke(ctx, "/nakama.console.WalletProvider/WithdrawFromWalletProvider", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *walletProviderClient) GetWalletBalance(ctx context.Context, in *apiwallet.BalanceRequest, opts ...grpc.CallOption) (*apiwallet.BalanceResponse, error) {
-	out := new(apiwallet.BalanceResponse)
-	err := c.cc.Invoke(ctx, "/nakama.api.wallet.WalletProvider/GetWalletBalance", in, out, opts...)
+func (c *walletProviderClient) GetWalletBalance(ctx context.Context, in *api.BalanceRequest, opts ...grpc.CallOption) (*api.BalanceResponse, error) {
+	out := new(api.BalanceResponse)
+	err := c.cc.Invoke(ctx, "/nakama.console.WalletProvider/GetWalletBalance", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,11 +71,11 @@ func (c *walletProviderClient) GetWalletBalance(ctx context.Context, in *apiwall
 // for forward compatibility
 type WalletProviderServer interface {
 	// Deposit amount of currency to user account.
-	DepositFromWalletProvider(context.Context, *apiwallet.TransactionRequest) (*apiwallet.BalanceResponse, error)
+	DepositFromWalletProvider(context.Context, *api.TransactionRequest) (*api.BalanceResponse, error)
 	// Withdraw amount of currency from user account.
-	WithdrawFromWalletProvider(context.Context, *apiwallet.TransactionRequest) (*apiwallet.BalanceResponse, error)
+	WithdrawFromWalletProvider(context.Context, *api.TransactionRequest) (*api.BalanceResponse, error)
 	// Get currency balance of from user account.
-	GetWalletBalance(context.Context, *apiwallet.BalanceRequest) (*apiwallet.BalanceResponse, error)
+	GetWalletBalance(context.Context, *api.BalanceRequest) (*api.BalanceResponse, error)
 	mustEmbedUnimplementedWalletProviderServer()
 }
 
@@ -83,13 +83,13 @@ type WalletProviderServer interface {
 type UnimplementedWalletProviderServer struct {
 }
 
-func (UnimplementedWalletProviderServer) DepositFromWalletProvider(context.Context, *apiwallet.TransactionRequest) (*apiwallet.BalanceResponse, error) {
+func (UnimplementedWalletProviderServer) DepositFromWalletProvider(context.Context, *api.TransactionRequest) (*api.BalanceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DepositFromWalletProvider not implemented")
 }
-func (UnimplementedWalletProviderServer) WithdrawFromWalletProvider(context.Context, *apiwallet.TransactionRequest) (*apiwallet.BalanceResponse, error) {
+func (UnimplementedWalletProviderServer) WithdrawFromWalletProvider(context.Context, *api.TransactionRequest) (*api.BalanceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WithdrawFromWalletProvider not implemented")
 }
-func (UnimplementedWalletProviderServer) GetWalletBalance(context.Context, *apiwallet.BalanceRequest) (*apiwallet.BalanceResponse, error) {
+func (UnimplementedWalletProviderServer) GetWalletBalance(context.Context, *api.BalanceRequest) (*api.BalanceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWalletBalance not implemented")
 }
 func (UnimplementedWalletProviderServer) mustEmbedUnimplementedWalletProviderServer() {}
@@ -106,7 +106,7 @@ func RegisterWalletProviderServer(s grpc.ServiceRegistrar, srv WalletProviderSer
 }
 
 func _WalletProvider_DepositFromWalletProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(apiwallet.TransactionRequest)
+	in := new(api.TransactionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -115,16 +115,16 @@ func _WalletProvider_DepositFromWalletProvider_Handler(srv interface{}, ctx cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.api.wallet.WalletProvider/DepositFromWalletProvider",
+		FullMethod: "/nakama.console.WalletProvider/DepositFromWalletProvider",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WalletProviderServer).DepositFromWalletProvider(ctx, req.(*apiwallet.TransactionRequest))
+		return srv.(WalletProviderServer).DepositFromWalletProvider(ctx, req.(*api.TransactionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _WalletProvider_WithdrawFromWalletProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(apiwallet.TransactionRequest)
+	in := new(api.TransactionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -133,16 +133,16 @@ func _WalletProvider_WithdrawFromWalletProvider_Handler(srv interface{}, ctx con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.api.wallet.WalletProvider/WithdrawFromWalletProvider",
+		FullMethod: "/nakama.console.WalletProvider/WithdrawFromWalletProvider",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WalletProviderServer).WithdrawFromWalletProvider(ctx, req.(*apiwallet.TransactionRequest))
+		return srv.(WalletProviderServer).WithdrawFromWalletProvider(ctx, req.(*api.TransactionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _WalletProvider_GetWalletBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(apiwallet.BalanceRequest)
+	in := new(api.BalanceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -151,10 +151,10 @@ func _WalletProvider_GetWalletBalance_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.api.wallet.WalletProvider/GetWalletBalance",
+		FullMethod: "/nakama.console.WalletProvider/GetWalletBalance",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WalletProviderServer).GetWalletBalance(ctx, req.(*apiwallet.BalanceRequest))
+		return srv.(WalletProviderServer).GetWalletBalance(ctx, req.(*api.BalanceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -163,7 +163,7 @@ func _WalletProvider_GetWalletBalance_Handler(srv interface{}, ctx context.Conte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var WalletProvider_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "nakama.api.wallet.WalletProvider",
+	ServiceName: "nakama.console.WalletProvider",
 	HandlerType: (*WalletProviderServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

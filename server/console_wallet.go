@@ -8,17 +8,16 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
-	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/heroiclabs/nakama-common/api"
-	"github.com/heroiclabs/nakama/v3/api/apiwallet"
+	"github.com/heroiclabs/nakama/v3/api"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
-func (s *ConsoleServer) GetWalletBalance(ctx context.Context, in *apiwallet.BalanceRequest) (*apiwallet.BalanceResponse, error) {
+func (s *ConsoleServer) GetWalletBalance(ctx context.Context, in *api.BalanceRequest) (*api.BalanceResponse, error) {
 	uid, err := uuid.FromString(in.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "Requires a valid user ID when provided.")
@@ -39,7 +38,7 @@ func (s *ConsoleServer) GetWalletBalance(ctx context.Context, in *apiwallet.Bala
 		return nil, status.Error(codes.Internal, "failed to convert wallet: "+err.Error())
 	}
 
-	return &apiwallet.BalanceResponse{
+	return &api.BalanceResponse{
 		OrderId:  "",
 		UserId:   in.UserId,
 		Currency: in.Currency,
@@ -47,7 +46,7 @@ func (s *ConsoleServer) GetWalletBalance(ctx context.Context, in *apiwallet.Bala
 	}, nil
 }
 
-func (s *ConsoleServer) WithdrawFromWalletProvider(ctx context.Context, in *apiwallet.TransactionRequest) (*apiwallet.BalanceResponse, error) {
+func (s *ConsoleServer) WithdrawFromWalletProvider(ctx context.Context, in *api.TransactionRequest) (*api.BalanceResponse, error) {
 	uid, err := uuid.FromString(in.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "Requires a valid user ID when provided.")
@@ -89,29 +88,27 @@ func (s *ConsoleServer) WithdrawFromWalletProvider(ctx context.Context, in *apiw
 		"execution": "withdraw",
 	}, in.Amount)
 
-	response := &apiwallet.BalanceResponse{
+	response := &api.BalanceResponse{
 		OrderId:  in.OrderId,
 		UserId:   in.UserId,
 		Currency: in.Currency,
 		Balance:  results[0].Updated[currency],
 	}
-	content, _ := json.Marshal(response)
-	NotificationSend(ctx, s.logger, s.db, s.router, map[uuid.UUID][]*api.Notification{
-		uid: {{
-			Id:         uuid.Must(uuid.NewV4()).String(),
-			Subject:    "wallet_transfer",
-			Content:    string(content),
-			Code:       NotificationCodeWalletTransfer,
-			SenderId:   "",
-			Persistent: false,
-			CreateTime: &timestamppb.Timestamp{Seconds: time.Now().UTC().Unix()},
-		}},
-	})
 
+	if content, err := (&protojson.MarshalOptions{
+		UseProtoNames:   true,
+		UseEnumNumbers:  true,
+		EmitUnpopulated: false,
+	}).Marshal(response); err != nil {
+		s.logger.Warn("failed to send notification", zap.Error(err))
+	} else if err = NotificationWalletTransfer(
+		ctx, s.logger, s.db, s.router, uid, content); err != nil {
+		s.logger.Warn("failed to send notification", zap.Error(err))
+	}
 	return response, nil
 }
 
-func (s *ConsoleServer) DepositFromWalletProvider(ctx context.Context, in *apiwallet.TransactionRequest) (*apiwallet.BalanceResponse, error) {
+func (s *ConsoleServer) DepositFromWalletProvider(ctx context.Context, in *api.TransactionRequest) (*api.BalanceResponse, error) {
 	uid, err := uuid.FromString(in.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "Requires a valid user ID when provided.")
@@ -153,24 +150,22 @@ func (s *ConsoleServer) DepositFromWalletProvider(ctx context.Context, in *apiwa
 		"execution": "deposit",
 	}, in.Amount)
 
-	response := &apiwallet.BalanceResponse{
+	response := &api.BalanceResponse{
 		OrderId:  in.OrderId,
 		UserId:   in.UserId,
 		Currency: in.Currency,
 		Balance:  results[0].Updated[currency],
 	}
-	content, _ := json.Marshal(response)
-	NotificationSend(ctx, s.logger, s.db, s.router, map[uuid.UUID][]*api.Notification{
-		uid: {{
-			Id:         uuid.Must(uuid.NewV4()).String(),
-			Subject:    "wallet_transfer",
-			Content:    string(content),
-			Code:       NotificationCodeWalletTransfer,
-			SenderId:   "",
-			Persistent: false,
-			CreateTime: &timestamppb.Timestamp{Seconds: time.Now().UTC().Unix()},
-		}},
-	})
 
+	if content, err := (&protojson.MarshalOptions{
+		UseProtoNames:   true,
+		UseEnumNumbers:  true,
+		EmitUnpopulated: false,
+	}).Marshal(response); err != nil {
+		s.logger.Warn("failed to send notification", zap.Error(err))
+	} else if err = NotificationWalletTransfer(
+		ctx, s.logger, s.db, s.router, uid, content); err != nil {
+		s.logger.Warn("failed to send notification", zap.Error(err))
+	}
 	return response, nil
 }
