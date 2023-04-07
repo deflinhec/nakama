@@ -12,12 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Component} from '@angular/core';
+import {Component, AfterViewInit} from '@angular/core';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {}
+export class AppComponent  implements AfterViewInit {
+
+  constructor(
+    private readonly router: Router
+  ) {}
+
+  ngAfterViewInit(): void {
+    this.router.navigate(['/home']);
+  }
+}
 

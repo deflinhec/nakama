@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Nakama API v2",
+    "title": "Nakama web API v2",
     "version": "2.0",
     "contact": {
       "name": "The Nakama Authors \u0026 Contributors",
@@ -46,18 +46,13 @@
         },
         "parameters": [
           {
-            "name": "token",
-            "description": "The user credentials.",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "password",
-            "description": "The renewed password.",
-            "in": "query",
-            "required": false,
-            "type": "string"
+            "name": "body",
+            "description": "Renew password after verfied.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/webVerifyPasswordRenewalRequest"
+            }
           }
         ],
         "tags": [
@@ -85,11 +80,13 @@
         },
         "parameters": [
           {
-            "name": "email",
-            "description": "The email to reset.",
-            "in": "query",
-            "required": false,
-            "type": "string"
+            "name": "body",
+            "description": "Submit a password reset request.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/webSendPasswordResetEmailRequest"
+            }
           }
         ],
         "tags": [
@@ -125,6 +122,30 @@
           }
         }
       }
+    },
+    "webSendPasswordResetEmailRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email to reset."
+        }
+      },
+      "description": "Submit a password reset request."
+    },
+    "webVerifyPasswordRenewalRequest": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "The user credentials."
+        },
+        "password": {
+          "type": "string",
+          "description": "The renewed password."
+        }
+      },
+      "description": "Renew password after verfied."
     }
   },
   "securityDefinitions": {
@@ -133,11 +154,6 @@
     },
     "BearerJwt": {
       "type": ""
-    },
-    "HttpKeyAuth": {
-      "type": "apiKey",
-      "name": "http_key",
-      "in": "header"
     }
   },
   "security": [

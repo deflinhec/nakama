@@ -15,18 +15,18 @@
 import {Component, Injectable, OnInit } from '@angular/core';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
-import {ApplicationService, VerifyPasswordRenewalRequest} from '../app.service';
+import {ApplicationService, SendPasswordResetEmailRequest} from '../app.service';
 import {SegmentService} from 'ngx-segment-analytics';
 import {environment} from "../../environments/environment";
 
 @Component({
-  templateUrl: './reset-password.component.html',
-  styleUrls: ['./reset-password.component.scss']
+  templateUrl: './forgot-password.component.html',
+  styleUrls: ['./forgot-password.component.scss']
 })
-export class ResetPasswordComponent implements OnInit {
+export class ForgotPasswordComponent implements OnInit {
   public error = '';
   public updated = '';
-  public resetForm!: UntypedFormGroup;
+  public emailForm!: UntypedFormGroup;
   public submitted!: boolean;
 
   constructor(
@@ -38,16 +38,12 @@ export class ResetPasswordComponent implements OnInit {
 
   ngOnInit(): void {
     if (!environment.nt) {
-      this.segment.page('/reset-password');
+      this.segment.page('/forgot-password');
     }
-    this.resetForm = this.formBuilder.group({
-      newPassword: ['', Validators.compose([
+    this.emailForm = this.formBuilder.group({
+      email: ['', Validators.compose([
         Validators.required,
-        Validators.minLength(8),
-      ])],
-      confirmPassword: ['', Validators.compose([
-        Validators.required, 
-        Validators.minLength(8),
+        Validators.email,
       ])],
     });
   }
@@ -58,19 +54,12 @@ export class ResetPasswordComponent implements OnInit {
     if (this.f.invalid) {
       return;
     }
-    const token = this.route.snapshot.queryParamMap.get('token');
-    if (this.f.newPassword.value !== this.f.confirmPassword.value) {
-      this.error = 'Passwords do not match.';
-      this.submitted = false;
-      return;
-    }
-    const body : VerifyPasswordRenewalRequest = {
-      password: this.f.email.value,
-      token: token,
+    const body : SendPasswordResetEmailRequest = {
+      email: this.f.email.value,
     };
-    this.appService.verifyPasswordRenewal('', body)
+    this.appService.sendPasswordResetEmail('', body)
       .subscribe(d => {
-        this.updated = 'Password reset successful.';
+        this.updated = 'Email have been sent.';
         this.error = '';
       }, err => {
         this.updated = '';
@@ -80,22 +69,6 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   get f(): any {
-    return this.resetForm.controls;
-  }
-}
-
-@Injectable({providedIn: 'root'})
-export class ResetGuard implements CanActivate {
-  constructor(
-    private readonly router: Router
-  ) {}
-
-  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    const token = next.queryParamMap.get('token');
-    if (token == null) {
-      const _ = this.router.navigate(['/']);
-      return false;
-    }
-    return true;
+    return this.emailForm.controls;
   }
 }

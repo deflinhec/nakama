@@ -24,9 +24,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApplicationClient interface {
-	SendPasswordResetEmail(ctx context.Context, in *api.Email, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Submit a password reset request.
-	VerifyPasswordRenewal(ctx context.Context, in *RenewPassword, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	VerifyPasswordRenewal(ctx context.Context, in *VerifyPasswordRenewalRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type applicationClient struct {
@@ -37,7 +37,7 @@ func NewApplicationClient(cc grpc.ClientConnInterface) ApplicationClient {
 	return &applicationClient{cc}
 }
 
-func (c *applicationClient) SendPasswordResetEmail(ctx context.Context, in *api.Email, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *applicationClient) SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/nakama.web.Application/SendPasswordResetEmail", in, out, opts...)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *applicationClient) SendPasswordResetEmail(ctx context.Context, in *api.
 	return out, nil
 }
 
-func (c *applicationClient) VerifyPasswordRenewal(ctx context.Context, in *RenewPassword, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *applicationClient) VerifyPasswordRenewal(ctx context.Context, in *VerifyPasswordRenewalRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/nakama.web.Application/VerifyPasswordRenewal", in, out, opts...)
 	if err != nil {
@@ -59,9 +59,9 @@ func (c *applicationClient) VerifyPasswordRenewal(ctx context.Context, in *Renew
 // All implementations must embed UnimplementedApplicationServer
 // for forward compatibility
 type ApplicationServer interface {
-	SendPasswordResetEmail(context.Context, *api.Email) (*emptypb.Empty, error)
+	SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error)
 	// Submit a password reset request.
-	VerifyPasswordRenewal(context.Context, *RenewPassword) (*emptypb.Empty, error)
+	VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedApplicationServer()
 }
 
@@ -69,10 +69,10 @@ type ApplicationServer interface {
 type UnimplementedApplicationServer struct {
 }
 
-func (UnimplementedApplicationServer) SendPasswordResetEmail(context.Context, *api.Email) (*emptypb.Empty, error) {
+func (UnimplementedApplicationServer) SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendPasswordResetEmail not implemented")
 }
-func (UnimplementedApplicationServer) VerifyPasswordRenewal(context.Context, *RenewPassword) (*emptypb.Empty, error) {
+func (UnimplementedApplicationServer) VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyPasswordRenewal not implemented")
 }
 func (UnimplementedApplicationServer) mustEmbedUnimplementedApplicationServer() {}
@@ -89,7 +89,7 @@ func RegisterApplicationServer(s grpc.ServiceRegistrar, srv ApplicationServer) {
 }
 
 func _Application_SendPasswordResetEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(api.Email)
+	in := new(api.SendPasswordResetEmailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -101,13 +101,13 @@ func _Application_SendPasswordResetEmail_Handler(srv interface{}, ctx context.Co
 		FullMethod: "/nakama.web.Application/SendPasswordResetEmail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApplicationServer).SendPasswordResetEmail(ctx, req.(*api.Email))
+		return srv.(ApplicationServer).SendPasswordResetEmail(ctx, req.(*api.SendPasswordResetEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Application_VerifyPasswordRenewal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RenewPassword)
+	in := new(VerifyPasswordRenewalRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func _Application_VerifyPasswordRenewal_Handler(srv interface{}, ctx context.Con
 		FullMethod: "/nakama.web.Application/VerifyPasswordRenewal",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApplicationServer).VerifyPasswordRenewal(ctx, req.(*RenewPassword))
+		return srv.(ApplicationServer).VerifyPasswordRenewal(ctx, req.(*VerifyPasswordRenewalRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

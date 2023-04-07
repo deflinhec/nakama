@@ -65,7 +65,7 @@ func (stc *EmailTokenClaims) Parse(token string, hmacSecretByte []byte) (ok bool
 	return true
 }
 
-func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.Email) (*emptypb.Empty, error) {
+func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
 	if invalidCharsRegex.MatchString(in.GetEmail()) {
 		return nil, status.Error(codes.InvalidArgument, "Invalid email address, no spaces or control characters allowed.")
 	} else if !emailRegex.MatchString(in.GetEmail()) {
@@ -143,7 +143,7 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.Email) (
 	return &emptypb.Empty{}, nil
 }
 
-func (s *ApiServer) VerifyPasswordRenewal(ctx context.Context, in *web.RenewPassword) (*emptypb.Empty, error) {
+func (s *ApiServer) VerifyPasswordRenewal(ctx context.Context, in *web.VerifyPasswordRenewalRequest) (*emptypb.Empty, error) {
 	claims := &EmailTokenClaims{}
 	if ok := claims.Parse(in.GetToken(), []byte(s.config.GetSession().EncryptionKey)); !ok {
 		return nil, status.Error(codes.InvalidArgument, "Invalid Token.")

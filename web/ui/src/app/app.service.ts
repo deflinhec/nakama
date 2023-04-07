@@ -5,6 +5,20 @@ import { Injectable, Optional } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+/** Submit a password reset request. */
+export interface SendPasswordResetEmailRequest {
+  // The email to reset.
+	email?:string
+}
+
+/** Renew password after verfied. */
+export interface VerifyPasswordRenewalRequest {
+  // The renewed password.
+	password?:string
+  // The user credentials.
+	token?:string
+}
+
 const DEFAULT_HOST = 'http://127.0.0.1:7120';
 const DEFAULT_TIMEOUT_MS = 5000;
 
@@ -26,26 +40,17 @@ export class ApplicationService {
   }
 
   /** Submit a password reset request. */
-  verifyPasswordRenewal(auth_token: string, token?: string, password?: string): Observable<any> {
+  verifyPasswordRenewal(auth_token: string, body: VerifyPasswordRenewalRequest): Observable<any> {
 		const urlPath = `/v2/password/renew`;
     let params = new HttpParams();
-    if (token) {
-      params = params.set('token', token);
-    }
-    if (password) {
-      params = params.set('password', password);
-    }
-    return this.httpClient.post(this.config.host + urlPath, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
+    return this.httpClient.post(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
   }
 
   /**  */
-  sendPasswordResetEmail(auth_token: string, email?: string): Observable<any> {
+  sendPasswordResetEmail(auth_token: string, body: SendPasswordResetEmailRequest): Observable<any> {
 		const urlPath = `/v2/password/reset`;
     let params = new HttpParams();
-    if (email) {
-      params = params.set('email', email);
-    }
-    return this.httpClient.post(this.config.host + urlPath, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
+    return this.httpClient.post(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
   }
 
   private getTokenAuthHeaders(token: string): HttpHeaders {

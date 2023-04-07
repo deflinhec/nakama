@@ -25,7 +25,7 @@ option java_package = "com.heroiclabs.nakama.web";
 option csharp_namespace = "Nakama.Protobuf";
 
 // Submit a password reset request.
-message Email {
+message SendPasswordResetEmailRequest {
     // The email to reset.
     string email = 1;
 }

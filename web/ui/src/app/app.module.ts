@@ -31,12 +31,16 @@ import {ConfigParams} from './app.service';
 import {SegmentModule} from 'ngx-segment-analytics';
 
 import {NgxFileDropModule} from 'ngx-file-drop';
+import {HomeComponent} from './home/home.component';
 import {ResetPasswordComponent} from './reset-password/reset-password.component';
+import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    HomeComponent,
     ResetPasswordComponent,
+    ForgotPasswordComponent,
   ],
   imports: [
     NgxFileDropModule,
