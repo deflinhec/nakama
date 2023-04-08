@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package apiwallet
+package api
 
-//go:generate protoc -I. --go_out=. --go_opt=paths=source_relative api.proto
+//go:generate protoc -I. --go_out=. --go_opt=paths=source_relative web.api.proto
+//go:generate protoc -I. --go_out=. --go_opt=paths=source_relative apigrpc.api.wallet.proto
+//go:generate protoc -I. --go_out=. --go_opt=paths=source_relative console.api.wallet.proto

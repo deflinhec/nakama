@@ -14,9 +14,9 @@
 
 syntax = "proto3";
 
-package nakama.api.wallet;
+package nakama.api;
 
-import "apiwallet/api.proto";
+import "apigrpc.api.wallet.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -97,12 +97,12 @@ service WalletProvider {
   }
 
   // Fetch the avaliable list of chain.
-  rpc ListChainsFromWalletProvider (google.protobuf.Empty) returns (ChainResponse) {
+  rpc ListChainsFromWalletProvider (google.protobuf.Empty) returns (wallet.ChainResponse) {
     option (google.api.http).get = "/v2/provider/wallet/chains";
   }
 
   // Fetch the current user's account.
-  rpc GetAddressFromWalletProvider (AddressRequest) returns (AddressResponse) {
+  rpc GetAddressFromWalletProvider (wallet.AddressRequest) returns (wallet.AddressResponse) {
     option (google.api.http).get = "/v2/provider/wallet/{chain}/address";
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       security: {
