@@ -1035,20 +1035,19 @@ func NewWalletConfig() *WalletConfig {
 }
 
 type SMTPConfig struct {
-	Email        string `yaml:"email" json:"email" usage:"The email address to use for sending emails."`
+	Domain       string `yaml:"domain" json:"domain" usage:"The domain of the mail service."`
+	Username     string `yaml:"username" json:"username" usage:"The username for the smtp server."`
 	Password     string `yaml:"password" json:"password" usage:"The password of the account to use for sending emails."`
 	AdvertiseUrl string `yaml:"advertise_url" json:"advertise_url" usage:"The URL to advertise to clients for the SMTP server."`
 	Address      string `yaml:"address" json:"address" usage:"The IP address of the SMTP server. Default localhost."`
-	Port         int    `yaml:"port" json:"port" usage:"The port of the SMTP server. Default 25."`
 }
 
 func NewSMTPConfig() *SMTPConfig {
 	return &SMTPConfig{
-		Email:        "admin@mail.localhost.com",
-		Password:     "password",
-		AdvertiseUrl: "http://localhost:7350",
-		Address:      "localhost",
-		Port:         25,
+		Domain:   "localhost",
+		Username: "admin",
+		Password: "password",
+		Address:  "localhost:25",
 	}
 }
 

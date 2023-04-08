@@ -12,22 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Component, AfterViewInit} from '@angular/core';
-import {Router} from '@angular/router';
+import { APP_BASE_HREF, HashLocationStrategy, PlatformLocation } from '@angular/common';
+import {Component, OnInit, Injectable, Inject, Optional} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent  implements AfterViewInit {
+export class AppComponent {}
 
+
+@Injectable()
+export class HashPreserveQueryLocationStrategy extends HashLocationStrategy {
+  private readonly search: string;
   constructor(
-    private readonly router: Router
-  ) {}
+    _platformLocation: PlatformLocation,
+    @Optional() @Inject(APP_BASE_HREF) _baseHref?: string,
+    ) {
+    super(_platformLocation, _baseHref);
+    this.search = window.location.search || '';
+  }
 
-  ngAfterViewInit(): void {
-    this.router.navigate(['/home']);
+  prepareExternalUrl(internal: string): string {
+    const hash = super.prepareExternalUrl(internal);
+    return this.search + hash;
   }
 }
-

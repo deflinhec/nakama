@@ -65,7 +65,7 @@ export class ResetPasswordComponent implements OnInit {
       return;
     }
     const body : VerifyPasswordRenewalRequest = {
-      password: this.f.email.value,
+      password: this.f.newPassword.value,
       token: token,
     };
     this.appService.verifyPasswordRenewal('', body)

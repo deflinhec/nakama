@@ -8,7 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"net"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -20,6 +22,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gopkg.in/gomail.v2"
@@ -65,7 +68,20 @@ func (stc *EmailTokenClaims) Parse(token string, hmacSecretByte []byte) (ok bool
 	return true
 }
 
+func SplitHostPort(hostport string) (host string, port int, err error) {
+	host, portStr, err := net.SplitHostPort(hostport)
+	if err != nil {
+		return "", 0, err
+	}
+	port, err = strconv.Atoi(portStr)
+	if err != nil {
+		return "", 0, err
+	}
+	return host, port, nil
+}
+
 func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
+	ip, _ := extractClientAddressFromContext(s.logger, ctx)
 	if invalidCharsRegex.MatchString(in.GetEmail()) {
 		return nil, status.Error(codes.InvalidArgument, "Invalid email address, no spaces or control characters allowed.")
 	} else if !emailRegex.MatchString(in.GetEmail()) {
@@ -73,13 +89,36 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 	} else if len(in.GetEmail()) < 10 || len(in.GetEmail()) > 255 {
 		return nil, status.Error(codes.InvalidArgument, "Invalid email address, must be 10-255 bytes.")
 	}
+	switch s.passwordResetCache.Allow(in.GetEmail(), ip) {
+	case LockoutTypeFrequency:
+		return nil, status.Error(codes.AlreadyExists,
+			"Too many requests within short period of time, please try again later.")
+	case LockoutTypeEmail:
+		return nil, status.Error(codes.AlreadyExists,
+			"Too many requests for this email address, please try again later.")
+	case LockoutTypeIp:
+		return nil, status.Error(codes.AlreadyExists,
+			"Too many requests from current ip address, please try again later.")
+	default:
+	}
+
+	host, port, err := SplitHostPort(s.config.GetSMTP().Address)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Invalid SMTP configuration.")
+	}
+	dialer := gomail.NewDialer(host, port,
+		s.config.GetSMTP().Username,
+		s.config.GetSMTP().Password,
+	)
+	now := time.Now().UTC()
+	expiry := now.Add(10 * time.Minute)
+	s.passwordResetCache.Add(in.GetEmail(), ip, expiry)
 
 	// Look for an existing account.
 	query := "SELECT id, disable_time FROM users WHERE email = $1"
 	var dbUserID string
 	var dbDisableTime pgtype.Timestamptz
-	err := s.db.QueryRowContext(ctx, query, in.GetEmail()).Scan(&dbUserID, &dbDisableTime)
-	if err != nil {
+	if err := s.db.QueryRowContext(ctx, query, in.GetEmail()).Scan(&dbUserID, &dbDisableTime); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Error(codes.InvalidArgument, "Email does not exists.")
 		} else {
@@ -95,7 +134,6 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 	}
 
 	// Generate a one time used token.
-	expiry := time.Now().UTC().Add(10 * time.Minute)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &EmailTokenClaims{
 		UID:       dbUserID,
 		Email:     in.GetEmail(),
@@ -104,10 +142,22 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 	})
 	signedToken, _ := token.SignedString([]byte(s.config.GetSession().EncryptionKey))
 
-	// Generate password reset link.
-	resetLink, _ := url.Parse(s.config.GetSMTP().AdvertiseUrl)
-	resetLink.Path = "/reset-password"
-	resetLink.RawQuery = url.Values{"token": []string{signedToken}}.Encode()
+	// Get the origin header and generate password reset link..
+	var link string
+	md, _ := metadata.FromIncomingContext(ctx)
+	if origins := md.Get("grpcgateway-origin"); len(origins) > 0 {
+		uri, err := url.Parse(origins[0])
+		if err != nil {
+			s.logger.Warn("Invalid origin header.", zap.Error(err))
+			return nil, status.Error(codes.Internal, "Invalid origin header.")
+		}
+		uri.Path = "/"
+		uri.Fragment = "/reset-password"
+		link = uri.String() + "?" + url.Values{"token": []string{signedToken}}.Encode()
+	}
+	if len(link) == 0 {
+		return nil, status.Error(codes.Internal, "Origin header missing.")
+	}
 
 	// Generate email content.
 	var body bytes.Buffer
@@ -116,8 +166,7 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 		ResetLink      string
 		ExpirationTime string
 	}{
-		resetLink.String(),
-		formatDuration(expiry.Sub(time.Now().UTC())),
+		link, expiry.Sub(now).String(),
 	}); err != nil {
 		s.logger.Warn("Email template generate failed.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Email template generate failed.")
@@ -125,17 +174,11 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 
 	// Send the email to smtp server.
 	m := gomail.NewMessage()
-	m.SetHeader("From", s.config.GetSMTP().Email)
+	m.SetHeader("From", "noreply@"+s.config.GetSMTP().Domain)
 	m.SetHeader("To", in.GetEmail())
 	m.SetHeader("Subject", "Password Reset")
 	m.SetBody("text/html", body.String())
-	d := gomail.NewDialer(
-		s.config.GetSMTP().Address,
-		s.config.GetSMTP().Port,
-		s.config.GetSMTP().Email,
-		s.config.GetSMTP().Password,
-	)
-	if err := d.DialAndSend(m); err != nil {
+	if err := dialer.DialAndSend(m); err != nil {
 		s.logger.Error("Email send failed.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Email send failed.")
 	}
@@ -155,10 +198,11 @@ func (s *ApiServer) VerifyPasswordRenewal(ctx context.Context, in *web.VerifyPas
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "Invalid Token.")
 	}
-
-	// TODO: check if the token has been used before
 	if len(in.GetPassword()) < 8 {
 		return nil, status.Error(codes.InvalidArgument, "Password must be at least 8 characters long.")
+	}
+	if !s.passwordResetCache.Validate(claims.Email, claims.ExpiresAt) {
+		return nil, status.Error(codes.InvalidArgument, "Invalid Token.")
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(in.GetPassword()), bcrypt.DefaultCost)
 	if err != nil {
@@ -194,6 +238,7 @@ func (s *ApiServer) VerifyPasswordRenewal(ctx context.Context, in *web.VerifyPas
 		s.logger.Error("Error updating user password.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "An error occurred while trying to update the user password.")
 	}
+	s.passwordResetCache.Reset(claims.Email)
 
 	// Logout and disconnect.
 	if err = SessionLogout(s.config, s.sessionCache, userID, "", ""); err != nil {
@@ -206,22 +251,4 @@ func (s *ApiServer) VerifyPasswordRenewal(ctx context.Context, in *web.VerifyPas
 	}
 
 	return &emptypb.Empty{}, nil
-}
-
-func formatDuration(duration time.Duration) string {
-	hours := int(duration.Truncate(time.Hour).Hours())
-	minutes := int(duration.Truncate(time.Minute).Minutes()) % 60
-
-	if hours > 0 {
-		if minutes > 0 {
-			return fmt.Sprintf("%d hour %d minutes", hours, minutes)
-		}
-		return fmt.Sprintf("%d hour", hours)
-	}
-
-	if minutes > 0 {
-		return fmt.Sprintf("%d minutes", minutes)
-	}
-
-	return "0 minutes"
 }

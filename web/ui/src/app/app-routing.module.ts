@@ -14,25 +14,18 @@
 
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {AppComponent} from './app.component';
 import {HomeComponent} from './home/home.component';
 import {ResetPasswordComponent, ResetGuard} from './reset-password/reset-password.component';
 import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: AppComponent,
-    children: [
-    {path: 'home', 
+  {path: '', 
       component: HomeComponent},
-    {path: 'reset-password', 
+  {path: 'reset-password', 
       component: ResetPasswordComponent, 
       canActivate: [ResetGuard]},
-    {path: 'forgot-password', 
+  {path: 'forgot-password', 
       component: ForgotPasswordComponent},
-    ],
-  },
   
   // Fallback redirect.
   {path: '**', redirectTo: ''}

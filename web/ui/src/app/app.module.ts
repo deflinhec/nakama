@@ -17,7 +17,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {NgModule} from '@angular/core';
 
 import {AppRoutingModule} from './app-routing.module';
-import {AppComponent} from './app.component';
+import {AppComponent, HashPreserveQueryLocationStrategy} from './app.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {WINDOW_PROVIDERS} from './window.provider';
 import {environment} from '../environments/environment';
@@ -34,6 +34,7 @@ import {NgxFileDropModule} from 'ngx-file-drop';
 import {HomeComponent} from './home/home.component';
 import {ResetPasswordComponent} from './reset-password/reset-password.component';
 import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
+import { LocationStrategy } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import {ForgotPasswordComponent} from './forgot-password/forgot-password.compone
   providers: [
     WINDOW_PROVIDERS,
     Globals,
+    {provide: LocationStrategy, useClass: HashPreserveQueryLocationStrategy},
     {provide: ConfigParams, useValue: {host: environment.production ? document.location.origin : environment.apiBaseUrl, timeout: 15000}},
   ],
   bootstrap: [AppComponent]
