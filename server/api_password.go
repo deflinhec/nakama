@@ -23,6 +23,7 @@ import (
 	"github.com/jackc/pgtype"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/text/language"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -169,6 +170,13 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 	if len(link) == 0 {
 		return nil, status.Error(codes.Internal, "Origin header missing.")
 	}
+
+	// Set the language for the email template.
+	langs := []language.Tag{}
+	if al := md.Get("grpcgateway-accept-language"); len(al) > 0 {
+		langs, _, _ = language.ParseAcceptLanguage(al[0])
+	}
+	assets.FS.With(langs...)
 
 	// Generate email content.
 	var body bytes.Buffer

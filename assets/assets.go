@@ -19,20 +19,44 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	"golang.org/x/text/language"
 )
 
 //go:embed *
 var embedFS embed.FS
 
 type templateFS struct {
-	fs fs.FS
+	tags []language.Tag
+	fs   fs.FS
 }
 
-func (fs *templateFS) Use(dir string) {
+func (fs *templateFS) With(lang ...language.Tag) {
+	fs.tags = lang
+}
+
+func (fs *templateFS) SetDataDir(dir string) {
 	fs.fs = os.DirFS(filepath.Join(dir, "assets"))
 }
 
 func (fs *templateFS) Open(name string) (fs.File, error) {
+	dir := filepath.Dir(name)
+	base := filepath.Base(name)
+	for _, tag := range fs.tags {
+		path := filepath.Join(dir, tag.String(), base)
+		if f, err := fs.fs.Open(path); err == nil {
+			return f, nil
+		} else if f, err := embedFS.Open(path); err == nil {
+			return f, nil
+		}
+		b, _ := tag.Base()
+		path = filepath.Join(dir, b.String(), base)
+		if f, err := fs.fs.Open(path); err == nil {
+			return f, nil
+		} else if f, err := embedFS.Open(path); err == nil {
+			return f, nil
+		}
+	}
 	f, err := fs.fs.Open(name)
 	if err != nil {
 		return embedFS.Open(name)

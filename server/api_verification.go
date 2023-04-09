@@ -18,6 +18,7 @@ import (
 	"github.com/heroiclabs/nakama/v3/web"
 	"github.com/jackc/pgtype"
 	"go.uber.org/zap"
+	"golang.org/x/text/language"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -83,6 +84,14 @@ func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *api.SendE
 	expiry := now.Add(time.Hour * 8)
 	ssn := fmt.Sprintf("%04d", rand.Intn(9999))
 	s.emailValidatorCache.Update(cleanEmail, ssn, expiry)
+
+	// Set the language for the email template.
+	langs := []language.Tag{}
+	md, _ := metadata.FromIncomingContext(ctx)
+	if al := md.Get("grpcgateway-accept-language"); len(al) > 0 {
+		langs, _, _ = language.ParseAcceptLanguage(al[0])
+	}
+	assets.FS.With(langs...)
 
 	// Generate email content.
 	var body bytes.Buffer
@@ -199,7 +208,7 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendE
 	})
 	signedToken, _ := token.SignedString([]byte(s.config.GetMail().Verification.EncryptionKey))
 
-	// Get the origin header and generate password reset link..
+	// Get the origin header and generate password reset link.
 	var link string
 	md, _ := metadata.FromIncomingContext(ctx)
 	if origins := md.Get("grpcgateway-origin"); len(origins) > 0 {
@@ -215,6 +224,13 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendE
 	if len(link) == 0 {
 		return nil, status.Error(codes.Internal, "Origin header missing.")
 	}
+
+	// Set the language for the email template.
+	langs := []language.Tag{}
+	if al := md.Get("grpcgateway-accept-language"); len(al) > 0 {
+		langs, _, _ = language.ParseAcceptLanguage(al[0])
+	}
+	assets.FS.With(langs...)
 
 	// Generate email content.
 	var body bytes.Buffer

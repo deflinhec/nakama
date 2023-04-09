@@ -100,7 +100,7 @@ func main() {
 	config := server.ParseArgs(tmpLogger, os.Args)
 	logger, startupLogger := server.SetupLogging(tmpLogger, config)
 	configWarnings := server.CheckConfig(logger, config)
-	assets.FS.Use(config.GetDataDir())
+	assets.FS.SetDataDir(config.GetDataDir())
 
 	startupLogger.Info("Nakama starting")
 	startupLogger.Info("Node", zap.String("name", config.GetName()), zap.String("version", semver), zap.String("runtime", runtime.Version()), zap.Int("cpu", runtime.NumCPU()), zap.Int("proc", runtime.GOMAXPROCS(0)))
