@@ -54,10 +54,7 @@ func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *api.SendE
 				lockoutDuration.String()+".")
 	default:
 	}
-	now := time.Now().UTC()
-	expiry := now.Add(time.Hour * 8)
-	ssn := fmt.Sprintf("%04d", rand.Intn(9999))
-	s.emailValidatorCache.Add(cleanEmail, ip, ssn, expiry)
+	s.emailValidatorCache.Add(cleanEmail, ip)
 
 	host, port, err := SplitHostPort(s.config.GetMail().SMTP.Address)
 	if err != nil {
@@ -80,6 +77,12 @@ func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *api.SendE
 		return nil, status.Error(codes.Internal, "Mailserver connection failed.")
 	}
 	defer sender.Close()
+
+	// Generate verification code.
+	now := time.Now().UTC()
+	expiry := now.Add(time.Hour * 8)
+	ssn := fmt.Sprintf("%04d", rand.Intn(9999))
+	s.emailValidatorCache.Update(cleanEmail, ssn, expiry)
 
 	// Generate email content.
 	var body bytes.Buffer
@@ -139,10 +142,7 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendE
 				lockoutDuration.String()+".")
 	default:
 	}
-	now := time.Now().UTC()
-	ssn := fmt.Sprint(rand.Int())
-	expiry := now.Add(time.Hour * 8)
-	s.emailValidatorCache.Add(cleanEmail, "", ssn, expiry)
+	s.emailValidatorCache.Add(cleanEmail, ip)
 
 	// Determine the host and port to use for the SMTP server.
 	host, port, err := SplitHostPort(s.config.GetMail().SMTP.Address)
@@ -160,10 +160,11 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendE
 	defer sender.Close()
 
 	// Look for an existing account.
-	query := "SELECT id, disable_time FROM users WHERE email = $1"
+	query := "SELECT id, verify_time, disable_time FROM users WHERE email = $1"
 	var dbUserID string
+	var dbVerifyTime pgtype.Timestamptz
 	var dbDisableTime pgtype.Timestamptz
-	if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID, &dbDisableTime); err != nil {
+	if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID, &dbVerifyTime, &dbDisableTime); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Error(codes.InvalidArgument, "Email does not exists.")
 		} else {
@@ -179,7 +180,16 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendE
 		return nil, status.Error(codes.PermissionDenied, "User account banned.")
 	}
 
+	// Check if it's already verified.
+	if dbVerifyTime.Status == pgtype.Present && dbVerifyTime.Time.Unix() != 0 {
+		return nil, status.Error(codes.AlreadyExists, "Email already verified.")
+	}
+
 	// Generate a one time used token.
+	now := time.Now().UTC()
+	ssn := fmt.Sprint(rand.Int())
+	expiry := now.Add(time.Hour * 8)
+	s.emailValidatorCache.Update(cleanEmail, ssn, expiry)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &EmailTokenClaims{
 		Serial:    ssn,
 		UID:       dbUserID,

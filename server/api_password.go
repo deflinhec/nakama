@@ -109,6 +109,7 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 				lockoutDuration.String()+".")
 	default:
 	}
+	s.emailValidatorCache.Add(cleanEmail, ip)
 
 	host, port, err := SplitHostPort(s.config.GetMail().SMTP.Address)
 	if err != nil {
@@ -118,10 +119,6 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 		s.config.GetMail().SMTP.Username,
 		s.config.GetMail().SMTP.Password,
 	)
-	now := time.Now().UTC()
-	expiry := now.Add(10 * time.Minute)
-	ssn := fmt.Sprint(rand.Int())
-	s.emailValidatorCache.Add(cleanEmail, ip, ssn, expiry)
 
 	// Look for an existing account.
 	query := "SELECT id, disable_time FROM users WHERE email = $1"
@@ -143,6 +140,9 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 	}
 
 	// Generate a one time used token.
+	now := time.Now().UTC()
+	ssn := fmt.Sprint(rand.Int())
+	expiry := now.Add(10 * time.Minute)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &EmailTokenClaims{
 		Serial:    ssn,
 		UID:       dbUserID,
@@ -151,6 +151,7 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 		ExpiresAt: expiry.Unix(),
 	})
 	signedToken, _ := token.SignedString([]byte(s.config.GetMail().Verification.EncryptionKey))
+	s.emailValidatorCache.Update(cleanEmail, ssn, expiry)
 
 	// Get the origin header and generate password reset link..
 	var link string

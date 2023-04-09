@@ -32,7 +32,9 @@ type EmailValidatorCache interface {
 	// Validate if the latest expiry time matched.
 	Validate(email string, secret string) bool
 	// Add a attempt.
-	Add(email, ip, secret string, expiry time.Time)
+	Add(email, ip string)
+	// Add a attempt.
+	Update(email, secret string, expiry time.Time)
 	// Reset email attempts on successful password reset.
 	Reset(email string)
 }
@@ -135,7 +137,7 @@ func (c *LocalEmailValidatorCache) Reset(email string) {
 	c.Unlock()
 }
 
-func (c *LocalEmailValidatorCache) Add(email, ip, secret string, expiry time.Time) {
+func (c *LocalEmailValidatorCache) Add(email, ip string) {
 	now := time.Now().UTC()
 	c.Lock()
 	defer c.Unlock()
@@ -145,8 +147,6 @@ func (c *LocalEmailValidatorCache) Add(email, ip, secret string, expiry time.Tim
 			status = &expireLockoutStatus{}
 			c.emailCache[email] = status
 		}
-		status.secret = secret
-		status.epxiredUntil = expiry
 		status.attempts = append(status.attempts, now)
 		_ = status.trim(now, lockoutPeriodAccount)
 		if len(status.attempts) >= maxAttemptsAccount {
@@ -165,4 +165,22 @@ func (c *LocalEmailValidatorCache) Add(email, ip, secret string, expiry time.Tim
 			status.lockedUntil = now.Add(lockoutPeriodIp)
 		}
 	}
+}
+
+func (c *LocalEmailValidatorCache) Update(email, secret string, expiry time.Time) {
+	now := time.Now().UTC()
+	c.Lock()
+	defer c.Unlock()
+	status, found := c.emailCache[email]
+	if !found {
+		status = &expireLockoutStatus{}
+		c.emailCache[email] = status
+		status.attempts = append(status.attempts, now)
+		_ = status.trim(now, lockoutPeriodAccount)
+		if len(status.attempts) >= maxAttemptsAccount {
+			status.lockedUntil = now.Add(lockoutPeriodAccount)
+		}
+	}
+	status.secret = secret
+	status.epxiredUntil = expiry
 }
