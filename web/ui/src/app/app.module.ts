@@ -34,7 +34,9 @@ import {NgxFileDropModule} from 'ngx-file-drop';
 import {HomeComponent} from './home/home.component';
 import {ResetPasswordComponent} from './reset-password/reset-password.component';
 import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
-import { LocationStrategy } from '@angular/common';
+import {EmailVerificationLinkComponent} from './email-verification/link/link.component';
+import {EmailVerificationCodeComponent} from './email-verification/code/code.component';
+import {LocationStrategy} from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -42,6 +44,8 @@ import { LocationStrategy } from '@angular/common';
     HomeComponent,
     ResetPasswordComponent,
     ForgotPasswordComponent,
+    EmailVerificationLinkComponent,
+    EmailVerificationCodeComponent,
   ],
   imports: [
     NgxFileDropModule,

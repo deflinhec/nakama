@@ -50,7 +50,7 @@ type Config interface {
 	GetMatchmaker() *MatchmakerConfig
 	GetWallet() *WalletConfig
 	GetConsul() *ConsulConfig
-	GetSMTP() *SMTPConfig
+	GetMail() *MailConfig
 	GetIAP() *IAPConfig
 	GetGoogleAuth() *GoogleAuthConfig
 	GetSatori() *SatoriConfig
@@ -458,7 +458,7 @@ type config struct {
 	Matchmaker       *MatchmakerConfig  `yaml:"matchmaker" json:"matchmaker" usage:"Matchmaker settings."`
 	Consul           *ConsulConfig      `yaml:"consul" json:"consul" usage:"Consul settings."`
 	Wallet           *WalletConfig      `yaml:"wallet" json:"wallet" usage:"Wallet settings."`
-	SMTP             *SMTPConfig        `yaml:"smtp" json:"smtp" usage:"SMTP settings."`
+	Mail             *MailConfig        `yaml:"mail" json:"mail" usage:"Mail settings."`
 	IAP              *IAPConfig         `yaml:"iap" json:"iap" usage:"In-App Purchase settings."`
 	GoogleAuth       *GoogleAuthConfig  `yaml:"google_auth" json:"google_auth" usage:"Google's auth settings."`
 	Satori           *SatoriConfig      `yaml:"satori" json:"satori" usage:"Satori integration settings."`
@@ -488,7 +488,7 @@ func NewConfig(logger *zap.Logger) *config {
 		Matchmaker:       NewMatchmakerConfig(),
 		Consul:           NewConsulConfig(),
 		Wallet:           NewWalletConfig(),
-		SMTP:             NewSMTPConfig(),
+		Mail:             NewMailConfig(),
 		IAP:              NewIAPConfig(),
 		Satori:           NewSatoriConfig(),
 	}
@@ -509,7 +509,7 @@ func (c *config) Clone() (Config, error) {
 	configMatchmaker := *(c.Matchmaker)
 	configConsul := *(c.Consul)
 	configWallet := *(c.Wallet)
-	configSMTP := *(c.SMTP)
+	configMail := *(c.Mail)
 	configIAP := *(c.IAP)
 	nc := &config{
 		Name:             c.Name,
@@ -529,7 +529,7 @@ func (c *config) Clone() (Config, error) {
 		Matchmaker:       &configMatchmaker,
 		Consul:           &configConsul,
 		Wallet:           &configWallet,
-		SMTP:             &configSMTP,
+		Mail:             &configMail,
 		IAP:              &configIAP,
 	}
 	nc.Socket.CertPEMBlock = make([]byte, len(c.Socket.CertPEMBlock))
@@ -625,8 +625,8 @@ func (c *config) GetWallet() *WalletConfig {
 	return c.Wallet
 }
 
-func (c *config) GetSMTP() *SMTPConfig {
-	return c.SMTP
+func (c *config) GetMail() *MailConfig {
+	return c.Mail
 }
 
 func (c *config) GetIAP() *IAPConfig {
@@ -1034,20 +1034,39 @@ func NewWalletConfig() *WalletConfig {
 	}
 }
 
-type SMTPConfig struct {
-	Domain       string `yaml:"domain" json:"domain" usage:"The domain of the mail service."`
-	Username     string `yaml:"username" json:"username" usage:"The username for the smtp server."`
-	Password     string `yaml:"password" json:"password" usage:"The password of the account to use for sending emails."`
-	AdvertiseUrl string `yaml:"advertise_url" json:"advertise_url" usage:"The URL to advertise to clients for the SMTP server."`
-	Address      string `yaml:"address" json:"address" usage:"The IP address of the SMTP server. Default localhost."`
+type MailConfig struct {
+	Sender       string                  `yaml:"sender" json:"sender" usage:"The email address to use for sending emails. Default noreply@localhost."`
+	Verification *MailVerificationConfig `yaml:"verification" json:"verification" usage:"Mail verification configuration."`
+	SMTP         *MailSMTPConfig         `yaml:"smtp" json:"smtp" usage:"SMTP configuration for sending emails."`
 }
 
-func NewSMTPConfig() *SMTPConfig {
-	return &SMTPConfig{
-		Domain:   "localhost",
-		Username: "admin",
-		Password: "password",
-		Address:  "localhost:25",
+type MailVerificationConfig struct {
+	Entitlement   string `yaml:"entitlement" json:"entitlement" usage:"Entitlement to grant to users who verify their email address."`
+	EncryptionKey string `yaml:"encryption_key" json:"encryption_key" usage:"Encryption key used to encrypt email verification tokens."`
+	Enable        bool   `yaml:"enable" json:"enable" usage:"Enable email verification for new accounts. Default false."`
+	Enforce       bool   `yaml:"enforce" json:"enforce" usage:"Enforce email verification for new accounts. Default false."`
+}
+
+type MailSMTPConfig struct {
+	Username string `yaml:"username" json:"username" usage:"The username for the smtp server. Default admin."`
+	Password string `yaml:"password" json:"password" usage:"The password of the account to use for sending emails. Default password."`
+	Address  string `yaml:"address" json:"address" usage:"The IP address of the SMTP server. Default localhost. Default localhost:25."`
+}
+
+func NewMailConfig() *MailConfig {
+	return &MailConfig{
+		Sender: "noreply@localhost",
+		Verification: &MailVerificationConfig{
+			Entitlement:   "nakama",
+			EncryptionKey: "defaultverificationencryptionkey",
+			Enable:        false,
+			Enforce:       false,
+		},
+		SMTP: &MailSMTPConfig{
+			Username: "admin",
+			Password: "password",
+			Address:  "localhost:25",
+		},
 	}
 }
 

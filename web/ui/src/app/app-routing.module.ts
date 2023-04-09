@@ -17,6 +17,8 @@ import {Routes, RouterModule} from '@angular/router';
 import {HomeComponent} from './home/home.component';
 import {ResetPasswordComponent, ResetGuard} from './reset-password/reset-password.component';
 import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
+import {EmailVerificationLinkComponent} from './email-verification/link/link.component';
+import {EmailVerificationCodeComponent} from './email-verification/code/code.component';
 
 const routes: Routes = [
   {path: '', 
@@ -26,6 +28,13 @@ const routes: Routes = [
       canActivate: [ResetGuard]},
   {path: 'forgot-password', 
       component: ForgotPasswordComponent},
+  {path: 'email-verification', children: [
+      {path: 'link', 
+        component: EmailVerificationLinkComponent},
+      {path: 'code', 
+          component: EmailVerificationCodeComponent},
+    ],
+  },
   
   // Fallback redirect.
   {path: '**', redirectTo: ''}

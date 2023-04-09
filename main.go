@@ -142,7 +142,7 @@ func main() {
 	sessionCache := server.NewLocalSessionCache(config.GetSession().TokenExpirySec)
 	consoleSessionCache := server.NewLocalSessionCache(config.GetConsole().TokenExpirySec)
 	loginAttemptCache := server.NewLocalLoginAttemptCache()
-	passwordResetCache := server.NewLocalPasswordResetCache()
+	emailValidatorCache := server.NewLocalEmailValidatorCache()
 	statusRegistry := server.NewStatusRegistry(logger, config, sessionRegistry, jsonpbMarshaler)
 	tracker := server.StartLocalTracker(logger, config, sessionRegistry, statusRegistry, metrics, jsonpbMarshaler)
 	router := server.NewLocalMessageRouter(sessionRegistry, tracker, jsonpbMarshaler)
@@ -169,7 +169,7 @@ func main() {
 	pipeline := server.NewPipeline(logger, config, db, jsonpbMarshaler, jsonpbUnmarshaler, sessionRegistry, statusRegistry, matchRegistry, partyRegistry, matchmaker, tracker, router, runtime)
 	statusHandler := server.NewLocalStatusHandler(logger, sessionRegistry, matchRegistry, tracker, metrics, config.GetName())
 
-	apiServer := server.StartApiServer(logger, startupLogger, db, jsonpbMarshaler, jsonpbUnmarshaler, config, version, socialClient, leaderboardCache, leaderboardRankCache, sessionRegistry, sessionCache, statusRegistry, matchRegistry, passwordResetCache, matchmaker, tracker, router, streamManager, metrics, pipeline, runtime)
+	apiServer := server.StartApiServer(logger, startupLogger, db, jsonpbMarshaler, jsonpbUnmarshaler, config, version, socialClient, leaderboardCache, leaderboardRankCache, sessionRegistry, sessionCache, statusRegistry, matchRegistry, emailValidatorCache, matchmaker, tracker, router, streamManager, metrics, pipeline, runtime)
 	consoleServer := server.StartConsoleServer(logger, startupLogger, db, config, tracker, router, streamManager, metrics, sessionRegistry, sessionCache, consoleSessionCache, loginAttemptCache, statusRegistry, statusHandler, runtimeInfo, matchRegistry, configWarnings, semver, leaderboardCache, leaderboardRankCache, leaderboardScheduler, apiServer, runtime, cookie)
 	consulService := server.StartConsulAgent(logger, startupLogger, db, config, semver)
 
@@ -241,7 +241,7 @@ func main() {
 	sessionRegistry.Stop()
 	metrics.Stop(logger)
 	loginAttemptCache.Stop()
-	passwordResetCache.Stop()
+	emailValidatorCache.Stop()
 
 	if gaenabled {
 		_ = ga.SendSessionStop(telemetryClient, gacode, cookie)

@@ -5,13 +5,19 @@ import { Injectable, Optional } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+/** Submit a email verification request. */
+export interface SendEmailVerificationRequest {
+  // The email address.
+	email?:string
+}
+
 /** Submit a password reset request. */
 export interface SendPasswordResetEmailRequest {
   // The email to reset.
 	email?:string
 }
 
-/** Renew password after verfied. */
+/** Verfiy password after verfied. */
 export interface VerifyPasswordRenewalRequest {
   // The renewed password.
 	password?:string
@@ -39,18 +45,40 @@ export class ApplicationService {
     this.config = config || defaultConfig;
   }
 
-  /** Submit a password reset request. */
+  /** Verfiy password from web ui. */
   verifyPasswordRenewal(auth_token: string, body: VerifyPasswordRenewalRequest): Observable<any> {
-		const urlPath = `/v2/password/renew`;
+		const urlPath = `/v2/account/password/renew`;
     let params = new HttpParams();
     return this.httpClient.post(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
   }
 
-  /**  */
+  /** Send password reset email. */
   sendPasswordResetEmail(auth_token: string, body: SendPasswordResetEmailRequest): Observable<any> {
-		const urlPath = `/v2/password/reset`;
+		const urlPath = `/v2/account/password/reset`;
     let params = new HttpParams();
     return this.httpClient.post(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
+  }
+
+  /** Send email verification. */
+  sendEmailVerificationCode(auth_token: string, body: SendEmailVerificationRequest): Observable<any> {
+		const urlPath = `/v2/account/verify/code`;
+    let params = new HttpParams();
+    return this.httpClient.post(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
+  }
+
+  /** Send email verification. */
+  sendEmailVerificationLink(auth_token: string, body: SendEmailVerificationRequest): Observable<any> {
+		const urlPath = `/v2/account/verify/link`;
+    let params = new HttpParams();
+    return this.httpClient.post(this.config.host + urlPath, body, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
+  }
+
+  /** Verfiy email address from web ui. */
+  verifyEmailAddress(auth_token: string, token: string): Observable<any> {
+		token = encodeURIComponent(String(token))
+		const urlPath = `/v2/account/verify/${token}`;
+    let params = new HttpParams();
+    return this.httpClient.delete(this.config.host + urlPath, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
   }
 
   private getTokenAuthHeaders(token: string): HttpHeaders {

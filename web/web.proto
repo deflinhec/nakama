@@ -69,26 +69,54 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
  * The SMTP RPC protocol service built with GRPC.
  */
 service Application {
-  rpc SendPasswordResetEmail (SendPasswordResetEmailRequest) returns (google.protobuf.Empty) {
+  // Send email verification.
+  rpc SendEmailVerificationCode (SendEmailVerificationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/v2/password/reset";
+      post: "/v2/account/verify/code",
       body: "*"
     };
   }
 
-  // Submit a password reset request.
-  rpc VerifyPasswordRenewal (VerifyPasswordRenewalRequest) returns (google.protobuf.Empty) {
+  // Send email verification.
+  rpc SendEmailVerificationLink (SendEmailVerificationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/v2/password/renew";
+      post: "/v2/account/verify/link",
       body: "*"
     };
+  }
+
+  // Send password reset email.
+  rpc SendPasswordResetEmail (SendPasswordResetEmailRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v2/account/password/reset";
+      body: "*"
+    };
+  }
+
+  // Verfiy password from web ui.
+  rpc VerifyPasswordRenewal (VerifyPasswordRenewalRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v2/account/password/renew";
+      body: "*"
+    };
+  }
+
+  // Verfiy email address from web ui.
+  rpc VerifyEmailAddress (VerifyEmailAddressRequest) returns (google.protobuf.Empty) {
+    option (google.api.http).delete = "/v2/account/verify/{token}";
   }
 }
 
-// Renew password after verfied.
+// Verfiy password after verfied.
 message VerifyPasswordRenewalRequest {
   // The user credentials.
   string token = 1;
   // The renewed password.
   string password = 2;
+}
+
+// Verfiy email address.
+message VerifyEmailAddressRequest {
+  // The user credentials.
+  string token = 1;
 }

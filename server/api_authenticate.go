@@ -16,6 +16,7 @@ package server
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"math/rand"
 	"regexp"
@@ -323,8 +324,37 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 		// Attempting email authentication, may or may not create.
 		cleanEmail := strings.ToLower(email.Email)
 		create := in.Create == nil || in.Create.Value
-
+		// Disallow new account creations if email verification code absence.
+		if s.config.GetMail().Verification.Enable {
+			if s.config.GetMail().Verification.Enforce {
+				query := "SELECT id FROM users WHERE email = $1"
+				if s.db.QueryRowContext(ctx, query, cleanEmail).Err() == sql.ErrNoRows {
+					if ssn, ok := email.Vars["verification"]; !ok {
+						return nil, status.Error(codes.InvalidArgument, "Require verification code.")
+					} else if !s.emailValidatorCache.Validate(cleanEmail, ssn) {
+						return nil, status.Error(codes.InvalidArgument, "Invalid verification code.")
+					}
+				}
+			}
+		}
 		dbUserID, username, created, err = AuthenticateEmail(ctx, s.logger, s.db, cleanEmail, email.Password, username, create)
+		// If the account was created, send an email verification link.
+		if created && s.config.GetMail().Verification.Enable {
+			// Reset the email validator cache for this email address.
+			if s.config.GetMail().Verification.Enforce {
+				s.emailValidatorCache.Reset(cleanEmail)
+				// Update verify time.
+				query := "UPDATE users SET verify_time = now() WHERE id = $1"
+				if err := s.db.QueryRowContext(ctx, query, dbUserID).Err(); err != nil {
+					s.logger.Error("Error updating verify time.",
+						zap.String("user_id", dbUserID), zap.Error(err))
+				}
+				// Send email verification link.
+			} else if err := sendEmailVerificationLink(s, ctx, email.Email); err != nil {
+				s.logger.Error("Error sending email verification link.",
+					zap.String("user_id", dbUserID), zap.Error(err))
+			}
+		}
 	}
 	if err != nil {
 		return nil, err
