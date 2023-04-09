@@ -490,6 +490,7 @@ func NewConfig(logger *zap.Logger) *config {
 		Wallet:           NewWalletConfig(),
 		SMTP:             NewSMTPConfig(),
 		IAP:              NewIAPConfig(),
+		GoogleAuth:       NewGoogleAuthConfig(),
 		Satori:           NewSatoriConfig(),
 	}
 }
@@ -511,6 +512,8 @@ func (c *config) Clone() (Config, error) {
 	configWallet := *(c.Wallet)
 	configSMTP := *(c.SMTP)
 	configIAP := *(c.IAP)
+	configSatori := *(c.Satori)
+	configGoogleAuth := *(c.GoogleAuth)
 	nc := &config{
 		Name:             c.Name,
 		Datadir:          c.Datadir,
@@ -531,6 +534,8 @@ func (c *config) Clone() (Config, error) {
 		Wallet:           &configWallet,
 		SMTP:             &configSMTP,
 		IAP:              &configIAP,
+		Satori:           &configSatori,
+		GoogleAuth:       &configGoogleAuth,
 	}
 	nc.Socket.CertPEMBlock = make([]byte, len(c.Socket.CertPEMBlock))
 	copy(nc.Socket.CertPEMBlock, c.Socket.CertPEMBlock)
