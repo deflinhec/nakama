@@ -24,9 +24,16 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApplicationClient interface {
+	// Send email verification.
+	SendEmailVerificationCode(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Send email verification.
+	SendEmailVerificationLink(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Send password reset email.
 	SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// Submit a password reset request.
+	// Verfiy password from web ui.
 	VerifyPasswordRenewal(ctx context.Context, in *VerifyPasswordRenewalRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Verfiy email address from web ui.
+	VerifyEmailAddress(ctx context.Context, in *VerifyEmailAddressRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type applicationClient struct {
@@ -35,6 +42,24 @@ type applicationClient struct {
 
 func NewApplicationClient(cc grpc.ClientConnInterface) ApplicationClient {
 	return &applicationClient{cc}
+}
+
+func (c *applicationClient) SendEmailVerificationCode(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/nakama.web.Application/SendEmailVerificationCode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *applicationClient) SendEmailVerificationLink(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/nakama.web.Application/SendEmailVerificationLink", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *applicationClient) SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
@@ -55,13 +80,29 @@ func (c *applicationClient) VerifyPasswordRenewal(ctx context.Context, in *Verif
 	return out, nil
 }
 
+func (c *applicationClient) VerifyEmailAddress(ctx context.Context, in *VerifyEmailAddressRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/nakama.web.Application/VerifyEmailAddress", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApplicationServer is the server API for Application service.
 // All implementations must embed UnimplementedApplicationServer
 // for forward compatibility
 type ApplicationServer interface {
+	// Send email verification.
+	SendEmailVerificationCode(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error)
+	// Send email verification.
+	SendEmailVerificationLink(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error)
+	// Send password reset email.
 	SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error)
-	// Submit a password reset request.
+	// Verfiy password from web ui.
 	VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error)
+	// Verfiy email address from web ui.
+	VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedApplicationServer()
 }
 
@@ -69,11 +110,20 @@ type ApplicationServer interface {
 type UnimplementedApplicationServer struct {
 }
 
+func (UnimplementedApplicationServer) SendEmailVerificationCode(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendEmailVerificationCode not implemented")
+}
+func (UnimplementedApplicationServer) SendEmailVerificationLink(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendEmailVerificationLink not implemented")
+}
 func (UnimplementedApplicationServer) SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendPasswordResetEmail not implemented")
 }
 func (UnimplementedApplicationServer) VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyPasswordRenewal not implemented")
+}
+func (UnimplementedApplicationServer) VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmailAddress not implemented")
 }
 func (UnimplementedApplicationServer) mustEmbedUnimplementedApplicationServer() {}
 
@@ -86,6 +136,42 @@ type UnsafeApplicationServer interface {
 
 func RegisterApplicationServer(s grpc.ServiceRegistrar, srv ApplicationServer) {
 	s.RegisterService(&Application_ServiceDesc, srv)
+}
+
+func _Application_SendEmailVerificationCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.SendEmailVerificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApplicationServer).SendEmailVerificationCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.web.Application/SendEmailVerificationCode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApplicationServer).SendEmailVerificationCode(ctx, req.(*api.SendEmailVerificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Application_SendEmailVerificationLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.SendEmailVerificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApplicationServer).SendEmailVerificationLink(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.web.Application/SendEmailVerificationLink",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApplicationServer).SendEmailVerificationLink(ctx, req.(*api.SendEmailVerificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Application_SendPasswordResetEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -124,6 +210,24 @@ func _Application_VerifyPasswordRenewal_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Application_VerifyEmailAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyEmailAddressRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApplicationServer).VerifyEmailAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.web.Application/VerifyEmailAddress",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApplicationServer).VerifyEmailAddress(ctx, req.(*VerifyEmailAddressRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Application_ServiceDesc is the grpc.ServiceDesc for Application service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -132,12 +236,24 @@ var Application_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ApplicationServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "SendEmailVerificationCode",
+			Handler:    _Application_SendEmailVerificationCode_Handler,
+		},
+		{
+			MethodName: "SendEmailVerificationLink",
+			Handler:    _Application_SendEmailVerificationLink_Handler,
+		},
+		{
 			MethodName: "SendPasswordResetEmail",
 			Handler:    _Application_SendPasswordResetEmail_Handler,
 		},
 		{
 			MethodName: "VerifyPasswordRenewal",
 			Handler:    _Application_VerifyPasswordRenewal_Handler,
+		},
+		{
+			MethodName: "VerifyEmailAddress",
+			Handler:    _Application_VerifyEmailAddress_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

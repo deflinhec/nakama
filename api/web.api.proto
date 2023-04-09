@@ -29,3 +29,9 @@ message SendPasswordResetEmailRequest {
     // The email to reset.
     string email = 1;
 }
+
+// Submit a email verification request.
+message SendEmailVerificationRequest {
+    // The email address.
+    string email = 1;
+}

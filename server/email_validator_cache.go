@@ -25,19 +25,21 @@ const (
 	LockoutTypeFrequency
 )
 
-type PasswordResetCache interface {
+type EmailValidatorCache interface {
 	Stop()
 	// Allow checks whether email is locked out or should be allowed to attempt to reset password.
-	Allow(email, ip string) LockoutType
+	Allow(email, ip string) (LockoutType, time.Duration)
 	// Validate if the latest expiry time matched.
-	Validate(email string, expiry int64) bool
+	Validate(email string, secret string) bool
 	// Add a attempt.
-	Add(email, ip string, expiry time.Time)
+	Add(email, ip string)
+	// Add a attempt.
+	Update(email, secret string, expiry time.Time)
 	// Reset email attempts on successful password reset.
 	Reset(email string)
 }
 
-type LocalPasswordResetCache struct {
+type LocalEmailValidatorCache struct {
 	sync.RWMutex
 	ctx         context.Context
 	ctxCancelFn context.CancelFunc
@@ -48,13 +50,14 @@ type LocalPasswordResetCache struct {
 
 type expireLockoutStatus struct {
 	lockoutStatus
+	secret       string
 	epxiredUntil time.Time
 }
 
-func NewLocalPasswordResetCache() *LocalPasswordResetCache {
+func NewLocalEmailValidatorCache() *LocalEmailValidatorCache {
 	ctx, ctxCancelFn := context.WithCancel(context.Background())
 
-	c := &LocalPasswordResetCache{
+	c := &LocalEmailValidatorCache{
 		emailCache: make(map[string]*expireLockoutStatus),
 		ipCache:    make(map[string]*lockoutStatus),
 
@@ -92,11 +95,11 @@ func NewLocalPasswordResetCache() *LocalPasswordResetCache {
 	return c
 }
 
-func (c *LocalPasswordResetCache) Stop() {
+func (c *LocalEmailValidatorCache) Stop() {
 	c.ctxCancelFn()
 }
 
-func (c *LocalPasswordResetCache) Allow(email, ip string) LockoutType {
+func (c *LocalEmailValidatorCache) Allow(email, ip string) (LockoutType, time.Duration) {
 	now := time.Now()
 	c.RLock()
 	defer c.RUnlock()
@@ -104,37 +107,37 @@ func (c *LocalPasswordResetCache) Allow(email, ip string) LockoutType {
 		// If the email is locked out one second ago, don't allow.
 		if len(status.attempts) > 0 {
 			if now.Sub(status.attempts[len(status.attempts)-1]) < time.Second {
-				return LockoutTypeFrequency
+				return LockoutTypeFrequency, time.Second
 			}
 		}
 		if !status.lockedUntil.IsZero() && status.lockedUntil.After(now) {
-			return LockoutTypeEmail
+			return LockoutTypeEmail, status.lockedUntil.Sub(now)
 		}
 	}
 	if status, found := c.ipCache[ip]; found {
 		if !status.lockedUntil.IsZero() && status.lockedUntil.After(now) {
-			return LockoutTypeIp
+			return LockoutTypeIp, status.lockedUntil.Sub(now)
 		}
 	}
-	return LockoutTypeNone
+	return LockoutTypeNone, time.Duration(0)
 }
 
-func (c *LocalPasswordResetCache) Validate(email string, expiry int64) bool {
+func (c *LocalEmailValidatorCache) Validate(email string, secret string) bool {
 	c.RLock()
 	defer c.RUnlock()
 	if status, found := c.emailCache[email]; found {
-		return status.epxiredUntil.Unix() == expiry
+		return status.secret == secret
 	}
 	return false
 }
 
-func (c *LocalPasswordResetCache) Reset(email string) {
+func (c *LocalEmailValidatorCache) Reset(email string) {
 	c.Lock()
 	delete(c.emailCache, email)
 	c.Unlock()
 }
 
-func (c *LocalPasswordResetCache) Add(email, ip string, expiry time.Time) {
+func (c *LocalEmailValidatorCache) Add(email, ip string) {
 	now := time.Now().UTC()
 	c.Lock()
 	defer c.Unlock()
@@ -144,7 +147,6 @@ func (c *LocalPasswordResetCache) Add(email, ip string, expiry time.Time) {
 			status = &expireLockoutStatus{}
 			c.emailCache[email] = status
 		}
-		status.epxiredUntil = expiry
 		status.attempts = append(status.attempts, now)
 		_ = status.trim(now, lockoutPeriodAccount)
 		if len(status.attempts) >= maxAttemptsAccount {
@@ -163,4 +165,22 @@ func (c *LocalPasswordResetCache) Add(email, ip string, expiry time.Time) {
 			status.lockedUntil = now.Add(lockoutPeriodIp)
 		}
 	}
+}
+
+func (c *LocalEmailValidatorCache) Update(email, secret string, expiry time.Time) {
+	now := time.Now().UTC()
+	c.Lock()
+	defer c.Unlock()
+	status, found := c.emailCache[email]
+	if !found {
+		status = &expireLockoutStatus{}
+		c.emailCache[email] = status
+		status.attempts = append(status.attempts, now)
+		_ = status.trim(now, lockoutPeriodAccount)
+		if len(status.attempts) >= maxAttemptsAccount {
+			status.lockedUntil = now.Add(lockoutPeriodAccount)
+		}
+	}
+	status.secret = secret
+	status.epxiredUntil = expiry
 }

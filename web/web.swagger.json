@@ -25,9 +25,9 @@
     "application/json"
   ],
   "paths": {
-    "/v2/password/renew": {
+    "/v2/account/password/renew": {
       "post": {
-        "summary": "Submit a password reset request.",
+        "summary": "Verfiy password from web ui.",
         "operationId": "Application_VerifyPasswordRenewal",
         "responses": {
           "200": {
@@ -47,7 +47,7 @@
         "parameters": [
           {
             "name": "body",
-            "description": "Renew password after verfied.",
+            "description": "Verfiy password after verfied.",
             "in": "body",
             "required": true,
             "schema": {
@@ -60,8 +60,9 @@
         ]
       }
     },
-    "/v2/password/reset": {
+    "/v2/account/password/reset": {
       "post": {
+        "summary": "Send password reset email.",
         "operationId": "Application_SendPasswordResetEmail",
         "responses": {
           "200": {
@@ -87,6 +88,109 @@
             "schema": {
               "$ref": "#/definitions/webSendPasswordResetEmailRequest"
             }
+          }
+        ],
+        "tags": [
+          "Application"
+        ]
+      }
+    },
+    "/v2/account/verify/code": {
+      "post": {
+        "summary": "Send email verification.",
+        "operationId": "Application_SendEmailVerificationCode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Submit a email verification request.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/webSendEmailVerificationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Application"
+        ]
+      }
+    },
+    "/v2/account/verify/link": {
+      "post": {
+        "summary": "Send email verification.",
+        "operationId": "Application_SendEmailVerificationLink",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Submit a email verification request.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/webSendEmailVerificationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Application"
+        ]
+      }
+    },
+    "/v2/account/verify/{token}": {
+      "delete": {
+        "summary": "Verfiy email address from web ui.",
+        "operationId": "Application_VerifyEmailAddress",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "description": "The user credentials.",
+            "in": "path",
+            "required": true,
+            "type": "string"
           }
         ],
         "tags": [
@@ -123,6 +227,16 @@
         }
       }
     },
+    "webSendEmailVerificationRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email address."
+        }
+      },
+      "description": "Submit a email verification request."
+    },
     "webSendPasswordResetEmailRequest": {
       "type": "object",
       "properties": {
@@ -145,7 +259,7 @@
           "description": "The renewed password."
         }
       },
-      "description": "Renew password after verfied."
+      "description": "Verfiy password after verfied."
     }
   },
   "securityDefinitions": {

@@ -8,9 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math/rand"
 	"net"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -21,6 +23,7 @@ import (
 	"github.com/jackc/pgtype"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/text/language"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -31,6 +34,7 @@ import (
 type EmailTokenClaims struct {
 	UID       string            `json:"uid,omitempty"`
 	Email     string            `json:"ema,omitempty"`
+	Serial    string            `json:"ssn,omitempty"`
 	Vars      map[string]string `json:"vrs,omitempty"`
 	ExpiresAt int64             `json:"exp,omitempty"`
 }
@@ -89,58 +93,66 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 	} else if len(in.GetEmail()) < 10 || len(in.GetEmail()) > 255 {
 		return nil, status.Error(codes.InvalidArgument, "Invalid email address, must be 10-255 bytes.")
 	}
-	switch s.passwordResetCache.Allow(in.GetEmail(), ip) {
+	cleanEmail := strings.ToLower(in.GetEmail())
+	lockoutType, lockoutDuration := s.emailValidatorCache.Allow(cleanEmail, ip)
+	switch lockoutType {
 	case LockoutTypeFrequency:
 		return nil, status.Error(codes.AlreadyExists,
-			"Too many requests within short period of time, please try again later.")
+			"Too many requests within short period of time, please try again after "+
+				lockoutDuration.String()+".")
 	case LockoutTypeEmail:
 		return nil, status.Error(codes.AlreadyExists,
-			"Too many requests for this email address, please try again later.")
+			"Too many requests for this email address, please try again after "+
+				lockoutDuration.String()+".")
 	case LockoutTypeIp:
 		return nil, status.Error(codes.AlreadyExists,
-			"Too many requests from current ip address, please try again later.")
+			"Too many requests from current ip address, please try again after "+
+				lockoutDuration.String()+".")
 	default:
 	}
+	s.emailValidatorCache.Add(cleanEmail, ip)
 
-	host, port, err := SplitHostPort(s.config.GetSMTP().Address)
+	host, port, err := SplitHostPort(s.config.GetMail().SMTP.Address)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Invalid SMTP configuration.")
 	}
 	dialer := gomail.NewDialer(host, port,
-		s.config.GetSMTP().Username,
-		s.config.GetSMTP().Password,
+		s.config.GetMail().SMTP.Username,
+		s.config.GetMail().SMTP.Password,
 	)
-	now := time.Now().UTC()
-	expiry := now.Add(10 * time.Minute)
-	s.passwordResetCache.Add(in.GetEmail(), ip, expiry)
 
 	// Look for an existing account.
 	query := "SELECT id, disable_time FROM users WHERE email = $1"
 	var dbUserID string
 	var dbDisableTime pgtype.Timestamptz
-	if err := s.db.QueryRowContext(ctx, query, in.GetEmail()).Scan(&dbUserID, &dbDisableTime); err != nil {
+	if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID, &dbDisableTime); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Error(codes.InvalidArgument, "Email does not exists.")
 		} else {
-			s.logger.Error("Error looking up user by email.", zap.Error(err), zap.String("email", in.GetEmail()))
+			s.logger.Error("Error looking up user by email.", zap.Error(err), zap.String("email", cleanEmail))
 			return nil, status.Error(codes.Internal, "Error finding user account.")
 		}
 	}
 
 	// Check if it's disabled.
 	if dbDisableTime.Status == pgtype.Present && dbDisableTime.Time.Unix() != 0 {
-		s.logger.Info("User account is disabled.", zap.String("email", in.GetEmail()))
+		s.logger.Info("User account is disabled.", zap.String("email", cleanEmail))
 		return nil, status.Error(codes.PermissionDenied, "User account banned.")
 	}
 
 	// Generate a one time used token.
+	now := time.Now().UTC()
+	ssn := fmt.Sprint(rand.Int())
+	expiry := now.Add(10 * time.Minute)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &EmailTokenClaims{
+		Serial:    ssn,
 		UID:       dbUserID,
-		Email:     in.GetEmail(),
+		Email:     cleanEmail,
 		Vars:      map[string]string{},
 		ExpiresAt: expiry.Unix(),
 	})
-	signedToken, _ := token.SignedString([]byte(s.config.GetSession().EncryptionKey))
+	signedToken, _ := token.SignedString([]byte(s.config.GetMail().Verification.EncryptionKey))
+	s.emailValidatorCache.Update(cleanEmail, ssn, expiry)
 
 	// Get the origin header and generate password reset link..
 	var link string
@@ -159,14 +171,22 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 		return nil, status.Error(codes.Internal, "Origin header missing.")
 	}
 
+	// Set the language for the email template.
+	langs := []language.Tag{}
+	if al := md.Get("grpcgateway-accept-language"); len(al) > 0 {
+		langs, _, _ = language.ParseAcceptLanguage(al[0])
+	}
+	assets.FS.With(langs...)
+
 	// Generate email content.
 	var body bytes.Buffer
-	tmpl := template.Must(template.ParseFS(assets.FS, "reset-password.html"))
+	tmpl := template.Must(template.ParseFS(assets.FS, "mails/reset-password.html"))
 	if err := tmpl.Execute(&body, struct {
-		ResetLink      string
+		Entitlement    string
+		Link           string
 		ExpirationTime string
 	}{
-		link, expiry.Sub(now).String(),
+		s.config.GetMail().Verification.Entitlement, link, expiry.Sub(now).String(),
 	}); err != nil {
 		s.logger.Warn("Email template generate failed.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Email template generate failed.")
@@ -174,7 +194,7 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 
 	// Send the email to smtp server.
 	m := gomail.NewMessage()
-	m.SetHeader("From", "noreply@"+s.config.GetSMTP().Domain)
+	m.SetHeader("From", s.config.GetMail().Sender)
 	m.SetHeader("To", in.GetEmail())
 	m.SetHeader("Subject", "Password Reset")
 	m.SetBody("text/html", body.String())
@@ -188,7 +208,8 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 
 func (s *ApiServer) VerifyPasswordRenewal(ctx context.Context, in *web.VerifyPasswordRenewalRequest) (*emptypb.Empty, error) {
 	claims := &EmailTokenClaims{}
-	if ok := claims.Parse(in.GetToken(), []byte(s.config.GetSession().EncryptionKey)); !ok {
+	if ok := claims.Parse(in.GetToken(),
+		[]byte(s.config.GetMail().Verification.EncryptionKey)); !ok {
 		return nil, status.Error(codes.InvalidArgument, "Invalid Token.")
 	}
 	if err := claims.Valid(); err != nil {
@@ -201,7 +222,7 @@ func (s *ApiServer) VerifyPasswordRenewal(ctx context.Context, in *web.VerifyPas
 	if len(in.GetPassword()) < 8 {
 		return nil, status.Error(codes.InvalidArgument, "Password must be at least 8 characters long.")
 	}
-	if !s.passwordResetCache.Validate(claims.Email, claims.ExpiresAt) {
+	if !s.emailValidatorCache.Validate(claims.Email, claims.Serial) {
 		return nil, status.Error(codes.InvalidArgument, "Invalid Token.")
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(in.GetPassword()), bcrypt.DefaultCost)
@@ -238,7 +259,7 @@ func (s *ApiServer) VerifyPasswordRenewal(ctx context.Context, in *web.VerifyPas
 		s.logger.Error("Error updating user password.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "An error occurred while trying to update the user password.")
 	}
-	s.passwordResetCache.Reset(claims.Email)
+	s.emailValidatorCache.Reset(claims.Email)
 
 	// Logout and disconnect.
 	if err = SessionLogout(s.config, s.sessionCache, userID, "", ""); err != nil {
