@@ -328,7 +328,7 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 		if s.config.GetMail().Verification.Enable {
 			if s.config.GetMail().Verification.Enforce {
 				query := "SELECT id FROM users WHERE email = $1"
-				if s.db.QueryRowContext(ctx, query, cleanEmail).Err() == sql.ErrNoRows {
+				if s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID) == sql.ErrNoRows {
 					if ssn, ok := email.Vars["verification"]; !ok {
 						return nil, status.Error(codes.InvalidArgument, "Require verification code.")
 					} else if !s.emailValidatorCache.Validate(cleanEmail, ssn) {
