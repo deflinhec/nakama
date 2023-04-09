@@ -86,9 +86,9 @@ func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *api.SendE
 
 	// Generate email content.
 	var body bytes.Buffer
-	tmpl := template.Must(template.ParseFS(assets.FS, "email-verification-code.html"))
+	tmpl := template.Must(template.ParseFS(assets.FS, "mails/verification-code.html"))
 	if err := tmpl.Execute(&body, struct {
-		EventName       string
+		Entitlement     string
 		ExpirationTime  string
 		VerficationCode string
 	}{
@@ -218,11 +218,11 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendE
 
 	// Generate email content.
 	var body bytes.Buffer
-	tmpl := template.Must(template.ParseFS(assets.FS, "email-verification-link.html"))
+	tmpl := template.Must(template.ParseFS(assets.FS, "mails/verification-link.html"))
 	if err := tmpl.Execute(&body, struct {
-		VerificationLink string
-		ExpirationTime   string
-		EventName        string
+		Link           string
+		ExpirationTime string
+		Entitlement    string
 	}{
 		link, expiry.Sub(now).String(), s.config.GetMail().Verification.Entitlement,
 	}); err != nil {

@@ -16,7 +16,28 @@ package assets
 
 import (
 	"embed"
+	"io/fs"
+	"os"
+	"path/filepath"
 )
 
 //go:embed *
-var FS embed.FS
+var embedFS embed.FS
+
+type templateFS struct {
+	fs fs.FS
+}
+
+func (fs *templateFS) Use(dir string) {
+	fs.fs = os.DirFS(filepath.Join(dir, "assets"))
+}
+
+func (fs *templateFS) Open(name string) (fs.File, error) {
+	f, err := fs.fs.Open(name)
+	if err != nil {
+		return embedFS.Open(name)
+	}
+	return f, nil
+}
+
+var FS = &templateFS{fs: os.DirFS("assets")}

@@ -172,10 +172,10 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 
 	// Generate email content.
 	var body bytes.Buffer
-	tmpl := template.Must(template.ParseFS(assets.FS, "reset-password.html"))
+	tmpl := template.Must(template.ParseFS(assets.FS, "mails/reset-password.html"))
 	if err := tmpl.Execute(&body, struct {
-		EventName      string
-		ResetLink      string
+		Entitlement    string
+		Link           string
 		ExpirationTime string
 	}{
 		s.config.GetMail().Verification.Entitlement, link, expiry.Sub(now).String(),

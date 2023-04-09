@@ -6,13 +6,13 @@
   </head>
   <body>
     <p>Dear Customer,</p>
-    <p>Thank you for registering for {{.EventName}}! We are excited to have you join us.</p>
+    <p>Thank you for registering for {{.Entitlement}}! We are excited to have you join us.</p>
     <p>Please use the following verification code to verify your email.</p>
     <span style="font-size:18px;line-height:36px">{{.VerficationCode}}</span>
     <p>This code will expire in {{ .ExpirationTime }}. If you do not verify before the code expires, you will need to submit another verification request.</p>
-    <p>If you did not register for {{.EventName}}, please ignore this email.</p>
-    <p>Thank you and we look forward to seeing you at the {{.EventName}}!</p>
+    <p>If you did not register for {{.Entitlement}}, please ignore this email.</p>
+    <p>Thank you and we look forward to seeing you at the {{.Entitlement}}!</p>
     <p>Best regards,</p>
-    <p>The {{.EventName}} Support Team</p>
+    <p>The {{.Entitlement}} Support Team</p>
   </body>
 </html>
