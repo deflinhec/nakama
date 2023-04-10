@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
-	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -110,16 +109,22 @@ func (s *ConsoleServer) CallApiEndpoint(ctx context.Context, in *console.CallApi
 
 func (s *ConsoleServer) extractApiCallContext(ctx context.Context, in *console.CallApiEndpointRequest, userIdOptional bool) (context.Context, error) {
 	var callCtx context.Context
+
+	apiPrefix := "/nakama.api.Nakama/"
+	if _, ok := reflect.TypeOf(s.api.UnimplementedApplicationServer).MethodByName(in.Method); ok {
+		apiPrefix = "/nakama.api.Application/"
+	} else if _, ok := reflect.TypeOf(s.api.UnimplementedWalletProviderServer).MethodByName(in.Method); ok {
+		apiPrefix = "/nakama.api.WalletProvider/"
+	}
+
 	if strings.HasPrefix(in.Method, "Authenticate") {
-		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, "/nakama.api.Nakama/"+in.Method)
-	} else if match, _ := regexp.MatchString("List([a-z]+)FromWalletProvider", in.Method); match {
-		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, "/nakama.api.Nakama/"+in.Method)
+		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
 	} else if in.UserId == "" {
 		if !userIdOptional {
 			s.logger.Error("Error calling a built-in RPC function without a user_id.", zap.String("method", in.Method))
 			return nil, status.Error(codes.InvalidArgument, "Built-in RPC functions require a user_id.")
 		} else {
-			callCtx = context.WithValue(ctx, ctxFullMethodKey{}, "/nakama.api.Nakama/"+in.Method)
+			callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
 		}
 	} else {
 		row := s.db.QueryRowContext(ctx, "SELECT username FROM users WHERE id = $1", in.UserId)
@@ -142,7 +147,7 @@ func (s *ConsoleServer) extractApiCallContext(ctx context.Context, in *console.C
 		callCtx = context.WithValue(callCtx, ctxUsernameKey{}, dbUsername)
 		callCtx = context.WithValue(callCtx, ctxVarsKey{}, map[string]string{})
 		callCtx = context.WithValue(callCtx, ctxExpiryKey{}, time.Now().Add(time.Duration(s.config.GetSession().TokenExpirySec)*time.Second).Unix())
-		callCtx = context.WithValue(callCtx, ctxFullMethodKey{}, "/nakama.api.Nakama/"+in.Method)
+		callCtx = context.WithValue(callCtx, ctxFullMethodKey{}, apiPrefix+in.Method)
 	}
 	return callCtx, nil
 }
@@ -193,6 +198,9 @@ func (s *ConsoleServer) initRpcMethodCache() error {
 			continue
 		}
 		if method.Name == "RpcFunc" {
+			continue
+		}
+		if method.Name == "VerifyPasswordRenewal" {
 			continue
 		}
 		var bodyTemplate string
