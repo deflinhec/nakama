@@ -350,6 +350,10 @@ func CheckConfig(logger *zap.Logger, config Config) map[string]string {
 		logger.Warn("WARNING: insecure default parameter value, change this for production!", zap.String("param", "runtime.http_key"))
 		configWarnings["runtime.http_key"] = "Insecure default parameter value, change this for production!"
 	}
+	if config.GetMail().Verification.EncryptionKey == "defaultverificationencryptionkey" {
+		logger.Warn("WARNING: insecure default parameter value, change this for production!", zap.String("param", "verification.encryption_key"))
+		configWarnings["verification.encryption_key"] = "Insecure default parameter value, change this for production!"
+	}
 
 	// Log warnings for deprecated config parameters.
 	if config.GetRuntime().MinCount != 0 {
