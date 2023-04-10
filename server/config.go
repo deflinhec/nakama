@@ -968,15 +968,13 @@ func NewMatchmakerConfig() *MatchmakerConfig {
 }
 
 type ConsulConfig struct {
-	Address string `yaml:"address" json:"address" usage:"The IP address of the consul server. Default localhost."`
-	Port    int    `yaml:"port" json:"port" usage:"Consul service discovery port. Default 8500."`
+	Address string `yaml:"address" json:"address" usage:"The IP address of the consul server. Default localhost:8500."`
 	TTLms   int    `yaml:"ttl" json:"ttl" usage:"Consul service healthcheck ttl in milliseconds. Default 5000."`
 }
 
 func NewConsulConfig() *ConsulConfig {
 	return &ConsulConfig{
-		Address: "localhost",
-		Port:    8500,
+		Address: "localhost:8500",
 		TTLms:   5000,
 	}
 }
