@@ -121,6 +121,8 @@ func (s *ConsoleServer) extractApiCallContext(ctx context.Context, in *console.C
 		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
 	} else if strings.HasPrefix(in.Method, "Send") {
 		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
+	} else if strings.HasPrefix(in.Method, "Query") {
+		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
 	} else if in.UserId == "" {
 		if !userIdOptional {
 			s.logger.Error("Error calling a built-in RPC function without a user_id.", zap.String("method", in.Method))
