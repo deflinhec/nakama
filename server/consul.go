@@ -2,7 +2,6 @@ package server
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	consul "github.com/hashicorp/consul/api"
@@ -33,10 +32,9 @@ func StartConsulAgent(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB,
 	}
 	startupLogger.Info("Initiate Consul agent registration",
 		zap.String("address", config.GetConsul().Address),
-		zap.Int("port", config.GetConsul().Port),
 		zap.Duration("ttl", s.TTL))
 	cfg := consul.DefaultConfig()
-	cfg.Address = fmt.Sprintf("%s:%d", config.GetConsul().Address, config.GetConsul().Port)
+	cfg.Address = config.GetConsul().Address
 	if c, err := consul.NewClient(cfg); err != nil {
 		startupLogger.Info("Consul agent registration disabled", zap.Error(err))
 	} else {
