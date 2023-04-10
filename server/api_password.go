@@ -122,10 +122,12 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 	)
 
 	// Look for an existing account.
-	query := "SELECT id, disable_time FROM users WHERE email = $1"
+	query := "SELECT id, lang_tag, disable_time FROM users WHERE email = $1"
 	var dbUserID string
+	var dbLangTag string
 	var dbDisableTime pgtype.Timestamptz
-	if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID, &dbDisableTime); err != nil {
+	if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID,
+		&dbLangTag, &dbDisableTime); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Error(codes.InvalidArgument, "Email does not exists.")
 		} else {
@@ -173,6 +175,9 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 
 	// Set the language for the email template.
 	langs := []language.Tag{}
+	if tag, err := language.Parse(dbLangTag); err == nil {
+		langs = append(langs, tag)
+	}
 	if al := md.Get("grpcgateway-accept-language"); len(al) > 0 {
 		langs, _, _ = language.ParseAcceptLanguage(al[0])
 	}
