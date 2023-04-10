@@ -1,5 +1,5 @@
 # Define
-VERSION=0.2.0
+VERSION=0.2.2
 BUILD=$(shell git rev-parse HEAD)
 
 .PHONY: image
@@ -20,6 +20,12 @@ pluginbuilder-image:
 		--build-arg "version=$(VERSION)" \
 		--build-arg "commit=$(BUILD)" \
 		--tag registry.deflinhec.dev/nakama-pluginbuilder:latest
+
+.PHONY: generate
+generate:
+	go generate -x ./... && \
+	(cd web/ui && npm clean-install && npm run-script build) && \
+	(cd console/ui && npm clean-install && npm run-script build)
 
 default: image plugin-builder-image
 

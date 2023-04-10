@@ -22,7 +22,7 @@ import (
 	"net/url"
 
 	"github.com/gofrs/uuid"
-	"github.com/heroiclabs/nakama/v3/api/apiwallet"
+	"github.com/heroiclabs/nakama/v3/api"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,7 +31,10 @@ import (
 )
 
 func (s *ApiServer) AuthorizeWalletProvider(ctx context.Context, in *emptypb.Empty) (*emptypb.Empty, error) {
-	userID := ctx.Value(ctxUserIDKey{}).(uuid.UUID)
+	userID, ok := ctx.Value(ctxUserIDKey{}).(uuid.UUID)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "User ID missing from context.")
+	}
 
 	_, err := GetAccount(ctx, s.logger, s.db, s.statusRegistry, userID)
 	if err != nil {
@@ -46,7 +49,7 @@ func (s *ApiServer) AuthorizeWalletProvider(ctx context.Context, in *emptypb.Emp
 		UseProtoNames:   true,
 		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
-	}).Marshal(&apiwallet.ProviderAuthorizeRequest{
+	}).Marshal(&api.ProviderAuthorizeRequest{
 		Account: userID.String(),
 	})
 	if err != nil {
@@ -64,7 +67,7 @@ func (s *ApiServer) AuthorizeWalletProvider(ctx context.Context, in *emptypb.Emp
 	return &emptypb.Empty{}, nil
 }
 
-func (s *ApiServer) ListChainsFromWalletProvider(ctx context.Context, in *emptypb.Empty) (*apiwallet.ChainResponse, error) {
+func (s *ApiServer) ListChainsFromWalletProvider(ctx context.Context, in *emptypb.Empty) (*api.ChainResponse, error) {
 	// Wallet provider api specification
 	config := s.config.GetWallet()
 	res, err := http.Get((&url.URL{
@@ -80,7 +83,7 @@ func (s *ApiServer) ListChainsFromWalletProvider(ctx context.Context, in *emptyp
 		s.logger.Warn("Error retrieving chain info from wallet provider.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving chain info from wallet provider.")
 	}
-	response := &apiwallet.ChainResponse{}
+	response := &api.ChainResponse{}
 	err = (&protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(b, response)
 	if err != nil {
 		s.logger.Warn("Error retrieving chain info from wallet provider.", zap.Error(err))
@@ -89,8 +92,11 @@ func (s *ApiServer) ListChainsFromWalletProvider(ctx context.Context, in *emptyp
 	return response, nil
 }
 
-func (s *ApiServer) GetAddressFromWalletProvider(ctx context.Context, in *apiwallet.AddressRequest) (*apiwallet.AddressResponse, error) {
-	userID := ctx.Value(ctxUserIDKey{}).(uuid.UUID)
+func (s *ApiServer) GetAddressFromWalletProvider(ctx context.Context, in *api.AddressRequest) (*api.AddressResponse, error) {
+	userID, ok := ctx.Value(ctxUserIDKey{}).(uuid.UUID)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "User ID missing from context.")
+	}
 
 	_, err := GetAccount(ctx, s.logger, s.db, s.statusRegistry, userID)
 	if err != nil {
@@ -106,7 +112,7 @@ func (s *ApiServer) GetAddressFromWalletProvider(ctx context.Context, in *apiwal
 		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 	}).Marshal(
-		&apiwallet.ProviderAddressRequest{
+		&api.ProviderAddressRequest{
 			Account:   userID.String(),
 			ChainName: in.Chain,
 		})
@@ -127,11 +133,11 @@ func (s *ApiServer) GetAddressFromWalletProvider(ctx context.Context, in *apiwal
 		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
 	}
-	response := &apiwallet.ProviderAddressResponse{}
+	response := &api.ProviderAddressResponse{}
 	err = (&protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(b, response)
 	if err != nil {
 		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
 	}
-	return &apiwallet.AddressResponse{Address: response.Info.Address}, nil
+	return &api.AddressResponse{Address: response.Info.Address}, nil
 }

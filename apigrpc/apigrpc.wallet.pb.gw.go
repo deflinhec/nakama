@@ -15,7 +15,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
-	"github.com/heroiclabs/nakama/v3/api/apiwallet"
+	"github.com/heroiclabs/nakama/v3/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
@@ -70,7 +70,7 @@ func local_request_WalletProvider_ListChainsFromWalletProvider_0(ctx context.Con
 }
 
 func request_WalletProvider_GetAddressFromWalletProvider_0(ctx context.Context, marshaler runtime.Marshaler, client WalletProviderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq apiwallet.AddressRequest
+	var protoReq api.AddressRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -96,7 +96,7 @@ func request_WalletProvider_GetAddressFromWalletProvider_0(ctx context.Context, 
 }
 
 func local_request_WalletProvider_GetAddressFromWalletProvider_0(ctx context.Context, marshaler runtime.Marshaler, server WalletProviderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq apiwallet.AddressRequest
+	var protoReq api.AddressRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -135,7 +135,7 @@ func RegisterWalletProviderHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.api.wallet.WalletProvider/AuthorizeWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/authorize"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.api.WalletProvider/AuthorizeWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/authorize"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -160,7 +160,7 @@ func RegisterWalletProviderHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.api.wallet.WalletProvider/ListChainsFromWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/chains"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.api.WalletProvider/ListChainsFromWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/chains"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -185,7 +185,7 @@ func RegisterWalletProviderHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.api.wallet.WalletProvider/GetAddressFromWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/{chain}/address"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.api.WalletProvider/GetAddressFromWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/{chain}/address"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -249,7 +249,7 @@ func RegisterWalletProviderHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.api.wallet.WalletProvider/AuthorizeWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/authorize"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.api.WalletProvider/AuthorizeWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/authorize"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -271,7 +271,7 @@ func RegisterWalletProviderHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.api.wallet.WalletProvider/ListChainsFromWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/chains"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.api.WalletProvider/ListChainsFromWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/chains"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -293,7 +293,7 @@ func RegisterWalletProviderHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.api.wallet.WalletProvider/GetAddressFromWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/{chain}/address"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.api.WalletProvider/GetAddressFromWalletProvider", runtime.WithHTTPPathPattern("/v2/provider/wallet/{chain}/address"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

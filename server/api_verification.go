@@ -1,0 +1,327 @@
+package server
+
+import (
+	"bytes"
+	"context"
+	"database/sql"
+	"fmt"
+	"html/template"
+	"math/rand"
+	"net/url"
+	"strings"
+	"time"
+
+	"github.com/gofrs/uuid"
+	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/heroiclabs/nakama/v3/api"
+	"github.com/heroiclabs/nakama/v3/assets"
+	"github.com/heroiclabs/nakama/v3/web"
+	"github.com/jackc/pgtype"
+	"go.uber.org/zap"
+	"golang.org/x/text/language"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"gopkg.in/gomail.v2"
+)
+
+func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
+	ip, _ := extractClientAddressFromContext(s.logger, ctx)
+	if invalidCharsRegex.MatchString(in.GetEmail()) {
+		return nil, status.Error(codes.InvalidArgument,
+			"Invalid email address, no spaces or control characters allowed.")
+	} else if !emailRegex.MatchString(in.GetEmail()) {
+		return nil, status.Error(codes.InvalidArgument,
+			"Invalid email address format.")
+	} else if len(in.GetEmail()) < 10 || len(in.GetEmail()) > 255 {
+		return nil, status.Error(codes.InvalidArgument,
+			"Invalid email address, must be 10-255 bytes.")
+	}
+	cleanEmail := strings.ToLower(in.GetEmail())
+	lockoutType, lockoutDuration := s.emailValidatorCache.Allow(cleanEmail, ip)
+	switch lockoutType {
+	case LockoutTypeFrequency:
+		return nil, status.Error(codes.AlreadyExists,
+			"Too many requests within short period of time, please try again after "+
+				lockoutDuration.String()+".")
+	case LockoutTypeEmail:
+		return nil, status.Error(codes.AlreadyExists,
+			"Too many requests for this email address, please try again after "+
+				lockoutDuration.String()+".")
+	case LockoutTypeIp:
+		return nil, status.Error(codes.AlreadyExists,
+			"Too many requests from current ip address, please try again after "+
+				lockoutDuration.String()+".")
+	default:
+	}
+	s.emailValidatorCache.Add(cleanEmail, ip)
+
+	host, port, err := SplitHostPort(s.config.GetMail().SMTP.Address)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Invalid SMTP configuration.")
+	}
+
+	// Look for duplicate email address.
+	query := "SELECT id FROM users WHERE email = $1"
+	var dbUserID string
+	if s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID) != sql.ErrNoRows {
+		return nil, status.Error(codes.InvalidArgument, "Email already exists.")
+	}
+
+	sender, err := gomail.NewDialer(host, port,
+		s.config.GetMail().SMTP.Username,
+		s.config.GetMail().SMTP.Password,
+	).Dial()
+	if err != nil {
+		s.logger.Error("Mailserver connection failed", zap.Error(err))
+		return nil, status.Error(codes.Internal, "Mailserver connection failed.")
+	}
+	defer sender.Close()
+
+	// Generate verification code.
+	now := time.Now().UTC()
+	expiry := now.Add(time.Hour * 8)
+	ssn := fmt.Sprintf("%04d", rand.Intn(9999))
+	s.emailValidatorCache.Update(cleanEmail, ssn, expiry)
+
+	// Set the language for the email template.
+	langs := []language.Tag{}
+	md, _ := metadata.FromIncomingContext(ctx)
+	if al := md.Get("grpcgateway-accept-language"); len(al) > 0 {
+		langs, _, _ = language.ParseAcceptLanguage(al[0])
+	}
+	assets.FS.With(langs...)
+
+	// Generate email content.
+	var body bytes.Buffer
+	tmpl := template.Must(template.ParseFS(assets.FS, "mails/verification-code.html"))
+	if err := tmpl.Execute(&body, struct {
+		Entitlement     string
+		ExpirationTime  string
+		VerficationCode string
+	}{
+		s.config.GetMail().Verification.Entitlement, expiry.Sub(now).String(), ssn,
+	}); err != nil {
+		s.logger.Warn("Email template generate failed.", zap.Error(err))
+		return nil, status.Error(codes.Internal, "Email template generate failed.")
+	}
+
+	// Send the email to smtp server.
+	m := gomail.NewMessage()
+	m.SetHeader("From", s.config.GetMail().Sender)
+	m.SetHeader("To", in.GetEmail())
+	m.SetHeader("Subject", "Email verification")
+	m.SetBody("text/html", body.String())
+	if err := gomail.Send(sender, m); err != nil {
+		s.logger.Error("Email send failed.", zap.Error(err))
+		return nil, status.Error(codes.Internal, "Email send failed.")
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
+	if invalidCharsRegex.MatchString(in.GetEmail()) {
+		return nil, status.Error(codes.InvalidArgument,
+			"Invalid email address, no spaces or control characters allowed.")
+	} else if !emailRegex.MatchString(in.GetEmail()) {
+		return nil, status.Error(codes.InvalidArgument,
+			"Invalid email address format.")
+	} else if len(in.GetEmail()) < 10 || len(in.GetEmail()) > 255 {
+		return nil, status.Error(codes.InvalidArgument,
+			"Invalid email address, must be 10-255 bytes.")
+	}
+
+	cleanEmail := strings.ToLower(in.GetEmail())
+	ip, _ := extractClientAddressFromContext(s.logger, ctx)
+	lockoutType, lockoutDuration := s.emailValidatorCache.Allow(cleanEmail, ip)
+	switch lockoutType {
+	case LockoutTypeFrequency:
+		return nil, status.Error(codes.AlreadyExists,
+			"Too many requests within short period of time, please try again after "+
+				lockoutDuration.String()+".")
+	case LockoutTypeEmail:
+		return nil, status.Error(codes.AlreadyExists,
+			"Too many requests for this email address, please try again after "+
+				lockoutDuration.String()+".")
+	case LockoutTypeIp:
+		return nil, status.Error(codes.AlreadyExists,
+			"Too many requests from current ip address, please try again after "+
+				lockoutDuration.String()+".")
+	default:
+	}
+	s.emailValidatorCache.Add(cleanEmail, ip)
+
+	// Determine the host and port to use for the SMTP server.
+	host, port, err := SplitHostPort(s.config.GetMail().SMTP.Address)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Invalid SMTP configuration.")
+	}
+	sender, err := gomail.NewDialer(host, port,
+		s.config.GetMail().SMTP.Username,
+		s.config.GetMail().SMTP.Password,
+	).Dial()
+	if err != nil {
+		s.logger.Error("Mailserver connection failed", zap.Error(err))
+		return nil, status.Error(codes.Internal, "Mailserver connection failed.")
+	}
+	defer sender.Close()
+
+	// Look for an existing account.
+	query := "SELECT id, lang_tag, verify_time, disable_time FROM users WHERE email = $1"
+	var dbUserID string
+	var dbLangTag string
+	var dbVerifyTime pgtype.Timestamptz
+	var dbDisableTime pgtype.Timestamptz
+	if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID,
+		&dbLangTag, &dbVerifyTime, &dbDisableTime); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, status.Error(codes.InvalidArgument, "Email does not exists.")
+		} else {
+			s.logger.Error("Error looking up user by email.",
+				zap.Error(err), zap.String("email", cleanEmail))
+			return nil, status.Error(codes.Internal, "Error finding user account.")
+		}
+	}
+
+	// Check if it's disabled.
+	if dbDisableTime.Status == pgtype.Present && dbDisableTime.Time.Unix() != 0 {
+		s.logger.Info("User account is disabled.", zap.String("email", cleanEmail))
+		return nil, status.Error(codes.PermissionDenied, "User account banned.")
+	}
+
+	// Check if it's already verified.
+	if dbVerifyTime.Status == pgtype.Present && dbVerifyTime.Time.Unix() != 0 {
+		return nil, status.Error(codes.AlreadyExists, "Email already verified.")
+	}
+
+	// Generate a one time used token.
+	now := time.Now().UTC()
+	ssn := fmt.Sprint(rand.Int())
+	expiry := now.Add(time.Hour * 8)
+	s.emailValidatorCache.Update(cleanEmail, ssn, expiry)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &EmailTokenClaims{
+		Serial:    ssn,
+		UID:       dbUserID,
+		Email:     cleanEmail,
+		Vars:      map[string]string{},
+		ExpiresAt: expiry.Unix(),
+	})
+	signedToken, _ := token.SignedString([]byte(s.config.GetMail().Verification.EncryptionKey))
+
+	// Get the origin header and generate password reset link.
+	var link string
+	md, _ := metadata.FromIncomingContext(ctx)
+	if origins := md.Get("grpcgateway-origin"); len(origins) > 0 {
+		uri, err := url.Parse(origins[0])
+		if err != nil {
+			s.logger.Warn("Invalid origin header.", zap.Error(err))
+			return nil, status.Error(codes.Internal, "Invalid origin header.")
+		}
+		uri.Path = "/"
+		uri.Fragment = "/email-verification/link"
+		link = uri.String() + "?" + url.Values{"token": []string{signedToken}}.Encode()
+	}
+	if len(link) == 0 {
+		return nil, status.Error(codes.Internal, "Origin header missing.")
+	}
+
+	// Set the language for the email template.
+	langs := []language.Tag{}
+	if tag, err := language.Parse(dbLangTag); err == nil {
+		langs = append(langs, tag)
+	}
+	if al := md.Get("grpcgateway-accept-language"); len(al) > 0 {
+		langs, _, _ = language.ParseAcceptLanguage(al[0])
+	}
+	assets.FS.With(langs...)
+
+	// Generate email content.
+	var body bytes.Buffer
+	tmpl := template.Must(template.ParseFS(assets.FS, "mails/verification-link.html"))
+	if err := tmpl.Execute(&body, struct {
+		Link           string
+		ExpirationTime string
+		Entitlement    string
+	}{
+		link, expiry.Sub(now).String(), s.config.GetMail().Verification.Entitlement,
+	}); err != nil {
+		s.logger.Warn("Email template generate failed.", zap.Error(err))
+		return nil, status.Error(codes.Internal, "Email template generate failed.")
+	}
+
+	// Send the email to smtp server.
+	m := gomail.NewMessage()
+	m.SetHeader("From", s.config.GetMail().Sender)
+	m.SetHeader("To", in.GetEmail())
+	m.SetHeader("Subject", "Email verification")
+	m.SetBody("text/html", body.String())
+	if err := gomail.Send(sender, m); err != nil {
+		s.logger.Error("Email send failed.", zap.Error(err))
+		return nil, status.Error(codes.Internal, "An error occurred while trying to update the user password.")
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s *ApiServer) VerifyEmailAddress(ctx context.Context, in *web.VerifyEmailAddressRequest) (*emptypb.Empty, error) {
+	claims := &EmailTokenClaims{}
+	if ok := claims.Parse(in.GetToken(),
+		[]byte(s.config.GetMail().Verification.EncryptionKey)); !ok {
+		return nil, status.Error(codes.InvalidArgument, "Invalid Token.")
+	}
+	if err := claims.Valid(); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "Invalid Token.")
+	}
+	userID, err := uuid.FromString(claims.UID)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "Invalid Token.")
+	}
+	if !s.emailValidatorCache.Validate(claims.Email, claims.Serial) {
+		return nil, status.Error(codes.InvalidArgument, "Invalid Token.")
+	}
+	if VerifyEmailAddress(ctx, s.logger, s.db, userID) == nil {
+		s.emailValidatorCache.Reset(claims.Email)
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func VerifyEmailAddress(ctx context.Context, logger *zap.Logger, db *sql.DB, userID uuid.UUID) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		logger.Error("Could not begin database transaction.", zap.Error(err))
+		return status.Error(codes.Internal, "An error occurred while trying to update the user.")
+	}
+
+	if err = ExecuteInTx(ctx, tx, func() error {
+
+		// Update the password on the user account only if they have an email associated.
+		res, err := tx.ExecContext(ctx, "UPDATE users SET verify_time = now(), update_time = now() WHERE id = $1 AND email IS NOT NULL", userID.String())
+		if err != nil {
+			logger.Error("Could not update verify time.", zap.Error(err), zap.Any("user_id", userID))
+			return err
+		}
+		if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+			return StatusError(codes.InvalidArgument, "Cannot update verfiy time on an account with no email address.", ErrRowsAffectedCount)
+		}
+
+		return nil
+	}); err != nil {
+		if e, ok := err.(*statusError); ok {
+			// Errors such as unlinking the last profile or username in use.
+			return e.Status()
+		}
+		logger.Error("Error updating verify time.", zap.Error(err))
+		return status.Error(codes.Internal, "An error occurred while trying to update the user verify time.")
+	}
+	return nil
+}
+
+func sendEmailVerificationLink(s *ApiServer, ctx context.Context, email string) error {
+	_, err := s.SendEmailVerificationLink(ctx,
+		&api.SendEmailVerificationRequest{
+			Email: email,
+		})
+	return err
+}

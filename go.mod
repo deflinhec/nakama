@@ -1,6 +1,6 @@
 module github.com/heroiclabs/nakama/v3
 
-go 1.20
+go 1.19
 
 require (
 	github.com/blugelabs/bluge v0.2.2
@@ -13,6 +13,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
+	github.com/hashicorp/consul/api v1.20.0
 	github.com/heroiclabs/nakama-common v1.26.1-0.20230321170403-7becee7153cf
 	github.com/jackc/pgconn v1.13.0
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
@@ -25,10 +26,12 @@ require (
 	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.0.0-20221012134737-56aed061732a
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094
+	golang.org/x/text v0.9.0
 	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
 	google.golang.org/grpc v1.50.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.2.0
 	google.golang.org/protobuf v1.28.1
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20190411184413-94d9e492cc53
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -59,7 +62,6 @@ require (
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
-	github.com/hashicorp/consul/api v1.20.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/hashicorp/go-hclog v0.12.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.0.0 // indirect
@@ -87,7 +89,7 @@ require (
 	github.com/twmb/murmur3 v1.1.5 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
-	golang.org/x/sys v0.0.0-20221013171732-95e765b1cc43 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
