@@ -169,11 +169,13 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendE
 	defer sender.Close()
 
 	// Look for an existing account.
-	query := "SELECT id, verify_time, disable_time FROM users WHERE email = $1"
+	query := "SELECT id, lang_tag, verify_time, disable_time FROM users WHERE email = $1"
 	var dbUserID string
+	var dbLangTag string
 	var dbVerifyTime pgtype.Timestamptz
 	var dbDisableTime pgtype.Timestamptz
-	if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID, &dbVerifyTime, &dbDisableTime); err != nil {
+	if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID,
+		&dbLangTag, &dbVerifyTime, &dbDisableTime); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Error(codes.InvalidArgument, "Email does not exists.")
 		} else {
@@ -227,6 +229,9 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendE
 
 	// Set the language for the email template.
 	langs := []language.Tag{}
+	if tag, err := language.Parse(dbLangTag); err == nil {
+		langs = append(langs, tag)
+	}
 	if al := md.Get("grpcgateway-accept-language"); len(al) > 0 {
 		langs, _, _ = language.ParseAcceptLanguage(al[0])
 	}
@@ -276,14 +281,41 @@ func (s *ApiServer) VerifyEmailAddress(ctx context.Context, in *web.VerifyEmailA
 	if !s.emailValidatorCache.Validate(claims.Email, claims.Serial) {
 		return nil, status.Error(codes.InvalidArgument, "Invalid Token.")
 	}
-	// Update verify time.
-	query := "UPDATE users SET verify_time = now() WHERE id = $1"
-	if err := s.db.QueryRowContext(ctx, query, userID).Err(); err != nil {
-		s.logger.Error("Error updating verify time.",
-			zap.String("user_id", claims.UID), zap.Error(err))
+	if VerifyEmailAddress(ctx, s.logger, s.db, userID) == nil {
+		s.emailValidatorCache.Reset(claims.Email)
 	}
-	s.emailValidatorCache.Reset(claims.Email)
 	return &emptypb.Empty{}, nil
+}
+
+func VerifyEmailAddress(ctx context.Context, logger *zap.Logger, db *sql.DB, userID uuid.UUID) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		logger.Error("Could not begin database transaction.", zap.Error(err))
+		return status.Error(codes.Internal, "An error occurred while trying to update the user.")
+	}
+
+	if err = ExecuteInTx(ctx, tx, func() error {
+
+		// Update the password on the user account only if they have an email associated.
+		res, err := tx.ExecContext(ctx, "UPDATE users SET verify_time = now(), update_time = now() WHERE id = $1 AND email IS NOT NULL", userID.String())
+		if err != nil {
+			logger.Error("Could not update verify time.", zap.Error(err), zap.Any("user_id", userID))
+			return err
+		}
+		if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+			return StatusError(codes.InvalidArgument, "Cannot update verfiy time on an account with no email address.", ErrRowsAffectedCount)
+		}
+
+		return nil
+	}); err != nil {
+		if e, ok := err.(*statusError); ok {
+			// Errors such as unlinking the last profile or username in use.
+			return e.Status()
+		}
+		logger.Error("Error updating verify time.", zap.Error(err))
+		return status.Error(codes.Internal, "An error occurred while trying to update the user verify time.")
+	}
+	return nil
 }
 
 func sendEmailVerificationLink(s *ApiServer, ctx context.Context, email string) error {

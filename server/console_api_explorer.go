@@ -119,6 +119,10 @@ func (s *ConsoleServer) extractApiCallContext(ctx context.Context, in *console.C
 
 	if strings.HasPrefix(in.Method, "Authenticate") {
 		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
+	} else if strings.HasPrefix(in.Method, "Send") {
+		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
+	} else if strings.HasPrefix(in.Method, "Query") {
+		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
 	} else if in.UserId == "" {
 		if !userIdOptional {
 			s.logger.Error("Error calling a built-in RPC function without a user_id.", zap.String("method", in.Method))
@@ -198,6 +202,9 @@ func (s *ConsoleServer) initRpcMethodCache() error {
 			continue
 		}
 		if method.Name == "RpcFunc" {
+			continue
+		}
+		if method.Name == "VerifyEmailAddress" {
 			continue
 		}
 		if method.Name == "VerifyPasswordRenewal" {

@@ -342,12 +342,9 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 		if created && s.config.GetMail().Verification.Enable {
 			// Reset the email validator cache for this email address.
 			if s.config.GetMail().Verification.Enforce {
-				s.emailValidatorCache.Reset(cleanEmail)
-				// Update verify time.
-				query := "UPDATE users SET verify_time = now() WHERE id = $1"
-				if err := s.db.QueryRowContext(ctx, query, dbUserID).Err(); err != nil {
-					s.logger.Error("Error updating verify time.",
-						zap.String("user_id", dbUserID), zap.Error(err))
+				userID := uuid.Must(uuid.FromString(dbUserID))
+				if VerifyEmailAddress(ctx, s.logger, s.db, userID) == nil {
+					s.emailValidatorCache.Reset(cleanEmail)
 				}
 				// Send email verification link.
 			} else if err := sendEmailVerificationLink(s, ctx, email.Email); err != nil {

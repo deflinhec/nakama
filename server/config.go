@@ -350,6 +350,10 @@ func CheckConfig(logger *zap.Logger, config Config) map[string]string {
 		logger.Warn("WARNING: insecure default parameter value, change this for production!", zap.String("param", "runtime.http_key"))
 		configWarnings["runtime.http_key"] = "Insecure default parameter value, change this for production!"
 	}
+	if config.GetMail().Verification.EncryptionKey == "defaultverificationencryptionkey" {
+		logger.Warn("WARNING: insecure default parameter value, change this for production!", zap.String("param", "verification.encryption_key"))
+		configWarnings["verification.encryption_key"] = "Insecure default parameter value, change this for production!"
+	}
 
 	// Log warnings for deprecated config parameters.
 	if config.GetRuntime().MinCount != 0 {
@@ -1016,15 +1020,13 @@ func NewMatchmakerConfig() *MatchmakerConfig {
 }
 
 type ConsulConfig struct {
-	Address string `yaml:"address" json:"address" usage:"The IP address of the consul server. Default localhost."`
-	Port    int    `yaml:"port" json:"port" usage:"Consul service discovery port. Default 8500."`
+	Address string `yaml:"address" json:"address" usage:"The IP address of the consul server. Default localhost:8500."`
 	TTLms   int    `yaml:"ttl" json:"ttl" usage:"Consul service healthcheck ttl in milliseconds. Default 5000."`
 }
 
 func NewConsulConfig() *ConsulConfig {
 	return &ConsulConfig{
-		Address: "localhost",
-		Port:    8500,
+		Address: "localhost:8500",
 		TTLms:   5000,
 	}
 }

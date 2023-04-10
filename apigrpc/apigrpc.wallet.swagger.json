@@ -57,7 +57,7 @@
     "/v2/provider/wallet/chains": {
       "get": {
         "summary": "Fetch the avaliable list of chain.",
-        "operationId": "WalletProvider_ListChainsFromWalletProvider",
+        "operationId": "WalletProvider_QueryChainsFromWalletProvider",
         "responses": {
           "200": {
             "description": "A successful response.",
