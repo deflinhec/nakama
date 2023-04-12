@@ -11,7 +11,9 @@ image:
 		--tag registry.deflinhec.dev/nakama:v$(VERSION)
 
 publish:
+	docker tag registry.deflinhec.dev/nakama:v$(VERSION) registry.deflinhec.dev/nakama:latest
 	docker push registry.deflinhec.dev/nakama:v$(VERSION)
+	docker push registry.deflinhec.dev/nakama:latest
 
 .PHONY: pluginbuilder-image
 pluginbuilder-image:
