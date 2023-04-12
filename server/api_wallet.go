@@ -51,6 +51,8 @@ func (s *ApiServer) AuthorizeWalletProvider(ctx context.Context, in *emptypb.Emp
 		EmitUnpopulated: false,
 	}).Marshal(&api.ProviderAuthorizeRequest{
 		Account: userID.String(),
+		Password: userID.String(),
+		Email: userID.String(),
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Error marshaling payload.")
