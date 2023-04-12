@@ -63,7 +63,7 @@ export class EmailVerificationCodeComponent implements OnInit {
         this.error = '';
       }, err => {
         this.updated = '';
-        this.error = err.error.message;
+        this.error = err.error.message || err.statusText;
         this.submitted = false;
       });
   }
