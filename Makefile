@@ -1,5 +1,5 @@
 # Define
-VERSION=0.2.3
+VERSION=0.2.4
 BUILD=$(shell git rev-parse HEAD)
 
 .PHONY: image
@@ -8,10 +8,10 @@ image:
 		--file build/Dockerfile.local \
 		--build-arg "version=$(VERSION)" \
 		--build-arg "commit=$(BUILD)" \
-		--tag registry.deflinhec.dev/nakama:latest
+		--tag registry.deflinhec.dev/nakama:v$(VERSION)
 
 publish:
-	docker push registry.deflinhec.dev/nakama:latest
+	docker push registry.deflinhec.dev/nakama:v$(VERSION)
 
 .PHONY: pluginbuilder-image
 pluginbuilder-image:

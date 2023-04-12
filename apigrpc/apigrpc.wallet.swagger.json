@@ -56,7 +56,7 @@
     },
     "/v2/provider/wallet/chains": {
       "get": {
-        "summary": "Fetch the avaliable list of chain.",
+        "summary": "Query the wallet provider supported chain.",
         "operationId": "WalletProvider_QueryChainsFromWalletProvider",
         "responses": {
           "200": {
@@ -79,7 +79,7 @@
     },
     "/v2/provider/wallet/{chain}/address": {
       "get": {
-        "summary": "Fetch the current user's account.",
+        "summary": "Get user wallet address from wallet provider.",
         "operationId": "WalletProvider_GetAddressFromWalletProvider",
         "responses": {
           "200": {

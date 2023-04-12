@@ -26,9 +26,9 @@ const _ = grpc.SupportPackageIsVersion7
 type WalletProviderClient interface {
 	// Authorize a user against the wallet provider.
 	AuthorizeWalletProvider(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// Fetch the avaliable list of chain.
+	// Query the wallet provider supported chain.
 	QueryChainsFromWalletProvider(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.ChainResponse, error)
-	// Fetch the current user's account.
+	// Get user wallet address from wallet provider.
 	GetAddressFromWalletProvider(ctx context.Context, in *api.AddressRequest, opts ...grpc.CallOption) (*api.AddressResponse, error)
 }
 
@@ -73,9 +73,9 @@ func (c *walletProviderClient) GetAddressFromWalletProvider(ctx context.Context,
 type WalletProviderServer interface {
 	// Authorize a user against the wallet provider.
 	AuthorizeWalletProvider(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
-	// Fetch the avaliable list of chain.
+	// Query the wallet provider supported chain.
 	QueryChainsFromWalletProvider(context.Context, *emptypb.Empty) (*api.ChainResponse, error)
-	// Fetch the current user's account.
+	// Get user wallet address from wallet provider.
 	GetAddressFromWalletProvider(context.Context, *api.AddressRequest) (*api.AddressResponse, error)
 	mustEmbedUnimplementedWalletProviderServer()
 }
