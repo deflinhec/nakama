@@ -57,6 +57,10 @@ message BalanceResponse {
 message ProviderAuthorizeRequest {
     // The user account.
     string account = 1;
+    // The user password.
+    string password = 2;
+    // The user email.
+    string email = 3;
 }
 
 message ProviderAddressRequest {
