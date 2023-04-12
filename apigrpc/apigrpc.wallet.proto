@@ -96,12 +96,12 @@ service WalletProvider {
     };
   }
 
-  // Fetch the avaliable list of chain.
-  rpc ListChainsFromWalletProvider (google.protobuf.Empty) returns (wallet.ChainResponse) {
+  // Query the wallet provider supported chain.
+  rpc QueryChainsFromWalletProvider (google.protobuf.Empty) returns (wallet.ChainResponse) {
     option (google.api.http).get = "/v2/provider/wallet/chains";
   }
 
-  // Fetch the current user's account.
+  // Get user wallet address from wallet provider.
   rpc GetAddressFromWalletProvider (wallet.AddressRequest) returns (wallet.AddressResponse) {
     option (google.api.http).get = "/v2/provider/wallet/{chain}/address";
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

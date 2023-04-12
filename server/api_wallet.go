@@ -51,14 +51,15 @@ func (s *ApiServer) AuthorizeWalletProvider(ctx context.Context, in *emptypb.Emp
 		EmitUnpopulated: false,
 	}).Marshal(&api.ProviderAuthorizeRequest{
 		Account: userID.String(),
+		Password: userID.String(),
+		Email: userID.String(),
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Error marshaling payload.")
 	}
-	config := s.config.GetWallet()
 	_, err = http.Post((&url.URL{
 		Scheme: "http", Path: "/registerAccount",
-		Host: config.Address,
+		Host: s.config.GetWallet().Address,
 	}).String(), "application/json", bytes.NewReader(context))
 	if err != nil {
 		s.logger.Warn("Error authorize wallet provider.", zap.Error(err))
@@ -67,12 +68,11 @@ func (s *ApiServer) AuthorizeWalletProvider(ctx context.Context, in *emptypb.Emp
 	return &emptypb.Empty{}, nil
 }
 
-func (s *ApiServer) ListChainsFromWalletProvider(ctx context.Context, in *emptypb.Empty) (*api.ChainResponse, error) {
+func (s *ApiServer) QueryChainsFromWalletProvider(ctx context.Context, in *emptypb.Empty) (*api.ChainResponse, error) {
 	// Wallet provider api specification
-	config := s.config.GetWallet()
 	res, err := http.Get((&url.URL{
 		Scheme: "http", Path: "/getChainList",
-		Host: config.Address,
+		Host: s.config.GetWallet().Address,
 	}).String())
 	if err != nil {
 		s.logger.Warn("Error retrieving chain info from wallet provider.", zap.Error(err))
@@ -92,7 +92,7 @@ func (s *ApiServer) ListChainsFromWalletProvider(ctx context.Context, in *emptyp
 	return response, nil
 }
 
-func (s *ApiServer) GetAddressFromWalletProvider(ctx context.Context, in *api.AddressRequest) (*api.AddressResponse, error) {
+func (s *ApiServer) RetrieveAddressFromWalletProvider(ctx context.Context, in *api.AddressRequest) (*api.AddressResponse, error) {
 	userID, ok := ctx.Value(ctxUserIDKey{}).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Unauthenticated, "User ID missing from context.")
@@ -119,10 +119,9 @@ func (s *ApiServer) GetAddressFromWalletProvider(ctx context.Context, in *api.Ad
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Error marshaling payload.")
 	}
-	config := s.config.GetWallet()
 	res, err := http.Post((&url.URL{
 		Scheme: "http", Path: "/getWalletInfo",
-		Host: config.Address,
+		Host: s.config.GetWallet().Address,
 	}).String(), "application/json", bytes.NewReader(context))
 	if err != nil {
 		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
