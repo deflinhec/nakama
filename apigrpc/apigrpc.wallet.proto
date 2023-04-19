@@ -101,8 +101,8 @@ service WalletProvider {
     option (google.api.http).get = "/v2/provider/wallet/chains";
   }
 
-  // Get user wallet address from wallet provider.
-  rpc GetAddressFromWalletProvider (wallet.AddressRequest) returns (wallet.AddressResponse) {
+  // Retrieve user wallet address from wallet provider.
+  rpc RetrieveAddressFromWalletProvider (wallet.AddressRequest) returns (wallet.AddressResponse) {
     option (google.api.http).get = "/v2/provider/wallet/{chain}/address";
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       security: {

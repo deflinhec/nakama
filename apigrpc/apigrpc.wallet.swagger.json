@@ -79,8 +79,8 @@
     },
     "/v2/provider/wallet/{chain}/address": {
       "get": {
-        "summary": "Get user wallet address from wallet provider.",
-        "operationId": "WalletProvider_GetAddressFromWalletProvider",
+        "summary": "Retrieve user wallet address from wallet provider.",
+        "operationId": "WalletProvider_RetrieveAddressFromWalletProvider",
         "responses": {
           "200": {
             "description": "A successful response.",

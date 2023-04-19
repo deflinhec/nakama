@@ -28,8 +28,8 @@ type WalletProviderClient interface {
 	AuthorizeWalletProvider(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Query the wallet provider supported chain.
 	QueryChainsFromWalletProvider(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.ChainResponse, error)
-	// Get user wallet address from wallet provider.
-	GetAddressFromWalletProvider(ctx context.Context, in *api.AddressRequest, opts ...grpc.CallOption) (*api.AddressResponse, error)
+	// Retrieve user wallet address from wallet provider.
+	RetrieveAddressFromWalletProvider(ctx context.Context, in *api.AddressRequest, opts ...grpc.CallOption) (*api.AddressResponse, error)
 }
 
 type walletProviderClient struct {
@@ -58,9 +58,9 @@ func (c *walletProviderClient) QueryChainsFromWalletProvider(ctx context.Context
 	return out, nil
 }
 
-func (c *walletProviderClient) GetAddressFromWalletProvider(ctx context.Context, in *api.AddressRequest, opts ...grpc.CallOption) (*api.AddressResponse, error) {
+func (c *walletProviderClient) RetrieveAddressFromWalletProvider(ctx context.Context, in *api.AddressRequest, opts ...grpc.CallOption) (*api.AddressResponse, error) {
 	out := new(api.AddressResponse)
-	err := c.cc.Invoke(ctx, "/nakama.api.WalletProvider/GetAddressFromWalletProvider", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.api.WalletProvider/RetrieveAddressFromWalletProvider", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -75,8 +75,8 @@ type WalletProviderServer interface {
 	AuthorizeWalletProvider(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	// Query the wallet provider supported chain.
 	QueryChainsFromWalletProvider(context.Context, *emptypb.Empty) (*api.ChainResponse, error)
-	// Get user wallet address from wallet provider.
-	GetAddressFromWalletProvider(context.Context, *api.AddressRequest) (*api.AddressResponse, error)
+	// Retrieve user wallet address from wallet provider.
+	RetrieveAddressFromWalletProvider(context.Context, *api.AddressRequest) (*api.AddressResponse, error)
 	mustEmbedUnimplementedWalletProviderServer()
 }
 
@@ -90,8 +90,8 @@ func (UnimplementedWalletProviderServer) AuthorizeWalletProvider(context.Context
 func (UnimplementedWalletProviderServer) QueryChainsFromWalletProvider(context.Context, *emptypb.Empty) (*api.ChainResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryChainsFromWalletProvider not implemented")
 }
-func (UnimplementedWalletProviderServer) GetAddressFromWalletProvider(context.Context, *api.AddressRequest) (*api.AddressResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAddressFromWalletProvider not implemented")
+func (UnimplementedWalletProviderServer) RetrieveAddressFromWalletProvider(context.Context, *api.AddressRequest) (*api.AddressResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RetrieveAddressFromWalletProvider not implemented")
 }
 func (UnimplementedWalletProviderServer) mustEmbedUnimplementedWalletProviderServer() {}
 
@@ -142,20 +142,20 @@ func _WalletProvider_QueryChainsFromWalletProvider_Handler(srv interface{}, ctx 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WalletProvider_GetAddressFromWalletProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _WalletProvider_RetrieveAddressFromWalletProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(api.AddressRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WalletProviderServer).GetAddressFromWalletProvider(ctx, in)
+		return srv.(WalletProviderServer).RetrieveAddressFromWalletProvider(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.api.WalletProvider/GetAddressFromWalletProvider",
+		FullMethod: "/nakama.api.WalletProvider/RetrieveAddressFromWalletProvider",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WalletProviderServer).GetAddressFromWalletProvider(ctx, req.(*api.AddressRequest))
+		return srv.(WalletProviderServer).RetrieveAddressFromWalletProvider(ctx, req.(*api.AddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -176,8 +176,8 @@ var WalletProvider_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _WalletProvider_QueryChainsFromWalletProvider_Handler,
 		},
 		{
-			MethodName: "GetAddressFromWalletProvider",
-			Handler:    _WalletProvider_GetAddressFromWalletProvider_Handler,
+			MethodName: "RetrieveAddressFromWalletProvider",
+			Handler:    _WalletProvider_RetrieveAddressFromWalletProvider_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
