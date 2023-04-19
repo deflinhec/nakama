@@ -5,6 +5,16 @@ import { Injectable, Optional } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+/** Get avaliable features response. */
+export interface Features {
+	features?:Array<FeaturesFEATURE>
+}
+
+export enum FeaturesFEATURE {
+  EMAIL_VERIFICATION = 0,
+  VERIFICATION_CODE = 1,
+}
+
 /** Submit a email verification request. */
 export interface SendEmailVerificationRequest {
   // The email address.
@@ -79,6 +89,13 @@ export class ApplicationService {
 		const urlPath = `/v2/account/verify/${token}`;
     let params = new HttpParams();
     return this.httpClient.delete(this.config.host + urlPath, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
+  }
+
+  /** Get available features from web ui. */
+  getFeatures(auth_token: string): Observable<Features> {
+		const urlPath = `/v2/features`;
+    let params = new HttpParams();
+    return this.httpClient.get<Features>(this.config.host + urlPath, { params: params, headers: this.getTokenAuthHeaders(auth_token) })
   }
 
   private getTokenAuthHeaders(token: string): HttpHeaders {

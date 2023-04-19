@@ -14,7 +14,7 @@
 
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {HomeComponent} from './home/home.component';
+import {FeatureResolver, HomeComponent} from './home/home.component';
 import {ResetPasswordComponent, ResetGuard} from './reset-password/reset-password.component';
 import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
 import {EmailVerificationLinkComponent} from './email-verification/link/link.component';
@@ -22,7 +22,8 @@ import {EmailVerificationCodeComponent} from './email-verification/code/code.com
 
 const routes: Routes = [
   {path: '', 
-      component: HomeComponent},
+      component: HomeComponent,
+      resolve: [FeatureResolver]},
   {path: 'reset-password', 
       component: ResetPasswordComponent, 
       canActivate: [ResetGuard]},

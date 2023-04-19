@@ -27,6 +27,13 @@ import (
 )
 
 func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
+	if !s.config.GetMail().Verification.Enable {
+		return nil, status.Error(codes.InvalidArgument,
+			"This feature is currently disable.")
+	} else if !s.config.GetMail().Verification.Enforce {
+		return nil, status.Error(codes.InvalidArgument,
+			"This feature is currently disable.")
+	}
 	ip, _ := extractClientAddressFromContext(s.logger, ctx)
 	if invalidCharsRegex.MatchString(in.GetEmail()) {
 		return nil, status.Error(codes.InvalidArgument,
@@ -122,6 +129,10 @@ func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *api.SendE
 }
 
 func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
+	if !s.config.GetMail().Verification.Enable {
+		return nil, status.Error(codes.InvalidArgument,
+			"This feature is currently disable.")
+	}
 	if invalidCharsRegex.MatchString(in.GetEmail()) {
 		return nil, status.Error(codes.InvalidArgument,
 			"Invalid email address, no spaces or control characters allowed.")
@@ -266,6 +277,10 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.SendE
 }
 
 func (s *ApiServer) VerifyEmailAddress(ctx context.Context, in *web.VerifyEmailAddressRequest) (*emptypb.Empty, error) {
+	if !s.config.GetMail().Verification.Enable {
+		return nil, status.Error(codes.InvalidArgument,
+			"This feature is currently disable.")
+	}
 	claims := &EmailTokenClaims{}
 	if ok := claims.Parse(in.GetToken(),
 		[]byte(s.config.GetMail().Verification.EncryptionKey)); !ok {

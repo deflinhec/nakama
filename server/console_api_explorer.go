@@ -210,6 +210,9 @@ func (s *ConsoleServer) initRpcMethodCache() error {
 		if method.Name == "VerifyPasswordRenewal" {
 			continue
 		}
+		if method.Name == "GetFeatures" {
+			continue
+		}
 		var bodyTemplate string
 		var err error
 

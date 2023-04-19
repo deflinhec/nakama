@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Component, OnInit } from '@angular/core';
+import {Component, Injectable, OnInit } from '@angular/core';
 import {UntypedFormGroup} from '@angular/forms';
 import {SegmentService} from 'ngx-segment-analytics';
 import {environment} from "../../environments/environment";
+import {Features, ApplicationService, FeaturesFEATURE} from "../app.service";
+import {ActivatedRoute, ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import {Observable} from 'rxjs';
 
 @Component({
   templateUrl: './home.component.html',
@@ -26,18 +29,33 @@ export class HomeComponent implements OnInit {
   public updated = '';
   public emailForm!: UntypedFormGroup;
   public submitted!: boolean;
+  public features!: Array<FeaturesFEATURE>;
+  public FeaturesFEATURE = FeaturesFEATURE;
 
   constructor(
-    private segment: SegmentService,
+    private readonly route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
-    if (!environment.nt) {
-      this.segment.page('/home');
-    }
+    this.route.data.subscribe(
+      d => {
+        this.features = d[0].features;
+      },
+      err => {
+        this.error = err;
+      });
   }
 
   get f(): any {
     return this.emailForm.controls;
+  }
+}
+
+@Injectable({providedIn: 'root'})
+export class FeatureResolver implements Resolve<Features> {
+  constructor(private readonly appService: ApplicationService) {}
+
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Features> {
+    return this.appService.getFeatures('');
   }
 }
