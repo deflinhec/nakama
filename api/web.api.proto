@@ -35,3 +35,13 @@ message SendEmailVerificationRequest {
     // The email address.
     string email = 1;
 }
+
+
+// Get avaliable features response.
+message Features {
+    enum FEATURE {
+        EMAIL_VERIFICATION = 0;
+        VERIFICATION_CODE = 1;
+    }
+    repeated FEATURE features = 1;
+}

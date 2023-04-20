@@ -6,6 +6,12 @@
     <div class="card">
       <div class="card-body">
         <button class="btn btn-primary btn-lg btn-block" routerLink="/forgot-password">Forgot Password</button>
+        <button class="btn btn-primary btn-lg btn-block" *ngIf="features && features.includes(FeaturesFEATURE.VERIFICATION_CODE)"
+          routerLink="/email-verification/code">Resend Verification Code
+        </button>
+        <button class="btn btn-primary btn-lg btn-block" *ngIf="features && features.includes(FeaturesFEATURE.EMAIL_VERIFICATION)"
+          routerLink="/email-verification/link">Resend Email Verification
+        </button>
       </div>
     </div>
   </div>

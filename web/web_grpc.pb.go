@@ -34,6 +34,8 @@ type ApplicationClient interface {
 	VerifyPasswordRenewal(ctx context.Context, in *VerifyPasswordRenewalRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Verfiy email address from web ui.
 	VerifyEmailAddress(ctx context.Context, in *VerifyEmailAddressRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Get available features from web ui.
+	GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.Features, error)
 }
 
 type applicationClient struct {
@@ -89,6 +91,15 @@ func (c *applicationClient) VerifyEmailAddress(ctx context.Context, in *VerifyEm
 	return out, nil
 }
 
+func (c *applicationClient) GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.Features, error) {
+	out := new(api.Features)
+	err := c.cc.Invoke(ctx, "/nakama.web.Application/GetFeatures", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApplicationServer is the server API for Application service.
 // All implementations must embed UnimplementedApplicationServer
 // for forward compatibility
@@ -103,6 +114,8 @@ type ApplicationServer interface {
 	VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error)
 	// Verfiy email address from web ui.
 	VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error)
+	// Get available features from web ui.
+	GetFeatures(context.Context, *emptypb.Empty) (*api.Features, error)
 	mustEmbedUnimplementedApplicationServer()
 }
 
@@ -124,6 +137,9 @@ func (UnimplementedApplicationServer) VerifyPasswordRenewal(context.Context, *Ve
 }
 func (UnimplementedApplicationServer) VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmailAddress not implemented")
+}
+func (UnimplementedApplicationServer) GetFeatures(context.Context, *emptypb.Empty) (*api.Features, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFeatures not implemented")
 }
 func (UnimplementedApplicationServer) mustEmbedUnimplementedApplicationServer() {}
 
@@ -228,6 +244,24 @@ func _Application_VerifyEmailAddress_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Application_GetFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApplicationServer).GetFeatures(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.web.Application/GetFeatures",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApplicationServer).GetFeatures(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Application_ServiceDesc is the grpc.ServiceDesc for Application service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -254,6 +288,10 @@ var Application_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "VerifyEmailAddress",
 			Handler:    _Application_VerifyEmailAddress_Handler,
+		},
+		{
+			MethodName: "GetFeatures",
+			Handler:    _Application_GetFeatures_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -197,9 +197,40 @@
           "Application"
         ]
       }
+    },
+    "/v2/features": {
+      "get": {
+        "summary": "Get available features from web ui.",
+        "operationId": "Application_GetFeatures",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/webFeatures"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Application"
+        ]
+      }
     }
   },
   "definitions": {
+    "FeaturesFEATURE": {
+      "type": "string",
+      "enum": [
+        "EMAIL_VERIFICATION",
+        "VERIFICATION_CODE"
+      ],
+      "default": "EMAIL_VERIFICATION"
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -226,6 +257,18 @@
           }
         }
       }
+    },
+    "webFeatures": {
+      "type": "object",
+      "properties": {
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FeaturesFEATURE"
+          }
+        }
+      },
+      "description": "Get avaliable features response."
     },
     "webSendEmailVerificationRequest": {
       "type": "object",

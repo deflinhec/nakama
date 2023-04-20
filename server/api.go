@@ -334,6 +334,8 @@ func (s *ApiServer) Healthcheck(ctx context.Context, in *emptypb.Empty) (*emptyp
 
 func securityInterceptorFunc(logger *zap.Logger, config Config, sessionCache SessionCache, ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) (context.Context, error) {
 	switch info.FullMethod {
+	case "/nakama.web.Application/GetFeatures":
+		fallthrough
 	case "/nakama.web.Application/VerifyPasswordRenewal":
 		fallthrough
 	case "/nakama.web.Application/VerifyEmailAddress":

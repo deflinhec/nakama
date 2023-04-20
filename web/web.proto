@@ -105,6 +105,13 @@ service Application {
   rpc VerifyEmailAddress (VerifyEmailAddressRequest) returns (google.protobuf.Empty) {
     option (google.api.http).delete = "/v2/account/verify/{token}";
   }
+
+  // Get available features from web ui.
+  rpc GetFeatures(google.protobuf.Empty) returns (Features) {
+    option (google.api.http) = {
+      get: "/v2/features"
+    };
+  }
 }
 
 // Verfiy password after verfied.
