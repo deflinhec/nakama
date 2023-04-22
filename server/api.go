@@ -66,8 +66,8 @@ type ctxFullMethodKey struct{}
 
 type ApiServer struct {
 	apigrpc.UnimplementedNakamaServer
+	webgrpc.UnimplementedWebForwardServer
 	apigrpc.UnimplementedWalletProviderServer
-	webgrpc.UnimplementedApplicationProxyServer
 	logger               *zap.Logger
 	db                   *sql.DB
 	config               Config
@@ -139,8 +139,8 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 
 	// Register and start GRPC server.
 	apigrpc.RegisterNakamaServer(grpcServer, s)
+	webgrpc.RegisterWebForwardServer(grpcServer, s)
 	apigrpc.RegisterWalletProviderServer(grpcServer, s)
-	webgrpc.RegisterApplicationProxyServer(grpcServer, s)
 	startupLogger.Info("Starting API server for gRPC requests", zap.Int("port", config.GetSocket().Port-1))
 	go func() {
 		listener, err := net.Listen("tcp", fmt.Sprintf("%v:%d", config.GetSocket().Address, config.GetSocket().Port-1))
@@ -211,7 +211,7 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 	if err := apigrpc.RegisterNakamaHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("API server gateway registration failed", zap.Error(err))
 	}
-	if err := webgrpc.RegisterApplicationProxyHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+	if err := webgrpc.RegisterWebForwardHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("API web server gateway registration failed", zap.Error(err))
 	}
 	if err := apigrpc.RegisterWalletProviderHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
@@ -333,9 +333,9 @@ func (s *ApiServer) Healthcheck(ctx context.Context, in *emptypb.Empty) (*emptyp
 
 func securityInterceptorFunc(logger *zap.Logger, config Config, sessionCache SessionCache, ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) (context.Context, error) {
 	switch info.FullMethod {
-	case "/nakama.web.ApplicationProxy/GetFeatures":
+	case "/nakama.web.WebForward/GetFeatures":
 		fallthrough
-	case "/nakama.web.ApplicationProxy/SendEmailVerificationCode":
+	case "/nakama.web.WebForward/SendEmailVerificationCode":
 		fallthrough
 	case "/nakama.api.Nakama/Healthcheck":
 		// Healthcheck has no security.

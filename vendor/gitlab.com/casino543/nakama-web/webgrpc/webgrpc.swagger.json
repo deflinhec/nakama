@@ -11,13 +11,13 @@
   },
   "tags": [
     {
-      "name": "Application"
+      "name": "Web"
     },
     {
-      "name": "ApplicationProxy"
+      "name": "WebForward"
     }
   ],
-  "host": "127.0.0.1:7350",
+  "host": "127.0.0.1:8350",
   "schemes": [
     "http"
   ],
@@ -31,7 +31,7 @@
     "/healthcheck": {
       "get": {
         "summary": "A healthcheck which load balancers can use to check the service.",
-        "operationId": "Application_Healthcheck",
+        "operationId": "Web_Healthcheck",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -48,14 +48,14 @@
           }
         },
         "tags": [
-          "Application"
+          "Web"
         ]
       }
     },
     "/v2/account/password/renew": {
       "post": {
         "summary": "Verfiy password from web ui.",
-        "operationId": "Application_VerifyPasswordRenewal",
+        "operationId": "Web_VerifyPasswordRenewal",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -83,14 +83,14 @@
           }
         ],
         "tags": [
-          "Application"
+          "Web"
         ]
       }
     },
     "/v2/account/password/reset": {
       "post": {
         "summary": "Send password reset email.",
-        "operationId": "Application_SendPasswordResetEmail",
+        "operationId": "Web_SendPasswordResetEmail",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -118,14 +118,14 @@
           }
         ],
         "tags": [
-          "Application"
+          "Web"
         ]
       }
     },
     "/v2/account/verify/code": {
       "post": {
         "summary": "Send email verification.",
-        "operationId": "ApplicationProxy_SendEmailVerificationCode",
+        "operationId": "WebForward_SendEmailVerificationCode",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -153,14 +153,14 @@
           }
         ],
         "tags": [
-          "ApplicationProxy"
+          "WebForward"
         ]
       }
     },
     "/v2/account/verify/link": {
       "post": {
         "summary": "Send email verification.",
-        "operationId": "ApplicationProxy_SendEmailVerificationLink",
+        "operationId": "WebForward_SendEmailVerificationLink",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -188,14 +188,14 @@
           }
         ],
         "tags": [
-          "ApplicationProxy"
+          "WebForward"
         ]
       }
     },
     "/v2/account/verify/{token}": {
       "delete": {
         "summary": "Verfiy email address from web ui.",
-        "operationId": "Application_VerifyEmailAddress",
+        "operationId": "Web_VerifyEmailAddress",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -221,14 +221,14 @@
           }
         ],
         "tags": [
-          "Application"
+          "Web"
         ]
       }
     },
     "/v2/features": {
       "get": {
         "summary": "Get available features from web ui.",
-        "operationId": "ApplicationProxy_GetFeatures",
+        "operationId": "WebForward_GetFeatures",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -244,7 +244,7 @@
           }
         },
         "tags": [
-          "ApplicationProxy"
+          "WebForward"
         ]
       }
     }

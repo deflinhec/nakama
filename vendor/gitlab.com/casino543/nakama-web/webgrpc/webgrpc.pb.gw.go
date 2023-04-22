@@ -33,7 +33,7 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
-func request_Application_Healthcheck_0(ctx context.Context, marshaler runtime.Marshaler, client ApplicationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Web_Healthcheck_0(ctx context.Context, marshaler runtime.Marshaler, client WebClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
@@ -42,7 +42,7 @@ func request_Application_Healthcheck_0(ctx context.Context, marshaler runtime.Ma
 
 }
 
-func local_request_Application_Healthcheck_0(ctx context.Context, marshaler runtime.Marshaler, server ApplicationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Web_Healthcheck_0(ctx context.Context, marshaler runtime.Marshaler, server WebServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
@@ -51,7 +51,7 @@ func local_request_Application_Healthcheck_0(ctx context.Context, marshaler runt
 
 }
 
-func request_Application_VerifyPasswordRenewal_0(ctx context.Context, marshaler runtime.Marshaler, client ApplicationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Web_VerifyPasswordRenewal_0(ctx context.Context, marshaler runtime.Marshaler, client WebClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq VerifyPasswordRenewalRequest
 	var metadata runtime.ServerMetadata
 
@@ -68,7 +68,7 @@ func request_Application_VerifyPasswordRenewal_0(ctx context.Context, marshaler 
 
 }
 
-func local_request_Application_VerifyPasswordRenewal_0(ctx context.Context, marshaler runtime.Marshaler, server ApplicationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Web_VerifyPasswordRenewal_0(ctx context.Context, marshaler runtime.Marshaler, server WebServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq VerifyPasswordRenewalRequest
 	var metadata runtime.ServerMetadata
 
@@ -85,7 +85,7 @@ func local_request_Application_VerifyPasswordRenewal_0(ctx context.Context, mars
 
 }
 
-func request_Application_VerifyEmailAddress_0(ctx context.Context, marshaler runtime.Marshaler, client ApplicationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Web_VerifyEmailAddress_0(ctx context.Context, marshaler runtime.Marshaler, client WebClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq VerifyEmailAddressRequest
 	var metadata runtime.ServerMetadata
 
@@ -111,7 +111,7 @@ func request_Application_VerifyEmailAddress_0(ctx context.Context, marshaler run
 
 }
 
-func local_request_Application_VerifyEmailAddress_0(ctx context.Context, marshaler runtime.Marshaler, server ApplicationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Web_VerifyEmailAddress_0(ctx context.Context, marshaler runtime.Marshaler, server WebServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq VerifyEmailAddressRequest
 	var metadata runtime.ServerMetadata
 
@@ -137,7 +137,7 @@ func local_request_Application_VerifyEmailAddress_0(ctx context.Context, marshal
 
 }
 
-func request_Application_SendPasswordResetEmail_0(ctx context.Context, marshaler runtime.Marshaler, client ApplicationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Web_SendPasswordResetEmail_0(ctx context.Context, marshaler runtime.Marshaler, client WebClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq api.SendPasswordResetEmailRequest
 	var metadata runtime.ServerMetadata
 
@@ -154,7 +154,7 @@ func request_Application_SendPasswordResetEmail_0(ctx context.Context, marshaler
 
 }
 
-func local_request_Application_SendPasswordResetEmail_0(ctx context.Context, marshaler runtime.Marshaler, server ApplicationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Web_SendPasswordResetEmail_0(ctx context.Context, marshaler runtime.Marshaler, server WebServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq api.SendPasswordResetEmailRequest
 	var metadata runtime.ServerMetadata
 
@@ -171,7 +171,7 @@ func local_request_Application_SendPasswordResetEmail_0(ctx context.Context, mar
 
 }
 
-func request_ApplicationProxy_SendEmailVerificationCode_0(ctx context.Context, marshaler runtime.Marshaler, client ApplicationProxyClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_WebForward_SendEmailVerificationCode_0(ctx context.Context, marshaler runtime.Marshaler, client WebForwardClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq api.SendEmailVerificationRequest
 	var metadata runtime.ServerMetadata
 
@@ -188,7 +188,7 @@ func request_ApplicationProxy_SendEmailVerificationCode_0(ctx context.Context, m
 
 }
 
-func local_request_ApplicationProxy_SendEmailVerificationCode_0(ctx context.Context, marshaler runtime.Marshaler, server ApplicationProxyServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_WebForward_SendEmailVerificationCode_0(ctx context.Context, marshaler runtime.Marshaler, server WebForwardServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq api.SendEmailVerificationRequest
 	var metadata runtime.ServerMetadata
 
@@ -205,7 +205,7 @@ func local_request_ApplicationProxy_SendEmailVerificationCode_0(ctx context.Cont
 
 }
 
-func request_ApplicationProxy_SendEmailVerificationLink_0(ctx context.Context, marshaler runtime.Marshaler, client ApplicationProxyClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_WebForward_SendEmailVerificationLink_0(ctx context.Context, marshaler runtime.Marshaler, client WebForwardClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq api.SendEmailVerificationRequest
 	var metadata runtime.ServerMetadata
 
@@ -222,7 +222,7 @@ func request_ApplicationProxy_SendEmailVerificationLink_0(ctx context.Context, m
 
 }
 
-func local_request_ApplicationProxy_SendEmailVerificationLink_0(ctx context.Context, marshaler runtime.Marshaler, server ApplicationProxyServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_WebForward_SendEmailVerificationLink_0(ctx context.Context, marshaler runtime.Marshaler, server WebForwardServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq api.SendEmailVerificationRequest
 	var metadata runtime.ServerMetadata
 
@@ -239,7 +239,7 @@ func local_request_ApplicationProxy_SendEmailVerificationLink_0(ctx context.Cont
 
 }
 
-func request_ApplicationProxy_GetFeatures_0(ctx context.Context, marshaler runtime.Marshaler, client ApplicationProxyClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_WebForward_GetFeatures_0(ctx context.Context, marshaler runtime.Marshaler, client WebForwardClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
@@ -248,7 +248,7 @@ func request_ApplicationProxy_GetFeatures_0(ctx context.Context, marshaler runti
 
 }
 
-func local_request_ApplicationProxy_GetFeatures_0(ctx context.Context, marshaler runtime.Marshaler, server ApplicationProxyServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_WebForward_GetFeatures_0(ctx context.Context, marshaler runtime.Marshaler, server WebForwardServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
@@ -257,13 +257,13 @@ func local_request_ApplicationProxy_GetFeatures_0(ctx context.Context, marshaler
 
 }
 
-// RegisterApplicationHandlerServer registers the http handlers for service Application to "mux".
-// UnaryRPC     :call ApplicationServer directly.
+// RegisterWebHandlerServer registers the http handlers for service Web to "mux".
+// UnaryRPC     :call WebServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterApplicationHandlerFromEndpoint instead.
-func RegisterApplicationHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ApplicationServer) error {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterWebHandlerFromEndpoint instead.
+func RegisterWebHandlerServer(ctx context.Context, mux *runtime.ServeMux, server WebServer) error {
 
-	mux.Handle("GET", pattern_Application_Healthcheck_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_Web_Healthcheck_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -271,12 +271,12 @@ func RegisterApplicationHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.Application/Healthcheck", runtime.WithHTTPPathPattern("/healthcheck"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.Web/Healthcheck", runtime.WithHTTPPathPattern("/healthcheck"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Application_Healthcheck_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Web_Healthcheck_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -284,11 +284,11 @@ func RegisterApplicationHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_Application_Healthcheck_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Web_Healthcheck_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Application_VerifyPasswordRenewal_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Web_VerifyPasswordRenewal_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -296,12 +296,12 @@ func RegisterApplicationHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.Application/VerifyPasswordRenewal", runtime.WithHTTPPathPattern("/v2/account/password/renew"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.Web/VerifyPasswordRenewal", runtime.WithHTTPPathPattern("/v2/account/password/renew"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Application_VerifyPasswordRenewal_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Web_VerifyPasswordRenewal_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -309,11 +309,11 @@ func RegisterApplicationHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_Application_VerifyPasswordRenewal_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Web_VerifyPasswordRenewal_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("DELETE", pattern_Application_VerifyEmailAddress_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("DELETE", pattern_Web_VerifyEmailAddress_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -321,12 +321,12 @@ func RegisterApplicationHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.Application/VerifyEmailAddress", runtime.WithHTTPPathPattern("/v2/account/verify/{token}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.Web/VerifyEmailAddress", runtime.WithHTTPPathPattern("/v2/account/verify/{token}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Application_VerifyEmailAddress_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Web_VerifyEmailAddress_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -334,11 +334,11 @@ func RegisterApplicationHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_Application_VerifyEmailAddress_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Web_VerifyEmailAddress_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Application_SendPasswordResetEmail_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Web_SendPasswordResetEmail_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -346,12 +346,12 @@ func RegisterApplicationHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.Application/SendPasswordResetEmail", runtime.WithHTTPPathPattern("/v2/account/password/reset"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.Web/SendPasswordResetEmail", runtime.WithHTTPPathPattern("/v2/account/password/reset"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Application_SendPasswordResetEmail_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Web_SendPasswordResetEmail_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -359,20 +359,20 @@ func RegisterApplicationHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_Application_SendPasswordResetEmail_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Web_SendPasswordResetEmail_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterApplicationProxyHandlerServer registers the http handlers for service ApplicationProxy to "mux".
-// UnaryRPC     :call ApplicationProxyServer directly.
+// RegisterWebForwardHandlerServer registers the http handlers for service WebForward to "mux".
+// UnaryRPC     :call WebForwardServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterApplicationProxyHandlerFromEndpoint instead.
-func RegisterApplicationProxyHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ApplicationProxyServer) error {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterWebForwardHandlerFromEndpoint instead.
+func RegisterWebForwardHandlerServer(ctx context.Context, mux *runtime.ServeMux, server WebForwardServer) error {
 
-	mux.Handle("POST", pattern_ApplicationProxy_SendEmailVerificationCode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_WebForward_SendEmailVerificationCode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -380,12 +380,12 @@ func RegisterApplicationProxyHandlerServer(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.ApplicationProxy/SendEmailVerificationCode", runtime.WithHTTPPathPattern("/v2/account/verify/code"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.WebForward/SendEmailVerificationCode", runtime.WithHTTPPathPattern("/v2/account/verify/code"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApplicationProxy_SendEmailVerificationCode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_WebForward_SendEmailVerificationCode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -393,11 +393,11 @@ func RegisterApplicationProxyHandlerServer(ctx context.Context, mux *runtime.Ser
 			return
 		}
 
-		forward_ApplicationProxy_SendEmailVerificationCode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WebForward_SendEmailVerificationCode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_ApplicationProxy_SendEmailVerificationLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_WebForward_SendEmailVerificationLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -405,12 +405,12 @@ func RegisterApplicationProxyHandlerServer(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.ApplicationProxy/SendEmailVerificationLink", runtime.WithHTTPPathPattern("/v2/account/verify/link"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.WebForward/SendEmailVerificationLink", runtime.WithHTTPPathPattern("/v2/account/verify/link"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApplicationProxy_SendEmailVerificationLink_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_WebForward_SendEmailVerificationLink_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -418,11 +418,11 @@ func RegisterApplicationProxyHandlerServer(ctx context.Context, mux *runtime.Ser
 			return
 		}
 
-		forward_ApplicationProxy_SendEmailVerificationLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WebForward_SendEmailVerificationLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_ApplicationProxy_GetFeatures_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_WebForward_GetFeatures_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -430,12 +430,12 @@ func RegisterApplicationProxyHandlerServer(ctx context.Context, mux *runtime.Ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.ApplicationProxy/GetFeatures", runtime.WithHTTPPathPattern("/v2/features"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/nakama.web.WebForward/GetFeatures", runtime.WithHTTPPathPattern("/v2/features"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApplicationProxy_GetFeatures_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_WebForward_GetFeatures_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -443,16 +443,16 @@ func RegisterApplicationProxyHandlerServer(ctx context.Context, mux *runtime.Ser
 			return
 		}
 
-		forward_ApplicationProxy_GetFeatures_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WebForward_GetFeatures_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterApplicationHandlerFromEndpoint is same as RegisterApplicationHandler but
+// RegisterWebHandlerFromEndpoint is same as RegisterWebHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterApplicationHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterWebHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -472,107 +472,107 @@ func RegisterApplicationHandlerFromEndpoint(ctx context.Context, mux *runtime.Se
 		}()
 	}()
 
-	return RegisterApplicationHandler(ctx, mux, conn)
+	return RegisterWebHandler(ctx, mux, conn)
 }
 
-// RegisterApplicationHandler registers the http handlers for service Application to "mux".
+// RegisterWebHandler registers the http handlers for service Web to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterApplicationHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterApplicationHandlerClient(ctx, mux, NewApplicationClient(conn))
+func RegisterWebHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterWebHandlerClient(ctx, mux, NewWebClient(conn))
 }
 
-// RegisterApplicationHandlerClient registers the http handlers for service Application
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ApplicationClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ApplicationClient"
+// RegisterWebHandlerClient registers the http handlers for service Web
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "WebClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "WebClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ApplicationClient" to call the correct interceptors.
-func RegisterApplicationHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ApplicationClient) error {
+// "WebClient" to call the correct interceptors.
+func RegisterWebHandlerClient(ctx context.Context, mux *runtime.ServeMux, client WebClient) error {
 
-	mux.Handle("GET", pattern_Application_Healthcheck_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_Web_Healthcheck_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.Application/Healthcheck", runtime.WithHTTPPathPattern("/healthcheck"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.Web/Healthcheck", runtime.WithHTTPPathPattern("/healthcheck"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Application_Healthcheck_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Web_Healthcheck_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Application_Healthcheck_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Web_Healthcheck_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Application_VerifyPasswordRenewal_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Web_VerifyPasswordRenewal_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.Application/VerifyPasswordRenewal", runtime.WithHTTPPathPattern("/v2/account/password/renew"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.Web/VerifyPasswordRenewal", runtime.WithHTTPPathPattern("/v2/account/password/renew"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Application_VerifyPasswordRenewal_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Web_VerifyPasswordRenewal_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Application_VerifyPasswordRenewal_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Web_VerifyPasswordRenewal_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("DELETE", pattern_Application_VerifyEmailAddress_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("DELETE", pattern_Web_VerifyEmailAddress_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.Application/VerifyEmailAddress", runtime.WithHTTPPathPattern("/v2/account/verify/{token}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.Web/VerifyEmailAddress", runtime.WithHTTPPathPattern("/v2/account/verify/{token}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Application_VerifyEmailAddress_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Web_VerifyEmailAddress_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Application_VerifyEmailAddress_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Web_VerifyEmailAddress_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Application_SendPasswordResetEmail_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Web_SendPasswordResetEmail_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.Application/SendPasswordResetEmail", runtime.WithHTTPPathPattern("/v2/account/password/reset"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.Web/SendPasswordResetEmail", runtime.WithHTTPPathPattern("/v2/account/password/reset"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Application_SendPasswordResetEmail_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Web_SendPasswordResetEmail_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Application_SendPasswordResetEmail_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Web_SendPasswordResetEmail_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -580,28 +580,28 @@ func RegisterApplicationHandlerClient(ctx context.Context, mux *runtime.ServeMux
 }
 
 var (
-	pattern_Application_Healthcheck_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"healthcheck"}, ""))
+	pattern_Web_Healthcheck_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"healthcheck"}, ""))
 
-	pattern_Application_VerifyPasswordRenewal_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "account", "password", "renew"}, ""))
+	pattern_Web_VerifyPasswordRenewal_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "account", "password", "renew"}, ""))
 
-	pattern_Application_VerifyEmailAddress_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2", "account", "verify", "token"}, ""))
+	pattern_Web_VerifyEmailAddress_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v2", "account", "verify", "token"}, ""))
 
-	pattern_Application_SendPasswordResetEmail_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "account", "password", "reset"}, ""))
+	pattern_Web_SendPasswordResetEmail_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "account", "password", "reset"}, ""))
 )
 
 var (
-	forward_Application_Healthcheck_0 = runtime.ForwardResponseMessage
+	forward_Web_Healthcheck_0 = runtime.ForwardResponseMessage
 
-	forward_Application_VerifyPasswordRenewal_0 = runtime.ForwardResponseMessage
+	forward_Web_VerifyPasswordRenewal_0 = runtime.ForwardResponseMessage
 
-	forward_Application_VerifyEmailAddress_0 = runtime.ForwardResponseMessage
+	forward_Web_VerifyEmailAddress_0 = runtime.ForwardResponseMessage
 
-	forward_Application_SendPasswordResetEmail_0 = runtime.ForwardResponseMessage
+	forward_Web_SendPasswordResetEmail_0 = runtime.ForwardResponseMessage
 )
 
-// RegisterApplicationProxyHandlerFromEndpoint is same as RegisterApplicationProxyHandler but
+// RegisterWebForwardHandlerFromEndpoint is same as RegisterWebForwardHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterApplicationProxyHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterWebForwardHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -621,85 +621,85 @@ func RegisterApplicationProxyHandlerFromEndpoint(ctx context.Context, mux *runti
 		}()
 	}()
 
-	return RegisterApplicationProxyHandler(ctx, mux, conn)
+	return RegisterWebForwardHandler(ctx, mux, conn)
 }
 
-// RegisterApplicationProxyHandler registers the http handlers for service ApplicationProxy to "mux".
+// RegisterWebForwardHandler registers the http handlers for service WebForward to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterApplicationProxyHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterApplicationProxyHandlerClient(ctx, mux, NewApplicationProxyClient(conn))
+func RegisterWebForwardHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterWebForwardHandlerClient(ctx, mux, NewWebForwardClient(conn))
 }
 
-// RegisterApplicationProxyHandlerClient registers the http handlers for service ApplicationProxy
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ApplicationProxyClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ApplicationProxyClient"
+// RegisterWebForwardHandlerClient registers the http handlers for service WebForward
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "WebForwardClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "WebForwardClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ApplicationProxyClient" to call the correct interceptors.
-func RegisterApplicationProxyHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ApplicationProxyClient) error {
+// "WebForwardClient" to call the correct interceptors.
+func RegisterWebForwardHandlerClient(ctx context.Context, mux *runtime.ServeMux, client WebForwardClient) error {
 
-	mux.Handle("POST", pattern_ApplicationProxy_SendEmailVerificationCode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_WebForward_SendEmailVerificationCode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.ApplicationProxy/SendEmailVerificationCode", runtime.WithHTTPPathPattern("/v2/account/verify/code"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.WebForward/SendEmailVerificationCode", runtime.WithHTTPPathPattern("/v2/account/verify/code"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApplicationProxy_SendEmailVerificationCode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_WebForward_SendEmailVerificationCode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ApplicationProxy_SendEmailVerificationCode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WebForward_SendEmailVerificationCode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_ApplicationProxy_SendEmailVerificationLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_WebForward_SendEmailVerificationLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.ApplicationProxy/SendEmailVerificationLink", runtime.WithHTTPPathPattern("/v2/account/verify/link"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.WebForward/SendEmailVerificationLink", runtime.WithHTTPPathPattern("/v2/account/verify/link"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApplicationProxy_SendEmailVerificationLink_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_WebForward_SendEmailVerificationLink_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ApplicationProxy_SendEmailVerificationLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WebForward_SendEmailVerificationLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_ApplicationProxy_GetFeatures_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_WebForward_GetFeatures_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.ApplicationProxy/GetFeatures", runtime.WithHTTPPathPattern("/v2/features"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/nakama.web.WebForward/GetFeatures", runtime.WithHTTPPathPattern("/v2/features"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApplicationProxy_GetFeatures_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_WebForward_GetFeatures_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ApplicationProxy_GetFeatures_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_WebForward_GetFeatures_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -707,17 +707,17 @@ func RegisterApplicationProxyHandlerClient(ctx context.Context, mux *runtime.Ser
 }
 
 var (
-	pattern_ApplicationProxy_SendEmailVerificationCode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "account", "verify", "code"}, ""))
+	pattern_WebForward_SendEmailVerificationCode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "account", "verify", "code"}, ""))
 
-	pattern_ApplicationProxy_SendEmailVerificationLink_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "account", "verify", "link"}, ""))
+	pattern_WebForward_SendEmailVerificationLink_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v2", "account", "verify", "link"}, ""))
 
-	pattern_ApplicationProxy_GetFeatures_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v2", "features"}, ""))
+	pattern_WebForward_GetFeatures_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v2", "features"}, ""))
 )
 
 var (
-	forward_ApplicationProxy_SendEmailVerificationCode_0 = runtime.ForwardResponseMessage
+	forward_WebForward_SendEmailVerificationCode_0 = runtime.ForwardResponseMessage
 
-	forward_ApplicationProxy_SendEmailVerificationLink_0 = runtime.ForwardResponseMessage
+	forward_WebForward_SendEmailVerificationLink_0 = runtime.ForwardResponseMessage
 
-	forward_ApplicationProxy_GetFeatures_0 = runtime.ForwardResponseMessage
+	forward_WebForward_GetFeatures_0 = runtime.ForwardResponseMessage
 )

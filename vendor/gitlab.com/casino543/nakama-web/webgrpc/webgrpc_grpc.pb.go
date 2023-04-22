@@ -20,10 +20,10 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// ApplicationClient is the client API for Application service.
+// WebClient is the client API for Web service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ApplicationClient interface {
+type WebClient interface {
 	// A healthcheck which load balancers can use to check the service.
 	Healthcheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Verfiy password from web ui.
@@ -34,54 +34,54 @@ type ApplicationClient interface {
 	SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
-type applicationClient struct {
+type webClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewApplicationClient(cc grpc.ClientConnInterface) ApplicationClient {
-	return &applicationClient{cc}
+func NewWebClient(cc grpc.ClientConnInterface) WebClient {
+	return &webClient{cc}
 }
 
-func (c *applicationClient) Healthcheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *webClient) Healthcheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/nakama.web.Application/Healthcheck", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.web.Web/Healthcheck", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *applicationClient) VerifyPasswordRenewal(ctx context.Context, in *VerifyPasswordRenewalRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *webClient) VerifyPasswordRenewal(ctx context.Context, in *VerifyPasswordRenewalRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/nakama.web.Application/VerifyPasswordRenewal", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.web.Web/VerifyPasswordRenewal", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *applicationClient) VerifyEmailAddress(ctx context.Context, in *VerifyEmailAddressRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *webClient) VerifyEmailAddress(ctx context.Context, in *VerifyEmailAddressRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/nakama.web.Application/VerifyEmailAddress", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.web.Web/VerifyEmailAddress", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *applicationClient) SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *webClient) SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/nakama.web.Application/SendPasswordResetEmail", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.web.Web/SendPasswordResetEmail", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ApplicationServer is the server API for Application service.
-// All implementations must embed UnimplementedApplicationServer
+// WebServer is the server API for Web service.
+// All implementations must embed UnimplementedWebServer
 // for forward compatibility
-type ApplicationServer interface {
+type WebServer interface {
 	// A healthcheck which load balancers can use to check the service.
 	Healthcheck(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	// Verfiy password from web ui.
@@ -90,142 +90,142 @@ type ApplicationServer interface {
 	VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error)
 	// Send password reset email.
 	SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error)
-	mustEmbedUnimplementedApplicationServer()
+	mustEmbedUnimplementedWebServer()
 }
 
-// UnimplementedApplicationServer must be embedded to have forward compatible implementations.
-type UnimplementedApplicationServer struct {
+// UnimplementedWebServer must be embedded to have forward compatible implementations.
+type UnimplementedWebServer struct {
 }
 
-func (UnimplementedApplicationServer) Healthcheck(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+func (UnimplementedWebServer) Healthcheck(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Healthcheck not implemented")
 }
-func (UnimplementedApplicationServer) VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error) {
+func (UnimplementedWebServer) VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyPasswordRenewal not implemented")
 }
-func (UnimplementedApplicationServer) VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error) {
+func (UnimplementedWebServer) VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmailAddress not implemented")
 }
-func (UnimplementedApplicationServer) SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
+func (UnimplementedWebServer) SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendPasswordResetEmail not implemented")
 }
-func (UnimplementedApplicationServer) mustEmbedUnimplementedApplicationServer() {}
+func (UnimplementedWebServer) mustEmbedUnimplementedWebServer() {}
 
-// UnsafeApplicationServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ApplicationServer will
+// UnsafeWebServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to WebServer will
 // result in compilation errors.
-type UnsafeApplicationServer interface {
-	mustEmbedUnimplementedApplicationServer()
+type UnsafeWebServer interface {
+	mustEmbedUnimplementedWebServer()
 }
 
-func RegisterApplicationServer(s grpc.ServiceRegistrar, srv ApplicationServer) {
-	s.RegisterService(&Application_ServiceDesc, srv)
+func RegisterWebServer(s grpc.ServiceRegistrar, srv WebServer) {
+	s.RegisterService(&Web_ServiceDesc, srv)
 }
 
-func _Application_Healthcheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Web_Healthcheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApplicationServer).Healthcheck(ctx, in)
+		return srv.(WebServer).Healthcheck(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.web.Application/Healthcheck",
+		FullMethod: "/nakama.web.Web/Healthcheck",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApplicationServer).Healthcheck(ctx, req.(*emptypb.Empty))
+		return srv.(WebServer).Healthcheck(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Application_VerifyPasswordRenewal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Web_VerifyPasswordRenewal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(VerifyPasswordRenewalRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApplicationServer).VerifyPasswordRenewal(ctx, in)
+		return srv.(WebServer).VerifyPasswordRenewal(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.web.Application/VerifyPasswordRenewal",
+		FullMethod: "/nakama.web.Web/VerifyPasswordRenewal",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApplicationServer).VerifyPasswordRenewal(ctx, req.(*VerifyPasswordRenewalRequest))
+		return srv.(WebServer).VerifyPasswordRenewal(ctx, req.(*VerifyPasswordRenewalRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Application_VerifyEmailAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Web_VerifyEmailAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(VerifyEmailAddressRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApplicationServer).VerifyEmailAddress(ctx, in)
+		return srv.(WebServer).VerifyEmailAddress(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.web.Application/VerifyEmailAddress",
+		FullMethod: "/nakama.web.Web/VerifyEmailAddress",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApplicationServer).VerifyEmailAddress(ctx, req.(*VerifyEmailAddressRequest))
+		return srv.(WebServer).VerifyEmailAddress(ctx, req.(*VerifyEmailAddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Application_SendPasswordResetEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Web_SendPasswordResetEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(api.SendPasswordResetEmailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApplicationServer).SendPasswordResetEmail(ctx, in)
+		return srv.(WebServer).SendPasswordResetEmail(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.web.Application/SendPasswordResetEmail",
+		FullMethod: "/nakama.web.Web/SendPasswordResetEmail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApplicationServer).SendPasswordResetEmail(ctx, req.(*api.SendPasswordResetEmailRequest))
+		return srv.(WebServer).SendPasswordResetEmail(ctx, req.(*api.SendPasswordResetEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Application_ServiceDesc is the grpc.ServiceDesc for Application service.
+// Web_ServiceDesc is the grpc.ServiceDesc for Web service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Application_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "nakama.web.Application",
-	HandlerType: (*ApplicationServer)(nil),
+var Web_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "nakama.web.Web",
+	HandlerType: (*WebServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Healthcheck",
-			Handler:    _Application_Healthcheck_Handler,
+			Handler:    _Web_Healthcheck_Handler,
 		},
 		{
 			MethodName: "VerifyPasswordRenewal",
-			Handler:    _Application_VerifyPasswordRenewal_Handler,
+			Handler:    _Web_VerifyPasswordRenewal_Handler,
 		},
 		{
 			MethodName: "VerifyEmailAddress",
-			Handler:    _Application_VerifyEmailAddress_Handler,
+			Handler:    _Web_VerifyEmailAddress_Handler,
 		},
 		{
 			MethodName: "SendPasswordResetEmail",
-			Handler:    _Application_SendPasswordResetEmail_Handler,
+			Handler:    _Web_SendPasswordResetEmail_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "webgrpc.proto",
 }
 
-// ApplicationProxyClient is the client API for ApplicationProxy service.
+// WebForwardClient is the client API for WebForward service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ApplicationProxyClient interface {
+type WebForwardClient interface {
 	// Send email verification.
 	SendEmailVerificationCode(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Send email verification.
@@ -234,152 +234,152 @@ type ApplicationProxyClient interface {
 	GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.Features, error)
 }
 
-type applicationProxyClient struct {
+type webForwardClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewApplicationProxyClient(cc grpc.ClientConnInterface) ApplicationProxyClient {
-	return &applicationProxyClient{cc}
+func NewWebForwardClient(cc grpc.ClientConnInterface) WebForwardClient {
+	return &webForwardClient{cc}
 }
 
-func (c *applicationProxyClient) SendEmailVerificationCode(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *webForwardClient) SendEmailVerificationCode(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/nakama.web.ApplicationProxy/SendEmailVerificationCode", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.web.WebForward/SendEmailVerificationCode", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *applicationProxyClient) SendEmailVerificationLink(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *webForwardClient) SendEmailVerificationLink(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/nakama.web.ApplicationProxy/SendEmailVerificationLink", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.web.WebForward/SendEmailVerificationLink", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *applicationProxyClient) GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.Features, error) {
+func (c *webForwardClient) GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.Features, error) {
 	out := new(api.Features)
-	err := c.cc.Invoke(ctx, "/nakama.web.ApplicationProxy/GetFeatures", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.web.WebForward/GetFeatures", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ApplicationProxyServer is the server API for ApplicationProxy service.
-// All implementations must embed UnimplementedApplicationProxyServer
+// WebForwardServer is the server API for WebForward service.
+// All implementations must embed UnimplementedWebForwardServer
 // for forward compatibility
-type ApplicationProxyServer interface {
+type WebForwardServer interface {
 	// Send email verification.
 	SendEmailVerificationCode(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error)
 	// Send email verification.
 	SendEmailVerificationLink(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error)
 	// Get available features from web ui.
 	GetFeatures(context.Context, *emptypb.Empty) (*api.Features, error)
-	mustEmbedUnimplementedApplicationProxyServer()
+	mustEmbedUnimplementedWebForwardServer()
 }
 
-// UnimplementedApplicationProxyServer must be embedded to have forward compatible implementations.
-type UnimplementedApplicationProxyServer struct {
+// UnimplementedWebForwardServer must be embedded to have forward compatible implementations.
+type UnimplementedWebForwardServer struct {
 }
 
-func (UnimplementedApplicationProxyServer) SendEmailVerificationCode(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
+func (UnimplementedWebForwardServer) SendEmailVerificationCode(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendEmailVerificationCode not implemented")
 }
-func (UnimplementedApplicationProxyServer) SendEmailVerificationLink(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
+func (UnimplementedWebForwardServer) SendEmailVerificationLink(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendEmailVerificationLink not implemented")
 }
-func (UnimplementedApplicationProxyServer) GetFeatures(context.Context, *emptypb.Empty) (*api.Features, error) {
+func (UnimplementedWebForwardServer) GetFeatures(context.Context, *emptypb.Empty) (*api.Features, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFeatures not implemented")
 }
-func (UnimplementedApplicationProxyServer) mustEmbedUnimplementedApplicationProxyServer() {}
+func (UnimplementedWebForwardServer) mustEmbedUnimplementedWebForwardServer() {}
 
-// UnsafeApplicationProxyServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ApplicationProxyServer will
+// UnsafeWebForwardServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to WebForwardServer will
 // result in compilation errors.
-type UnsafeApplicationProxyServer interface {
-	mustEmbedUnimplementedApplicationProxyServer()
+type UnsafeWebForwardServer interface {
+	mustEmbedUnimplementedWebForwardServer()
 }
 
-func RegisterApplicationProxyServer(s grpc.ServiceRegistrar, srv ApplicationProxyServer) {
-	s.RegisterService(&ApplicationProxy_ServiceDesc, srv)
+func RegisterWebForwardServer(s grpc.ServiceRegistrar, srv WebForwardServer) {
+	s.RegisterService(&WebForward_ServiceDesc, srv)
 }
 
-func _ApplicationProxy_SendEmailVerificationCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _WebForward_SendEmailVerificationCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(api.SendEmailVerificationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApplicationProxyServer).SendEmailVerificationCode(ctx, in)
+		return srv.(WebForwardServer).SendEmailVerificationCode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.web.ApplicationProxy/SendEmailVerificationCode",
+		FullMethod: "/nakama.web.WebForward/SendEmailVerificationCode",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApplicationProxyServer).SendEmailVerificationCode(ctx, req.(*api.SendEmailVerificationRequest))
+		return srv.(WebForwardServer).SendEmailVerificationCode(ctx, req.(*api.SendEmailVerificationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ApplicationProxy_SendEmailVerificationLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _WebForward_SendEmailVerificationLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(api.SendEmailVerificationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApplicationProxyServer).SendEmailVerificationLink(ctx, in)
+		return srv.(WebForwardServer).SendEmailVerificationLink(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.web.ApplicationProxy/SendEmailVerificationLink",
+		FullMethod: "/nakama.web.WebForward/SendEmailVerificationLink",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApplicationProxyServer).SendEmailVerificationLink(ctx, req.(*api.SendEmailVerificationRequest))
+		return srv.(WebForwardServer).SendEmailVerificationLink(ctx, req.(*api.SendEmailVerificationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ApplicationProxy_GetFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _WebForward_GetFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApplicationProxyServer).GetFeatures(ctx, in)
+		return srv.(WebForwardServer).GetFeatures(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.web.ApplicationProxy/GetFeatures",
+		FullMethod: "/nakama.web.WebForward/GetFeatures",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApplicationProxyServer).GetFeatures(ctx, req.(*emptypb.Empty))
+		return srv.(WebForwardServer).GetFeatures(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// ApplicationProxy_ServiceDesc is the grpc.ServiceDesc for ApplicationProxy service.
+// WebForward_ServiceDesc is the grpc.ServiceDesc for WebForward service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var ApplicationProxy_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "nakama.web.ApplicationProxy",
-	HandlerType: (*ApplicationProxyServer)(nil),
+var WebForward_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "nakama.web.WebForward",
+	HandlerType: (*WebForwardServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "SendEmailVerificationCode",
-			Handler:    _ApplicationProxy_SendEmailVerificationCode_Handler,
+			Handler:    _WebForward_SendEmailVerificationCode_Handler,
 		},
 		{
 			MethodName: "SendEmailVerificationLink",
-			Handler:    _ApplicationProxy_SendEmailVerificationLink_Handler,
+			Handler:    _WebForward_SendEmailVerificationLink_Handler,
 		},
 		{
 			MethodName: "GetFeatures",
-			Handler:    _ApplicationProxy_GetFeatures_Handler,
+			Handler:    _WebForward_GetFeatures_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

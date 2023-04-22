@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.12
-// source: webgrpc.proxy.console.proto
+// source: webproxy.console.proto
 
 package webgrpc
 
@@ -25,6 +25,7 @@ const _ = grpc.SupportPackageIsVersion7
 type ConsoleProxyClient interface {
 	// Get available features from web ui.
 	SessionLogout(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetMailConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Config, error)
 }
 
 type consoleProxyClient struct {
@@ -44,12 +45,22 @@ func (c *consoleProxyClient) SessionLogout(ctx context.Context, in *AccountId, o
 	return out, nil
 }
 
+func (c *consoleProxyClient) GetMailConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Config, error) {
+	out := new(Config)
+	err := c.cc.Invoke(ctx, "/nakama.web.ConsoleProxy/GetMailConfig", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ConsoleProxyServer is the server API for ConsoleProxy service.
 // All implementations must embed UnimplementedConsoleProxyServer
 // for forward compatibility
 type ConsoleProxyServer interface {
 	// Get available features from web ui.
 	SessionLogout(context.Context, *AccountId) (*emptypb.Empty, error)
+	GetMailConfig(context.Context, *emptypb.Empty) (*Config, error)
 	mustEmbedUnimplementedConsoleProxyServer()
 }
 
@@ -59,6 +70,9 @@ type UnimplementedConsoleProxyServer struct {
 
 func (UnimplementedConsoleProxyServer) SessionLogout(context.Context, *AccountId) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SessionLogout not implemented")
+}
+func (UnimplementedConsoleProxyServer) GetMailConfig(context.Context, *emptypb.Empty) (*Config, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMailConfig not implemented")
 }
 func (UnimplementedConsoleProxyServer) mustEmbedUnimplementedConsoleProxyServer() {}
 
@@ -91,6 +105,24 @@ func _ConsoleProxy_SessionLogout_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ConsoleProxy_GetMailConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsoleProxyServer).GetMailConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.web.ConsoleProxy/GetMailConfig",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsoleProxyServer).GetMailConfig(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ConsoleProxy_ServiceDesc is the grpc.ServiceDesc for ConsoleProxy service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,7 +134,11 @@ var ConsoleProxy_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SessionLogout",
 			Handler:    _ConsoleProxy_SessionLogout_Handler,
 		},
+		{
+			MethodName: "GetMailConfig",
+			Handler:    _ConsoleProxy_GetMailConfig_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "webgrpc.proxy.console.proto",
+	Metadata: "webproxy.console.proto",
 }

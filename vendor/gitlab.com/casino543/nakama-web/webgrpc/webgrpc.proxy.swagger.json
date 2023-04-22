@@ -11,10 +11,10 @@
   },
   "tags": [
     {
-      "name": "ConsoleProxy"
+      "name": "WebProxy"
     }
   ],
-  "host": "127.0.0.1:7350",
+  "host": "127.0.0.1:8350",
   "schemes": [
     "http"
   ],
@@ -25,10 +25,10 @@
     "application/json"
   ],
   "paths": {
-    "/v2/console/account/{id}/logout": {
+    "/v2/account/verify/code/{code}": {
       "post": {
         "summary": "Get available features from web ui.",
-        "operationId": "ConsoleProxy_SessionLogout",
+        "operationId": "WebProxy_VerifyVerificationCode",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -46,15 +46,22 @@
         },
         "parameters": [
           {
-            "name": "id",
-            "description": "The unique identifier of the user account.",
+            "name": "code",
+            "description": "The email verification code.",
             "in": "path",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "description": "The email address.",
+            "in": "query",
+            "required": false,
             "type": "string"
           }
         ],
         "tags": [
-          "ConsoleProxy"
+          "WebProxy"
         ]
       }
     }

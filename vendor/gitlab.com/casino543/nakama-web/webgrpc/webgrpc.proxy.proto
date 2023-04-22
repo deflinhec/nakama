@@ -16,7 +16,6 @@ syntax = "proto3";
 
 package nakama.web;
 
-import "web.api.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -65,75 +64,20 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   }
 };
 
-// Verfiy password after verfied.
-message VerifyPasswordRenewalRequest {
-  // The user credentials.
-  string token = 1;
-  // The renewed password.
-  string password = 2;
-}
-
-// Verfiy email address.
-message VerifyEmailAddressRequest {
-  // The user credentials.
-  string token = 1;
-}
-
-/**
- * The RPC protocol service built with GRPC.
- */
-service Web {
-  // A healthcheck which load balancers can use to check the service.
-  rpc Healthcheck (google.protobuf.Empty) returns (google.protobuf.Empty) {
-    option (google.api.http).get = "/healthcheck";
-  }
-
-  // Verfiy password from web ui.
-  rpc VerifyPasswordRenewal (VerifyPasswordRenewalRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/v2/account/password/renew";
-      body: "*"
-    };
-  }
-
-  // Verfiy email address from web ui.
-  rpc VerifyEmailAddress (VerifyEmailAddressRequest) returns (google.protobuf.Empty) {
-    option (google.api.http).delete = "/v2/account/verify/{token}";
-  }
-
-  // Send password reset email.
-  rpc SendPasswordResetEmail (SendPasswordResetEmailRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/v2/account/password/reset";
-      body: "*"
-    };
-  }
+// The identifier for a user account.
+message VerifyVerificationCodeRequest {
+  // The email address.
+  string email = 1;
+  // The email verification code.
+  string code = 2;
 }
 
 /**
  * The RPC protocol proxy service built with GRPC.
  */
- service WebForward {
-  // Send email verification.
-  rpc SendEmailVerificationCode (SendEmailVerificationRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/v2/account/verify/code",
-      body: "*"
-    };
-  }
-
-  // Send email verification.
-  rpc SendEmailVerificationLink (SendEmailVerificationRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/v2/account/verify/link",
-      body: "*"
-    };
-  }
-
+service WebProxy {
   // Get available features from web ui.
-  rpc GetFeatures(google.protobuf.Empty) returns (Features) {
-    option (google.api.http) = {
-      get: "/v2/features"
-    };
+  rpc VerifyVerificationCode(VerifyVerificationCodeRequest) returns (google.protobuf.Empty) {
+    option (google.api.http).post = "/v2/account/verify/code/{code}";
   }
 }

@@ -16,29 +16,20 @@ package server
 
 import (
 	"context"
-	"fmt"
 
 	"gitlab.com/casino543/nakama-web/api"
-	"gitlab.com/casino543/nakama-web/webgrpc"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func (s *ApiServer) GetFeatures(ctx context.Context, in *emptypb.Empty) (*api.Features, error) {
-	host, port, err := SplitHostPort(s.config.GetProxy().Application.Address)
-	if err != nil {
-		s.logger.Error("An error occurred while retrieving features", zap.Error(err))
-		return nil, status.Error(codes.Internal, "Service unavaliable.")
+	response := &api.Features{}
+	if s.config.GetMail().Verification.Enable {
+		response.Features = append(response.Features,
+			api.Features_EMAIL_VERIFICATION)
+		if s.config.GetMail().Verification.Enforce {
+			response.Features = append(response.Features,
+				api.Features_VERIFICATION_CODE)
+		}
 	}
-	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%d", host, port-1),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		s.logger.Error("An error occurred while retrieving features", zap.Error(err))
-		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
-	}
-	return webgrpc.NewApplicationProxyClient(conn).GetFeatures(ctx, in)
+	return response, nil
 }

@@ -468,6 +468,10 @@ func consoleInterceptorFunc(logger *zap.Logger, config Config, sessionCache Sess
 		if info.FullMethod == "/nakama.console.Console/AuthenticateLogout" {
 			return handler(ctx, req)
 		}
+		if strings.HasPrefix(info.FullMethod, "/nakama.web.ConsoleProxy/") {
+			// Skip authentication check for Console proxy endpoint.
+			return handler(ctx, req)
+		}
 
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {

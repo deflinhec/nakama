@@ -111,13 +111,13 @@ func (s *ConsoleServer) extractApiCallContext(ctx context.Context, in *console.C
 	var callCtx context.Context
 
 	apiPrefix := "/nakama.api.Nakama/"
-	if _, ok := reflect.TypeOf(s.api.UnimplementedApplicationProxyServer).MethodByName(in.Method); ok {
-		apiPrefix = "/nakama.web.ApplicationProxy/"
+	if _, ok := reflect.TypeOf(s.api.UnimplementedWebForwardServer).MethodByName(in.Method); ok {
+		apiPrefix = "/nakama.web.WebForward/"
 	} else if _, ok := reflect.TypeOf(s.api.UnimplementedWalletProviderServer).MethodByName(in.Method); ok {
 		apiPrefix = "/nakama.api.WalletProvider/"
 	}
 
-	if apiPrefix == "/nakama.web.ApplicationProxy/" {
+	if apiPrefix == "/nakama.web.WebForward/" {
 		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
 	} else if strings.HasPrefix(in.Method, "Authenticate") {
 		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)

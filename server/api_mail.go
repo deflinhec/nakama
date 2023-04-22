@@ -26,7 +26,7 @@ func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *webapi.Se
 		s.logger.Error("An error occurred while sending email", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 	}
-	return webgrpc.NewApplicationProxyClient(conn).SendEmailVerificationCode(ctx, in)
+	return webgrpc.NewWebForwardClient(conn).SendEmailVerificationCode(ctx, in)
 }
 
 func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *webapi.SendEmailVerificationRequest) (*emptypb.Empty, error) {
@@ -41,13 +41,20 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *webapi.Se
 		s.logger.Error("An error occurred while sending email", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 	}
-	return webgrpc.NewApplicationProxyClient(conn).SendEmailVerificationLink(ctx, in)
+	return webgrpc.NewWebForwardClient(conn).SendEmailVerificationLink(ctx, in)
 }
 
-func sendEmailVerificationLink(s *ApiServer, ctx context.Context, email string) error {
-	_, err := s.SendEmailVerificationLink(ctx,
-		&webapi.SendEmailVerificationRequest{
-			Email: email,
-		})
-	return err
+func (s *ApiServer) VerifyVerificationCode(ctx context.Context, in *webgrpc.VerifyVerificationCodeRequest) (*emptypb.Empty, error) {
+	host, port, err := SplitHostPort(s.config.GetProxy().Application.Address)
+	if err != nil {
+		s.logger.Error("An error occurred while sending email", zap.Error(err))
+		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
+	}
+	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%d", host, port-1),
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		s.logger.Error("An error occurred while sending email", zap.Error(err))
+		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
+	}
+	return webgrpc.NewWebProxyClient(conn).VerifyVerificationCode(ctx, in)
 }
