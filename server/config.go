@@ -51,6 +51,7 @@ type Config interface {
 	GetWallet() *WalletConfig
 	GetConsul() *ConsulConfig
 	GetMail() *MailConfig
+	GetProxy() *ProxyConfig
 	GetIAP() *IAPConfig
 	GetGoogleAuth() *GoogleAuthConfig
 	GetSatori() *SatoriConfig
@@ -463,6 +464,7 @@ type config struct {
 	Consul           *ConsulConfig      `yaml:"consul" json:"consul" usage:"Consul settings."`
 	Wallet           *WalletConfig      `yaml:"wallet" json:"wallet" usage:"Wallet settings."`
 	Mail             *MailConfig        `yaml:"mail" json:"mail" usage:"Mail settings."`
+	Proxy            *ProxyConfig       `yaml:"proxy" json:"proxy" usage:"Proxy settings."`
 	IAP              *IAPConfig         `yaml:"iap" json:"iap" usage:"In-App Purchase settings."`
 	GoogleAuth       *GoogleAuthConfig  `yaml:"google_auth" json:"google_auth" usage:"Google's auth settings."`
 	Satori           *SatoriConfig      `yaml:"satori" json:"satori" usage:"Satori integration settings."`
@@ -493,6 +495,7 @@ func NewConfig(logger *zap.Logger) *config {
 		Consul:           NewConsulConfig(),
 		Wallet:           NewWalletConfig(),
 		Mail:             NewMailConfig(),
+		Proxy:            NewProxyConfig(),
 		IAP:              NewIAPConfig(),
 		GoogleAuth:       NewGoogleAuthConfig(),
 		Satori:           NewSatoriConfig(),
@@ -515,6 +518,7 @@ func (c *config) Clone() (Config, error) {
 	configConsul := *(c.Consul)
 	configWallet := *(c.Wallet)
 	configMail := *(c.Mail)
+	configProxy := *(c.Proxy)
 	configIAP := *(c.IAP)
 	configSatori := *(c.Satori)
 	configGoogleAuth := *(c.GoogleAuth)
@@ -537,6 +541,7 @@ func (c *config) Clone() (Config, error) {
 		Consul:           &configConsul,
 		Wallet:           &configWallet,
 		Mail:             &configMail,
+		Proxy:            &configProxy,
 		IAP:              &configIAP,
 		Satori:           &configSatori,
 		GoogleAuth:       &configGoogleAuth,
@@ -636,6 +641,10 @@ func (c *config) GetWallet() *WalletConfig {
 
 func (c *config) GetMail() *MailConfig {
 	return c.Mail
+}
+
+func (c *config) GetProxy() *ProxyConfig {
+	return c.Proxy
 }
 
 func (c *config) GetIAP() *IAPConfig {
@@ -1073,6 +1082,22 @@ func NewMailConfig() *MailConfig {
 			Username: "admin",
 			Password: "password",
 			Address:  "localhost:25",
+		},
+	}
+}
+
+type ApplicationProxyConfig struct {
+	Address string `yaml:"address" json:"address" usage:"The IP address of the application server. Default localhost."`
+}
+
+type ProxyConfig struct {
+	Application ApplicationProxyConfig
+}
+
+func NewProxyConfig() *ProxyConfig {
+	return &ProxyConfig{
+		Application: ApplicationProxyConfig{
+			Address: "localhost:8350",
 		},
 	}
 }

@@ -17,10 +17,10 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/heroiclabs/nakama/v3/api"
 	"github.com/heroiclabs/nakama/v3/assets"
-	"github.com/heroiclabs/nakama/v3/web"
 	"github.com/jackc/pgtype"
+	webapi "gitlab.com/casino543/nakama-web/api"
+	"gitlab.com/casino543/nakama-web/webgrpc"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/text/language"
@@ -84,7 +84,7 @@ func SplitHostPort(hostport string) (host string, port int, err error) {
 	return host, port, nil
 }
 
-func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
+func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *webapi.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
 	ip, _ := extractClientAddressFromContext(s.logger, ctx)
 	if invalidCharsRegex.MatchString(in.GetEmail()) {
 		return nil, status.Error(codes.InvalidArgument, "Invalid email address, no spaces or control characters allowed.")
@@ -211,7 +211,7 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.SendPass
 	return &emptypb.Empty{}, nil
 }
 
-func (s *ApiServer) VerifyPasswordRenewal(ctx context.Context, in *web.VerifyPasswordRenewalRequest) (*emptypb.Empty, error) {
+func (s *ApiServer) VerifyPasswordRenewal(ctx context.Context, in *webgrpc.VerifyPasswordRenewalRequest) (*emptypb.Empty, error) {
 	claims := &EmailTokenClaims{}
 	if ok := claims.Parse(in.GetToken(),
 		[]byte(s.config.GetMail().Verification.EncryptionKey)); !ok {

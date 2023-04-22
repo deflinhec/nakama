@@ -24,7 +24,6 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"fmt"
-	"io"
 	"math"
 	"net"
 	"net/http"
@@ -39,7 +38,8 @@ import (
 	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama/v3/apigrpc"
 	"github.com/heroiclabs/nakama/v3/social"
-	"github.com/heroiclabs/nakama/v3/web"
+	_ "gitlab.com/casino543/nakama-web/api"
+	"gitlab.com/casino543/nakama-web/webgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -67,7 +67,7 @@ type ctxFullMethodKey struct{}
 type ApiServer struct {
 	apigrpc.UnimplementedNakamaServer
 	apigrpc.UnimplementedWalletProviderServer
-	web.UnimplementedApplicationServer
+	webgrpc.UnimplementedApplicationProxyServer
 	logger               *zap.Logger
 	db                   *sql.DB
 	config               Config
@@ -139,8 +139,8 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 
 	// Register and start GRPC server.
 	apigrpc.RegisterNakamaServer(grpcServer, s)
-	web.RegisterApplicationServer(grpcServer, s)
 	apigrpc.RegisterWalletProviderServer(grpcServer, s)
+	webgrpc.RegisterApplicationProxyServer(grpcServer, s)
 	startupLogger.Info("Starting API server for gRPC requests", zap.Int("port", config.GetSocket().Port-1))
 	go func() {
 		listener, err := net.Listen("tcp", fmt.Sprintf("%v:%d", config.GetSocket().Address, config.GetSocket().Port-1))
@@ -211,7 +211,7 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 	if err := apigrpc.RegisterNakamaHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("API server gateway registration failed", zap.Error(err))
 	}
-	if err := web.RegisterApplicationHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+	if err := webgrpc.RegisterApplicationProxyHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("API web server gateway registration failed", zap.Error(err))
 	}
 	if err := apigrpc.RegisterWalletProviderHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
@@ -261,7 +261,6 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 		// Allow GRPC Gateway to handle the request.
 		handlerWithMaxBody.ServeHTTP(w, r)
 	})
-	registerApplicationHandlers(logger, grpcGatewayRouter)
 
 	// Enable CORS on all requests.
 	CORSHeaders := handlers.AllowedHeaders([]string{"Authorization", "Content-Type", "User-Agent"})
@@ -334,17 +333,9 @@ func (s *ApiServer) Healthcheck(ctx context.Context, in *emptypb.Empty) (*emptyp
 
 func securityInterceptorFunc(logger *zap.Logger, config Config, sessionCache SessionCache, ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) (context.Context, error) {
 	switch info.FullMethod {
-	case "/nakama.web.Application/GetFeatures":
+	case "/nakama.web.ApplicationProxy/GetFeatures":
 		fallthrough
-	case "/nakama.web.Application/VerifyPasswordRenewal":
-		fallthrough
-	case "/nakama.web.Application/VerifyEmailAddress":
-		fallthrough
-	case "/nakama.web.Application/SendPasswordResetEmail":
-		fallthrough
-	case "/nakama.web.Application/SendEmailVerificationCode":
-		fallthrough
-	case "/nakama.web.Application/SendEmailVerificationLink":
+	case "/nakama.web.ApplicationProxy/SendEmailVerificationCode":
 		fallthrough
 	case "/nakama.api.Nakama/Healthcheck":
 		// Healthcheck has no security.
@@ -617,43 +608,4 @@ func traceApiAfter(ctx context.Context, logger *zap.Logger, metrics Metrics, ful
 	err := fn(clientIP, clientPort)
 
 	metrics.ApiAfter(fullMethodName, time.Since(start), err != nil)
-}
-
-func registerApplicationHandlers(logger *zap.Logger, router *mux.Router) {
-	indexFn := func(w http.ResponseWriter, r *http.Request) {
-		indexFile, err := web.UIFS.Open("index.html")
-		if err != nil {
-			logger.Error("Failed to open index file.", zap.Error(err))
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		indexBytes, err := io.ReadAll(indexFile)
-		if err != nil {
-			logger.Error("Failed to read index file.", zap.Error(err))
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		w.Header().Add("Cache-Control", "no-cache")
-		w.Header().Set("X-Frame-Options", "deny")
-		w.Write(indexBytes)
-	}
-
-	router.Path("/").HandlerFunc(indexFn)
-	router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// get the absolute path to prevent directory traversal
-		path := r.URL.Path
-		logger = logger.With(zap.String("path", path))
-
-		// check whether a file exists at the given path
-		if _, err := web.UIFS.Open(path); err == nil {
-			// otherwise, use http.FileServer to serve the static dir
-			r.URL.Path = path // override the path with the prefixed path
-			web.UI.ServeHTTP(w, r)
-			return
-		} else {
-			indexFn(w, r)
-		}
-	})
 }

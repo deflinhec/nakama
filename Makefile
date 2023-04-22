@@ -26,7 +26,6 @@ pluginbuilder-image:
 .PHONY: generate
 generate:
 	go generate -x ./... && \
-	(cd web/ui && npm clean-install && npm run-script build) && \
 	(cd console/ui && npm clean-install && npm run-script build)
 
 default: image plugin-builder-image

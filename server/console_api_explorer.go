@@ -111,13 +111,15 @@ func (s *ConsoleServer) extractApiCallContext(ctx context.Context, in *console.C
 	var callCtx context.Context
 
 	apiPrefix := "/nakama.api.Nakama/"
-	if _, ok := reflect.TypeOf(s.api.UnimplementedApplicationServer).MethodByName(in.Method); ok {
-		apiPrefix = "/nakama.api.Application/"
+	if _, ok := reflect.TypeOf(s.api.UnimplementedApplicationProxyServer).MethodByName(in.Method); ok {
+		apiPrefix = "/nakama.web.ApplicationProxy/"
 	} else if _, ok := reflect.TypeOf(s.api.UnimplementedWalletProviderServer).MethodByName(in.Method); ok {
 		apiPrefix = "/nakama.api.WalletProvider/"
 	}
 
-	if strings.HasPrefix(in.Method, "Authenticate") {
+	if apiPrefix == "/nakama.web.ApplicationProxy/" {
+		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
+	} else if strings.HasPrefix(in.Method, "Authenticate") {
 		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
 	} else if strings.HasPrefix(in.Method, "Send") {
 		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
@@ -202,15 +204,6 @@ func (s *ConsoleServer) initRpcMethodCache() error {
 			continue
 		}
 		if method.Name == "RpcFunc" {
-			continue
-		}
-		if method.Name == "VerifyEmailAddress" {
-			continue
-		}
-		if method.Name == "VerifyPasswordRenewal" {
-			continue
-		}
-		if method.Name == "GetFeatures" {
 			continue
 		}
 		var bodyTemplate string
