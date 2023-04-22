@@ -275,7 +275,7 @@ github.com/twmb/murmur3
 github.com/uber-go/tally/v4
 github.com/uber-go/tally/v4/internal/identity
 github.com/uber-go/tally/v4/prometheus
-# gitlab.com/casino543/nakama-web v0.0.3 => ../nakama-web
+# gitlab.com/casino543/nakama-web v0.0.4
 ## explicit; go 1.19
 gitlab.com/casino543/nakama-web/api
 gitlab.com/casino543/nakama-web/webgrpc
@@ -472,4 +472,3 @@ gopkg.in/natefinch/lumberjack.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
-# gitlab.com/casino543/nakama-web => ../nakama-web

@@ -2,8 +2,6 @@ module github.com/heroiclabs/nakama/v3
 
 go 1.19
 
-replace gitlab.com/casino543/nakama-web => ../nakama-web
-
 require (
 	github.com/blugelabs/bluge v0.2.2
 	github.com/blugelabs/bluge_segment_api v0.2.0
@@ -24,7 +22,7 @@ require (
 	github.com/rubenv/sql-migrate v1.2.0
 	github.com/stretchr/testify v1.8.0
 	github.com/uber-go/tally/v4 v4.1.3
-	gitlab.com/casino543/nakama-web v0.0.3
+	gitlab.com/casino543/nakama-web v0.0.4
 	go.uber.org/atomic v1.10.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.0.0-20221012134737-56aed061732a
