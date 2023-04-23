@@ -30,7 +30,7 @@ func SplitHostPort(hostport string) (host string, port int, err error) {
 
 // This function only handle internal calls, external calls go through forwardInterceptorFunc.
 func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *webapi.SendEmailVerificationRequest) (*emptypb.Empty, error) {
-	host, port, err := SplitHostPort(s.config.GetProxy().Application.Address)
+	host, port, err := SplitHostPort(s.config.GetProxy().Web.Address)
 	if err != nil {
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Service unavaliable.")
@@ -46,7 +46,7 @@ func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *webapi.Se
 
 // This function only handle internal calls, external calls go through forwardInterceptorFunc.
 func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *webapi.SendEmailVerificationRequest) (*emptypb.Empty, error) {
-	host, port, err := SplitHostPort(s.config.GetProxy().Application.Address)
+	host, port, err := SplitHostPort(s.config.GetProxy().Web.Address)
 	if err != nil {
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Service unavaliable.")
@@ -62,7 +62,7 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *webapi.Se
 
 // This function only handle internal calls, external calls go through forwardInterceptorFunc.
 func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *webapi.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
-	host, port, err := SplitHostPort(s.config.GetProxy().Application.Address)
+	host, port, err := SplitHostPort(s.config.GetProxy().Web.Address)
 	if err != nil {
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
@@ -77,7 +77,7 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *webapi.SendP
 }
 
 func (s *ApiServer) VerifyVerificationCode(ctx context.Context, in *webgrpc.VerifyVerificationCodeRequest) (*emptypb.Empty, error) {
-	host, port, err := SplitHostPort(s.config.GetProxy().Application.Address)
+	host, port, err := SplitHostPort(s.config.GetProxy().Web.Address)
 	if err != nil {
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")

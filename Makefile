@@ -9,9 +9,11 @@ image:
 		--build-arg "version=$(VERSION)" \
 		--build-arg "commit=$(BUILD)" \
 		--tag registry.deflinhec.dev/nakama:v$(VERSION)
+	docker tag registry.deflinhec.dev/nakama:v$(VERSION) \
+		registry.deflinhec.dev/nakama:latest
 
+.PHONY: publish
 publish:
-	docker tag registry.deflinhec.dev/nakama:v$(VERSION) registry.deflinhec.dev/nakama:latest
 	docker push registry.deflinhec.dev/nakama:v$(VERSION)
 	docker push registry.deflinhec.dev/nakama:latest
 

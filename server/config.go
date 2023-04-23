@@ -1086,17 +1086,17 @@ func NewMailConfig() *MailConfig {
 	}
 }
 
-type ApplicationProxyConfig struct {
+type WebProxyConfig struct {
 	Address string `yaml:"address" json:"address" usage:"The IP address of the application server. Default localhost."`
 }
 
 type ProxyConfig struct {
-	Application ApplicationProxyConfig
+	Web WebProxyConfig `yaml:"web" json:"web" usage:"Web proxy configuration."`
 }
 
 func NewProxyConfig() *ProxyConfig {
 	return &ProxyConfig{
-		Application: ApplicationProxyConfig{
+		Web: WebProxyConfig{
 			Address: "localhost:8350",
 		},
 	}

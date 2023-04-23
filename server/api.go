@@ -349,7 +349,7 @@ func forwardInterceptorFunc(logger *zap.Logger, config Config, ctx context.Conte
 	default:
 		if strings.HasPrefix(info.FullMethod, "/nakama.web.WebForward/") {
 			return grpc.UnaryHandler(func(ctx context.Context, req interface{}) (interface{}, error) {
-				host, port, err := SplitHostPort(config.GetProxy().Application.Address)
+				host, port, err := SplitHostPort(config.GetProxy().Web.Address)
 				if err != nil {
 					logger.Error("An error occurred while forwarding request", zap.Error(err))
 					return nil, status.Error(codes.Internal, "Service unavaliable.")
@@ -665,7 +665,7 @@ func registerWebHandlers(logger *zap.Logger, proxy *ProxyConfig, router *mux.Rou
 		r.Body = ioutil.NopCloser(bytes.NewReader(body))
 
 		// create a new url from the raw RequestURI sent by the client
-		url := fmt.Sprintf("http://%s%s", proxy.Application.Address, r.RequestURI)
+		url := fmt.Sprintf("http://%s%s", proxy.Web.Address, r.RequestURI)
 
 		proxyReq, err := http.NewRequest(r.Method, url, bytes.NewReader(body))
 		if err != nil {
