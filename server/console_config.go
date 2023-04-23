@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/heroiclabs/nakama/v3/console"
+	"gitlab.com/casino543/nakama-web/webgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -74,6 +75,15 @@ func (s *ConsoleServer) GetConfig(ctx context.Context, in *emptypb.Empty) (*cons
 		Warnings:      configWarnings,
 		ServerVersion: s.serverVersion,
 	}, nil
+}
+
+func (s *ConsoleServer) GetMailConfig(ctx context.Context, in *emptypb.Empty) (*webgrpc.Config, error) {
+	cfgBytes, err := json.Marshal(s.config.GetMail())
+	if err != nil {
+		s.logger.Error("Error encoding config.", zap.Error(err))
+		return nil, status.Error(codes.Internal, "Error processing config.")
+	}
+	return &webgrpc.Config{Config: string(cfgBytes)}, nil
 }
 
 func (s *ConsoleServer) DeleteAllData(ctx context.Context, in *emptypb.Empty) (*emptypb.Empty, error) {

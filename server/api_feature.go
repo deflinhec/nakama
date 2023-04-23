@@ -17,7 +17,7 @@ package server
 import (
 	"context"
 
-	"github.com/heroiclabs/nakama/v3/api"
+	"gitlab.com/casino543/nakama-web/api"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

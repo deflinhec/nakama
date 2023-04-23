@@ -34,6 +34,7 @@ import (
 	"github.com/gorilla/mux"
 	grpcgw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/heroiclabs/nakama/v3/console"
+	"gitlab.com/casino543/nakama-web/webgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -141,6 +142,7 @@ type ctxConsoleRoleKey struct{}
 
 type ConsoleServer struct {
 	console.UnimplementedConsoleServer
+	webgrpc.UnimplementedConsoleProxyServer
 	console.UnimplementedWalletProviderServer
 	logger               *zap.Logger
 	db                   *sql.DB
@@ -224,6 +226,7 @@ func StartConsoleServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.D
 	}
 
 	console.RegisterConsoleServer(grpcServer, s)
+	webgrpc.RegisterConsoleProxyServer(grpcServer, s)
 	console.RegisterWalletProviderServer(grpcServer, s)
 	startupLogger.Info("Starting Console server for gRPC requests", zap.Int("port", config.GetConsole().Port-3))
 	go func() {
@@ -266,6 +269,9 @@ func StartConsoleServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.D
 	}
 	if err := console.RegisterConsoleHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("Console server gateway registration failed", zap.Error(err))
+	}
+	if err := webgrpc.RegisterConsoleProxyHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+		startupLogger.Fatal("Console wallet server gateway registration failed", zap.Error(err))
 	}
 	if err := console.RegisterWalletProviderHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("Console wallet server gateway registration failed", zap.Error(err))
@@ -460,6 +466,10 @@ func consoleInterceptorFunc(logger *zap.Logger, config Config, sessionCache Sess
 			return handler(ctx, req)
 		}
 		if info.FullMethod == "/nakama.console.Console/AuthenticateLogout" {
+			return handler(ctx, req)
+		}
+		if strings.HasPrefix(info.FullMethod, "/nakama.web.ConsoleProxy/") {
+			// Skip authentication check for Console proxy endpoint.
 			return handler(ctx, req)
 		}
 

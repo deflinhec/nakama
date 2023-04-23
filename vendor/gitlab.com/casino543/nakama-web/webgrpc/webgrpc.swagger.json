@@ -1,0 +1,352 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Nakama web API v2",
+    "version": "2.0",
+    "contact": {
+      "name": "Deflinhec \u0026 Contributors",
+      "url": "https://github.com/heroiclabs/nakama",
+      "email": "hello@deflinhec.dev"
+    }
+  },
+  "tags": [
+    {
+      "name": "Web"
+    },
+    {
+      "name": "WebForward"
+    }
+  ],
+  "host": "127.0.0.1:8350",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/healthcheck": {
+      "get": {
+        "summary": "A healthcheck which load balancers can use to check the service.",
+        "operationId": "Web_Healthcheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Web"
+        ]
+      }
+    },
+    "/v2/account/password/renew": {
+      "post": {
+        "summary": "Verfiy password from web ui.",
+        "operationId": "WebForward_VerifyPasswordRenewal",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Verfiy password after verfied.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/webVerifyPasswordRenewalRequest"
+            }
+          }
+        ],
+        "tags": [
+          "WebForward"
+        ]
+      }
+    },
+    "/v2/account/password/reset": {
+      "post": {
+        "summary": "Send password reset email.",
+        "operationId": "WebForward_SendPasswordResetEmail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Submit a password reset request.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/webSendPasswordResetEmailRequest"
+            }
+          }
+        ],
+        "tags": [
+          "WebForward"
+        ]
+      }
+    },
+    "/v2/account/verify/code": {
+      "post": {
+        "summary": "Send email verification.",
+        "operationId": "WebForward_SendEmailVerificationCode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Submit a email verification request.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/webSendEmailVerificationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "WebForward"
+        ]
+      }
+    },
+    "/v2/account/verify/link": {
+      "post": {
+        "summary": "Send email verification.",
+        "operationId": "WebForward_SendEmailVerificationLink",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Submit a email verification request.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/webSendEmailVerificationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "WebForward"
+        ]
+      }
+    },
+    "/v2/account/verify/{token}": {
+      "delete": {
+        "summary": "Verfiy email address from web ui.",
+        "operationId": "WebForward_VerifyEmailAddress",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "description": "The user credentials.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "WebForward"
+        ]
+      }
+    },
+    "/v2/features": {
+      "get": {
+        "summary": "Get available features from web ui.",
+        "operationId": "WebForward_GetFeatures",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/webFeatures"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "WebForward"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "FeaturesFEATURE": {
+      "type": "string",
+      "enum": [
+        "EMAIL_VERIFICATION",
+        "VERIFICATION_CODE"
+      ],
+      "default": "EMAIL_VERIFICATION"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "webFeatures": {
+      "type": "object",
+      "properties": {
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FeaturesFEATURE"
+          }
+        }
+      },
+      "description": "Get avaliable features response."
+    },
+    "webSendEmailVerificationRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email address."
+        }
+      },
+      "description": "Submit a email verification request."
+    },
+    "webSendPasswordResetEmailRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email to reset."
+        }
+      },
+      "description": "Submit a password reset request."
+    },
+    "webVerifyPasswordRenewalRequest": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "The user credentials."
+        },
+        "password": {
+          "type": "string",
+          "description": "The renewed password."
+        }
+      },
+      "description": "Verfiy password after verfied."
+    }
+  },
+  "securityDefinitions": {
+    "BasicAuth": {
+      "type": "basic"
+    },
+    "BearerJwt": {
+      "type": ""
+    }
+  },
+  "security": [
+    {
+      "BearerJwt": []
+    }
+  ],
+  "externalDocs": {
+    "description": "Nakama server documentation",
+    "url": "https://github.com/heroiclabs/nakama"
+  }
+}

@@ -26,6 +26,8 @@ import (
 	"github.com/gofrs/uuid"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/heroiclabs/nakama-common/api"
+	webapi "gitlab.com/casino543/nakama-web/api"
+	"gitlab.com/casino543/nakama-web/webgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -324,16 +326,20 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 		// Attempting email authentication, may or may not create.
 		cleanEmail := strings.ToLower(email.Email)
 		create := in.Create == nil || in.Create.Value
-		// Disallow new account creations if email verification code absence.
+
 		if s.config.GetMail().Verification.Enable {
 			if s.config.GetMail().Verification.Enforce {
+				// Disallow new account creations if email verification code absence.
 				query := "SELECT id FROM users WHERE email = $1"
-				if s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID) == sql.ErrNoRows {
-					if ssn, ok := email.Vars["verification"]; !ok {
+				if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID); err == sql.ErrNoRows {
+					if code, ok := email.Vars["verification"]; !ok {
 						return nil, status.Error(codes.InvalidArgument, "Require verification code.")
-					} else if !s.emailValidatorCache.Validate(cleanEmail, ssn) {
-						return nil, status.Error(codes.InvalidArgument, "Invalid verification code.")
+					} else if _, err := s.VerifyVerificationCode(ctx, &webgrpc.VerifyVerificationCodeRequest{
+						Email: cleanEmail, Code: code}); err != nil {
+						return nil, err
 					}
+				} else if err != nil {
+					return nil, status.Error(codes.Internal, "An error occurred checking for existing email address.")
 				}
 			}
 		}
@@ -342,13 +348,18 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 		if created && s.config.GetMail().Verification.Enable {
 			// Reset the email validator cache for this email address.
 			if s.config.GetMail().Verification.Enforce {
-				userID := uuid.Must(uuid.FromString(dbUserID))
-				if VerifyEmailAddress(ctx, s.logger, s.db, userID) == nil {
-					s.emailValidatorCache.Reset(cleanEmail)
+				query := "UPDATE users SET verify_time = now(), update_time = now() WHERE id = $1 AND email IS NOT NULL"
+				if res, err := s.db.ExecContext(ctx, query, dbUserID); err != nil {
+					s.logger.Error("An error occurred updating verify time",
+						zap.String("user_id", dbUserID), zap.Error(err))
+				} else if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+					s.logger.Error("Cannot verify on an account with no email address.",
+						zap.String("user_id", dbUserID), zap.Error(err))
 				}
 				// Send email verification link.
-			} else if err := sendEmailVerificationLink(s, ctx, email.Email); err != nil {
-				s.logger.Error("Error sending email verification link.",
+			} else if _, err := s.SendEmailVerificationLink(ctx,
+				&webapi.SendEmailVerificationRequest{Email: email.Email}); err != nil {
+				s.logger.Error("Error forwarding request verification link.",
 					zap.String("user_id", dbUserID), zap.Error(err))
 			}
 		}
