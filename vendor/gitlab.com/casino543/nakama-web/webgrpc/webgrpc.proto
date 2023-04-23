@@ -87,33 +87,19 @@ service Web {
   rpc Healthcheck (google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (google.api.http).get = "/healthcheck";
   }
-
-  // Verfiy password from web ui.
-  rpc VerifyPasswordRenewal (VerifyPasswordRenewalRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/v2/account/password/renew";
-      body: "*"
-    };
-  }
-
-  // Verfiy email address from web ui.
-  rpc VerifyEmailAddress (VerifyEmailAddressRequest) returns (google.protobuf.Empty) {
-    option (google.api.http).delete = "/v2/account/verify/{token}";
-  }
-
-  // Send password reset email.
-  rpc SendPasswordResetEmail (SendPasswordResetEmailRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      post: "/v2/account/password/reset";
-      body: "*"
-    };
-  }
 }
 
 /**
  * The RPC protocol proxy service built with GRPC.
  */
  service WebForward {
+  // Get available features from web ui.
+  rpc GetFeatures(google.protobuf.Empty) returns (Features) {
+    option (google.api.http) = {
+      get: "/v2/features"
+    };
+  }
+  
   // Send email verification.
   rpc SendEmailVerificationCode (SendEmailVerificationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
@@ -130,10 +116,24 @@ service Web {
     };
   }
 
-  // Get available features from web ui.
-  rpc GetFeatures(google.protobuf.Empty) returns (Features) {
+  // Send password reset email.
+  rpc SendPasswordResetEmail (SendPasswordResetEmailRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      get: "/v2/features"
+      post: "/v2/account/password/reset";
+      body: "*"
     };
+  }
+
+  // Verfiy password from web ui.
+  rpc VerifyPasswordRenewal (VerifyPasswordRenewalRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v2/account/password/renew";
+      body: "*"
+    };
+  }
+
+  // Verfiy email address from web ui.
+  rpc VerifyEmailAddress (VerifyEmailAddressRequest) returns (google.protobuf.Empty) {
+    option (google.api.http).delete = "/v2/account/verify/{token}";
   }
 }

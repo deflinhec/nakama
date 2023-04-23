@@ -55,7 +55,7 @@
     "/v2/account/password/renew": {
       "post": {
         "summary": "Verfiy password from web ui.",
-        "operationId": "Web_VerifyPasswordRenewal",
+        "operationId": "WebForward_VerifyPasswordRenewal",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -83,14 +83,14 @@
           }
         ],
         "tags": [
-          "Web"
+          "WebForward"
         ]
       }
     },
     "/v2/account/password/reset": {
       "post": {
         "summary": "Send password reset email.",
-        "operationId": "Web_SendPasswordResetEmail",
+        "operationId": "WebForward_SendPasswordResetEmail",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -118,7 +118,7 @@
           }
         ],
         "tags": [
-          "Web"
+          "WebForward"
         ]
       }
     },
@@ -195,7 +195,7 @@
     "/v2/account/verify/{token}": {
       "delete": {
         "summary": "Verfiy email address from web ui.",
-        "operationId": "Web_VerifyEmailAddress",
+        "operationId": "WebForward_VerifyEmailAddress",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -221,7 +221,7 @@
           }
         ],
         "tags": [
-          "Web"
+          "WebForward"
         ]
       }
     },

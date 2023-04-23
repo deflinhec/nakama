@@ -357,7 +357,7 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 				// Send email verification link.
 			} else if _, err := s.SendEmailVerificationLink(ctx,
 				&webapi.SendEmailVerificationRequest{Email: email.Email}); err != nil {
-				s.logger.Error("Error sending email verification link.",
+				s.logger.Error("Error forwarding request verification link.",
 					zap.String("user_id", dbUserID), zap.Error(err))
 			}
 		}

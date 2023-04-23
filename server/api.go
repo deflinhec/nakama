@@ -15,6 +15,7 @@
 package server
 
 import (
+	"bytes"
 	"compress/flate"
 	"compress/gzip"
 	"context"
@@ -24,9 +25,12 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"math"
 	"net"
 	"net/http"
+	"reflect"
 	"strings"
 	"time"
 
@@ -104,6 +108,11 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 		grpc.StatsHandler(&MetricsGrpcHandler{MetricsFn: metrics.Api}),
 		grpc.MaxRecvMsgSize(int(config.GetSocket().MaxRequestSizeBytes)),
 		grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+			if forward, err := forwardInterceptorFunc(logger, config, ctx, req, info); err != nil {
+				return handler(ctx, req)
+			} else if forward != nil {
+				return forward(ctx, req)
+			}
 			ctx, err := securityInterceptorFunc(logger, config, sessionCache, ctx, req, info)
 			if err != nil {
 				return nil, err
@@ -261,6 +270,7 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 		// Allow GRPC Gateway to handle the request.
 		handlerWithMaxBody.ServeHTTP(w, r)
 	})
+	registerWebHandlers(logger, config.GetProxy(), grpcGatewayRouter)
 
 	// Enable CORS on all requests.
 	CORSHeaders := handlers.AllowedHeaders([]string{"Authorization", "Content-Type", "User-Agent"})
@@ -331,12 +341,46 @@ func (s *ApiServer) Healthcheck(ctx context.Context, in *emptypb.Empty) (*emptyp
 	return &emptypb.Empty{}, nil
 }
 
-func securityInterceptorFunc(logger *zap.Logger, config Config, sessionCache SessionCache, ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) (context.Context, error) {
+func forwardInterceptorFunc(logger *zap.Logger, config Config, ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) (grpc.UnaryHandler, error) {
 	switch info.FullMethod {
 	case "/nakama.web.WebForward/GetFeatures":
-		fallthrough
-	case "/nakama.web.WebForward/SendEmailVerificationCode":
-		fallthrough
+		// GetFeatures does not require forward.
+		return nil, nil
+	default:
+		if strings.HasPrefix(info.FullMethod, "/nakama.web.WebForward/") {
+			return grpc.UnaryHandler(func(ctx context.Context, req interface{}) (interface{}, error) {
+				host, port, err := SplitHostPort(config.GetProxy().Application.Address)
+				if err != nil {
+					logger.Error("An error occurred while forwarding request", zap.Error(err))
+					return nil, status.Error(codes.Internal, "Service unavaliable.")
+				}
+				conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%d", host, port-1),
+					grpc.WithTransportCredentials(insecure.NewCredentials()))
+				if err != nil {
+					logger.Error("An error occurred while forwarding request", zap.Error(err))
+					return nil, status.Error(codes.Unavailable, "Service unavaliable.")
+				}
+				client := webgrpc.NewWebForwardClient(conn)
+				fnName := strings.TrimPrefix(info.FullMethod, "/nakama.web.WebForward/")
+				method, ok := reflect.TypeOf(client).MethodByName(fnName)
+				if !ok {
+					logger.Error("An error occurred while forwarding request", zap.Error(err))
+					return nil, status.Error(codes.Unavailable, "Service unavaliable.")
+				}
+				out := method.Func.Call([]reflect.Value{
+					reflect.ValueOf(client),
+					reflect.ValueOf(ctx),
+					reflect.ValueOf(req),
+				})
+				return out[0].Interface(), out[1].Interface().(error)
+			}), nil
+		}
+	}
+	return nil, nil
+}
+
+func securityInterceptorFunc(logger *zap.Logger, config Config, sessionCache SessionCache, ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) (context.Context, error) {
+	switch info.FullMethod {
 	case "/nakama.api.Nakama/Healthcheck":
 		// Healthcheck has no security.
 		return ctx, nil
@@ -608,4 +652,49 @@ func traceApiAfter(ctx context.Context, logger *zap.Logger, metrics Metrics, ful
 	err := fn(clientIP, clientPort)
 
 	metrics.ApiAfter(fullMethodName, time.Since(start), err != nil)
+}
+
+func registerWebHandlers(logger *zap.Logger, proxy *ProxyConfig, router *mux.Router) {
+	forwardFn := func(w http.ResponseWriter, r *http.Request) {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		r.Body = ioutil.NopCloser(bytes.NewReader(body))
+
+		// create a new url from the raw RequestURI sent by the client
+		url := fmt.Sprintf("http://%s%s", proxy.Application.Address, r.RequestURI)
+
+		proxyReq, err := http.NewRequest(r.Method, url, bytes.NewReader(body))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// We may want to filter some headers, otherwise we could just use a shallow copy
+		// proxyReq.Header = req.Header
+		proxyReq.Header = make(http.Header)
+		for h, val := range r.Header {
+			proxyReq.Header[h] = val
+		}
+
+		resp, err := http.DefaultClient.Do(proxyReq)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+
+		for k, vv := range resp.Header {
+			for _, v := range vv {
+				w.Header().Add(k, v)
+			}
+		}
+		w.WriteHeader(resp.StatusCode)
+		io.Copy(w, resp.Body)
+	}
+	router.Path("/").HandlerFunc(forwardFn)
+	router.PathPrefix("/").HandlerFunc(forwardFn)
 }

@@ -26,12 +26,6 @@ const _ = grpc.SupportPackageIsVersion7
 type WebClient interface {
 	// A healthcheck which load balancers can use to check the service.
 	Healthcheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// Verfiy password from web ui.
-	VerifyPasswordRenewal(ctx context.Context, in *VerifyPasswordRenewalRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// Verfiy email address from web ui.
-	VerifyEmailAddress(ctx context.Context, in *VerifyEmailAddressRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// Send password reset email.
-	SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type webClient struct {
@@ -51,45 +45,12 @@ func (c *webClient) Healthcheck(ctx context.Context, in *emptypb.Empty, opts ...
 	return out, nil
 }
 
-func (c *webClient) VerifyPasswordRenewal(ctx context.Context, in *VerifyPasswordRenewalRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/nakama.web.Web/VerifyPasswordRenewal", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *webClient) VerifyEmailAddress(ctx context.Context, in *VerifyEmailAddressRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/nakama.web.Web/VerifyEmailAddress", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *webClient) SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/nakama.web.Web/SendPasswordResetEmail", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // WebServer is the server API for Web service.
 // All implementations must embed UnimplementedWebServer
 // for forward compatibility
 type WebServer interface {
 	// A healthcheck which load balancers can use to check the service.
 	Healthcheck(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
-	// Verfiy password from web ui.
-	VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error)
-	// Verfiy email address from web ui.
-	VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error)
-	// Send password reset email.
-	SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedWebServer()
 }
 
@@ -99,15 +60,6 @@ type UnimplementedWebServer struct {
 
 func (UnimplementedWebServer) Healthcheck(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Healthcheck not implemented")
-}
-func (UnimplementedWebServer) VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method VerifyPasswordRenewal not implemented")
-}
-func (UnimplementedWebServer) VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmailAddress not implemented")
-}
-func (UnimplementedWebServer) SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendPasswordResetEmail not implemented")
 }
 func (UnimplementedWebServer) mustEmbedUnimplementedWebServer() {}
 
@@ -140,60 +92,6 @@ func _Web_Healthcheck_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Web_VerifyPasswordRenewal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerifyPasswordRenewalRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(WebServer).VerifyPasswordRenewal(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/nakama.web.Web/VerifyPasswordRenewal",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WebServer).VerifyPasswordRenewal(ctx, req.(*VerifyPasswordRenewalRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Web_VerifyEmailAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerifyEmailAddressRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(WebServer).VerifyEmailAddress(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/nakama.web.Web/VerifyEmailAddress",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WebServer).VerifyEmailAddress(ctx, req.(*VerifyEmailAddressRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Web_SendPasswordResetEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(api.SendPasswordResetEmailRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(WebServer).SendPasswordResetEmail(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/nakama.web.Web/SendPasswordResetEmail",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WebServer).SendPasswordResetEmail(ctx, req.(*api.SendPasswordResetEmailRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Web_ServiceDesc is the grpc.ServiceDesc for Web service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -205,18 +103,6 @@ var Web_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Healthcheck",
 			Handler:    _Web_Healthcheck_Handler,
 		},
-		{
-			MethodName: "VerifyPasswordRenewal",
-			Handler:    _Web_VerifyPasswordRenewal_Handler,
-		},
-		{
-			MethodName: "VerifyEmailAddress",
-			Handler:    _Web_VerifyEmailAddress_Handler,
-		},
-		{
-			MethodName: "SendPasswordResetEmail",
-			Handler:    _Web_SendPasswordResetEmail_Handler,
-		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "webgrpc.proto",
@@ -226,12 +112,18 @@ var Web_ServiceDesc = grpc.ServiceDesc{
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WebForwardClient interface {
+	// Get available features from web ui.
+	GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.Features, error)
 	// Send email verification.
 	SendEmailVerificationCode(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Send email verification.
 	SendEmailVerificationLink(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// Get available features from web ui.
-	GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.Features, error)
+	// Send password reset email.
+	SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Verfiy password from web ui.
+	VerifyPasswordRenewal(ctx context.Context, in *VerifyPasswordRenewalRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Verfiy email address from web ui.
+	VerifyEmailAddress(ctx context.Context, in *VerifyEmailAddressRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type webForwardClient struct {
@@ -240,6 +132,15 @@ type webForwardClient struct {
 
 func NewWebForwardClient(cc grpc.ClientConnInterface) WebForwardClient {
 	return &webForwardClient{cc}
+}
+
+func (c *webForwardClient) GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.Features, error) {
+	out := new(api.Features)
+	err := c.cc.Invoke(ctx, "/nakama.web.WebForward/GetFeatures", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *webForwardClient) SendEmailVerificationCode(ctx context.Context, in *api.SendEmailVerificationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
@@ -260,9 +161,27 @@ func (c *webForwardClient) SendEmailVerificationLink(ctx context.Context, in *ap
 	return out, nil
 }
 
-func (c *webForwardClient) GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*api.Features, error) {
-	out := new(api.Features)
-	err := c.cc.Invoke(ctx, "/nakama.web.WebForward/GetFeatures", in, out, opts...)
+func (c *webForwardClient) SendPasswordResetEmail(ctx context.Context, in *api.SendPasswordResetEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/nakama.web.WebForward/SendPasswordResetEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webForwardClient) VerifyPasswordRenewal(ctx context.Context, in *VerifyPasswordRenewalRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/nakama.web.WebForward/VerifyPasswordRenewal", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webForwardClient) VerifyEmailAddress(ctx context.Context, in *VerifyEmailAddressRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/nakama.web.WebForward/VerifyEmailAddress", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -273,12 +192,18 @@ func (c *webForwardClient) GetFeatures(ctx context.Context, in *emptypb.Empty, o
 // All implementations must embed UnimplementedWebForwardServer
 // for forward compatibility
 type WebForwardServer interface {
+	// Get available features from web ui.
+	GetFeatures(context.Context, *emptypb.Empty) (*api.Features, error)
 	// Send email verification.
 	SendEmailVerificationCode(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error)
 	// Send email verification.
 	SendEmailVerificationLink(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error)
-	// Get available features from web ui.
-	GetFeatures(context.Context, *emptypb.Empty) (*api.Features, error)
+	// Send password reset email.
+	SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error)
+	// Verfiy password from web ui.
+	VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error)
+	// Verfiy email address from web ui.
+	VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedWebForwardServer()
 }
 
@@ -286,14 +211,23 @@ type WebForwardServer interface {
 type UnimplementedWebForwardServer struct {
 }
 
+func (UnimplementedWebForwardServer) GetFeatures(context.Context, *emptypb.Empty) (*api.Features, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFeatures not implemented")
+}
 func (UnimplementedWebForwardServer) SendEmailVerificationCode(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendEmailVerificationCode not implemented")
 }
 func (UnimplementedWebForwardServer) SendEmailVerificationLink(context.Context, *api.SendEmailVerificationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendEmailVerificationLink not implemented")
 }
-func (UnimplementedWebForwardServer) GetFeatures(context.Context, *emptypb.Empty) (*api.Features, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFeatures not implemented")
+func (UnimplementedWebForwardServer) SendPasswordResetEmail(context.Context, *api.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendPasswordResetEmail not implemented")
+}
+func (UnimplementedWebForwardServer) VerifyPasswordRenewal(context.Context, *VerifyPasswordRenewalRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyPasswordRenewal not implemented")
+}
+func (UnimplementedWebForwardServer) VerifyEmailAddress(context.Context, *VerifyEmailAddressRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmailAddress not implemented")
 }
 func (UnimplementedWebForwardServer) mustEmbedUnimplementedWebForwardServer() {}
 
@@ -306,6 +240,24 @@ type UnsafeWebForwardServer interface {
 
 func RegisterWebForwardServer(s grpc.ServiceRegistrar, srv WebForwardServer) {
 	s.RegisterService(&WebForward_ServiceDesc, srv)
+}
+
+func _WebForward_GetFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebForwardServer).GetFeatures(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.web.WebForward/GetFeatures",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebForwardServer).GetFeatures(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _WebForward_SendEmailVerificationCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -344,20 +296,56 @@ func _WebForward_SendEmailVerificationLink_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WebForward_GetFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+func _WebForward_SendPasswordResetEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(api.SendPasswordResetEmailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WebForwardServer).GetFeatures(ctx, in)
+		return srv.(WebForwardServer).SendPasswordResetEmail(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.web.WebForward/GetFeatures",
+		FullMethod: "/nakama.web.WebForward/SendPasswordResetEmail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WebForwardServer).GetFeatures(ctx, req.(*emptypb.Empty))
+		return srv.(WebForwardServer).SendPasswordResetEmail(ctx, req.(*api.SendPasswordResetEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WebForward_VerifyPasswordRenewal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyPasswordRenewalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebForwardServer).VerifyPasswordRenewal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.web.WebForward/VerifyPasswordRenewal",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebForwardServer).VerifyPasswordRenewal(ctx, req.(*VerifyPasswordRenewalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WebForward_VerifyEmailAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyEmailAddressRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebForwardServer).VerifyEmailAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/nakama.web.WebForward/VerifyEmailAddress",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebForwardServer).VerifyEmailAddress(ctx, req.(*VerifyEmailAddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -370,6 +358,10 @@ var WebForward_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*WebForwardServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetFeatures",
+			Handler:    _WebForward_GetFeatures_Handler,
+		},
+		{
 			MethodName: "SendEmailVerificationCode",
 			Handler:    _WebForward_SendEmailVerificationCode_Handler,
 		},
@@ -378,8 +370,16 @@ var WebForward_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _WebForward_SendEmailVerificationLink_Handler,
 		},
 		{
-			MethodName: "GetFeatures",
-			Handler:    _WebForward_GetFeatures_Handler,
+			MethodName: "SendPasswordResetEmail",
+			Handler:    _WebForward_SendPasswordResetEmail_Handler,
+		},
+		{
+			MethodName: "VerifyPasswordRenewal",
+			Handler:    _WebForward_VerifyPasswordRenewal_Handler,
+		},
+		{
+			MethodName: "VerifyEmailAddress",
+			Handler:    _WebForward_VerifyEmailAddress_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
