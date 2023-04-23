@@ -1,5 +1,5 @@
 # Define
-VERSION=0.2.6
+VERSION=0.2.7
 BUILD=$(shell git rev-parse HEAD)
 
 .PHONY: image
