@@ -327,17 +327,19 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 		cleanEmail := strings.ToLower(email.Email)
 		create := in.Create == nil || in.Create.Value
 
-		if created && s.config.GetMail().Verification.Enable {
+		if s.config.GetMail().Verification.Enable {
 			if s.config.GetMail().Verification.Enforce {
 				// Disallow new account creations if email verification code absence.
 				query := "SELECT id FROM users WHERE email = $1"
-				if s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID) == sql.ErrNoRows {
+				if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID); err == sql.ErrNoRows {
 					if code, ok := email.Vars["verification"]; !ok {
 						return nil, status.Error(codes.InvalidArgument, "Require verification code.")
 					} else if _, err := s.VerifyVerificationCode(ctx, &webgrpc.VerifyVerificationCodeRequest{
 						Email: cleanEmail, Code: code}); err != nil {
 						return nil, err
 					}
+				} else if err != nil {
+					return nil, status.Error(codes.Internal, "An error occurred checking for existing email address.")
 				}
 			}
 		}
