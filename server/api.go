@@ -108,8 +108,8 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 		grpc.StatsHandler(&MetricsGrpcHandler{MetricsFn: metrics.Api}),
 		grpc.MaxRecvMsgSize(int(config.GetSocket().MaxRequestSizeBytes)),
 		grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-			if forward, err := forwardInterceptorFunc(logger, config, ctx, req, info); err != nil {
-				return handler(ctx, req)
+			if forward, err := forwardInterceptorFunc(logger, config, ctx, req, info, handler); err != nil {
+				return nil, err
 			} else if forward != nil {
 				return forward(ctx, req)
 			}
@@ -341,40 +341,43 @@ func (s *ApiServer) Healthcheck(ctx context.Context, in *emptypb.Empty) (*emptyp
 	return &emptypb.Empty{}, nil
 }
 
-func forwardInterceptorFunc(logger *zap.Logger, config Config, ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) (grpc.UnaryHandler, error) {
-	switch info.FullMethod {
-	case "/nakama.web.WebForward/GetFeatures":
-		// GetFeatures does not require forward.
-		return nil, nil
-	default:
-		if strings.HasPrefix(info.FullMethod, "/nakama.web.WebForward/") {
-			return grpc.UnaryHandler(func(ctx context.Context, req interface{}) (interface{}, error) {
-				host, port, err := SplitHostPort(config.GetProxy().Web.Address)
-				if err != nil {
-					logger.Error("An error occurred while forwarding request", zap.Error(err))
-					return nil, status.Error(codes.Internal, "Service unavaliable.")
+func forwardInterceptorFunc(logger *zap.Logger, config Config, ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (grpc.UnaryHandler, error) {
+	if strings.HasPrefix(info.FullMethod, "/nakama.web.WebForward/") {
+		return grpc.UnaryHandler(func(ctx context.Context, req interface{}) (interface{}, error) {
+			res, err := handler(ctx, req)
+			if e, ok := status.FromError(err); ok {
+				if e.Code() == codes.Unimplemented {
+					host, port, err := SplitHostPort(config.GetProxy().Web.Address)
+					if err != nil {
+						logger.Error("An error occurred while forwarding request",
+							zap.String("method", info.FullMethod), zap.Error(err))
+						return nil, status.Error(codes.Internal, "Service unavaliable.")
+					}
+					conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%d", host, port-1),
+						grpc.WithTransportCredentials(insecure.NewCredentials()))
+					if err != nil {
+						logger.Error("An error occurred while forwarding request",
+							zap.String("method", info.FullMethod), zap.Error(err))
+						return nil, status.Error(codes.Unavailable, "Service unavaliable.")
+					}
+					client := webgrpc.NewWebForwardClient(conn)
+					fnName := strings.TrimPrefix(info.FullMethod, "/nakama.web.WebForward/")
+					method, ok := reflect.TypeOf(client).MethodByName(fnName)
+					if !ok {
+						logger.Error("An error occurred while forwarding request",
+							zap.String("method", info.FullMethod), zap.Error(err))
+						return nil, status.Error(codes.Unavailable, "Service unavaliable.")
+					}
+					out := method.Func.Call([]reflect.Value{
+						reflect.ValueOf(client),
+						reflect.ValueOf(ctx),
+						reflect.ValueOf(req),
+					})
+					return out[0].Interface(), out[1].Interface().(error)
 				}
-				conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%d", host, port-1),
-					grpc.WithTransportCredentials(insecure.NewCredentials()))
-				if err != nil {
-					logger.Error("An error occurred while forwarding request", zap.Error(err))
-					return nil, status.Error(codes.Unavailable, "Service unavaliable.")
-				}
-				client := webgrpc.NewWebForwardClient(conn)
-				fnName := strings.TrimPrefix(info.FullMethod, "/nakama.web.WebForward/")
-				method, ok := reflect.TypeOf(client).MethodByName(fnName)
-				if !ok {
-					logger.Error("An error occurred while forwarding request", zap.Error(err))
-					return nil, status.Error(codes.Unavailable, "Service unavaliable.")
-				}
-				out := method.Func.Call([]reflect.Value{
-					reflect.ValueOf(client),
-					reflect.ValueOf(ctx),
-					reflect.ValueOf(req),
-				})
-				return out[0].Interface(), out[1].Interface().(error)
-			}), nil
-		}
+			}
+			return res, err
+		}), nil
 	}
 	return nil, nil
 }
