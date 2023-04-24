@@ -35,12 +35,13 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/heroiclabs/nakama/v3/internal/satori"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/heroiclabs/nakama/v3/internal/satori"
 
 	"github.com/dop251/goja"
 	"github.com/gofrs/uuid"
