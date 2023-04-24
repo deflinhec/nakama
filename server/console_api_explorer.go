@@ -113,17 +113,19 @@ func (s *ConsoleServer) extractApiCallContext(ctx context.Context, in *console.C
 	apiPrefix := "/nakama.api.Nakama/"
 	if _, ok := reflect.TypeOf(s.api.UnimplementedWebForwardServer).MethodByName(in.Method); ok {
 		apiPrefix = "/nakama.web.WebForward/"
-	} else if _, ok := reflect.TypeOf(s.api.UnimplementedWalletProviderServer).MethodByName(in.Method); ok {
-		apiPrefix = "/nakama.api.WalletProvider/"
+	} else if _, ok := reflect.TypeOf(s.api.UnimplementedWalletServer).MethodByName(in.Method); ok {
+		apiPrefix = "/nakama.casino.Wallet/"
+	}
+
+	switch apiPrefix + in.Method {
+	case "/nakama.casino.Wallet/QueryChainsFromWalletProvider":
+		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
+		return callCtx, nil
 	}
 
 	if apiPrefix == "/nakama.web.WebForward/" {
 		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
 	} else if strings.HasPrefix(in.Method, "Authenticate") {
-		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
-	} else if strings.HasPrefix(in.Method, "Send") {
-		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
-	} else if strings.HasPrefix(in.Method, "Query") {
 		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
 	} else if in.UserId == "" {
 		if !userIdOptional {

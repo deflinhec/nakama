@@ -29,7 +29,6 @@ import (
 	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama/v3/console"
 	"github.com/jackc/pgtype"
-	"gitlab.com/casino543/nakama-web/webgrpc"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
@@ -830,28 +829,6 @@ AND ((facebook_id IS NOT NULL
 		s.logger.Error("Error updating user.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "An error occurred while trying to update the user.")
 	}
-
-	return &emptypb.Empty{}, nil
-}
-
-func (s *ConsoleServer) KickAccount(ctx context.Context, in *webgrpc.AccountId) (*emptypb.Empty, error) {
-	userID, err := uuid.FromString(in.Id)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "Requires a valid user ID.")
-	}
-
-	if err := SessionLogout(s.config, s.sessionCache, userID, "", ""); err != nil {
-		if err == ErrSessionTokenInvalid {
-			return nil, status.Error(codes.InvalidArgument, "Session token invalid.")
-		}
-		if err == ErrRefreshTokenInvalid {
-			return nil, status.Error(codes.InvalidArgument, "Refresh token invalid.")
-		}
-		s.logger.Error("Error processing account kick.", zap.Error(err))
-		return nil, status.Error(codes.Internal, "Error processing account kick.")
-	}
-
-	s.logger.Info("Account kicked.", zap.Any("user_id", userID))
 
 	return &emptypb.Empty{}, nil
 }

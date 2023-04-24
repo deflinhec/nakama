@@ -17,12 +17,14 @@ package server
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 
 	"github.com/gofrs/uuid"
-	"github.com/heroiclabs/nakama/v3/api"
+
+	api "gitlab.com/casino543/nakama-api/api/casino"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -45,14 +47,14 @@ func (s *ApiServer) AuthorizeWalletProvider(ctx context.Context, in *emptypb.Emp
 	}
 
 	// Wallet provider api specification
-	context, err := (&protojson.MarshalOptions{
-		UseProtoNames:   true,
-		UseEnumNumbers:  true,
-		EmitUnpopulated: false,
-	}).Marshal(&api.ProviderAuthorizeRequest{
-		Account: userID.String(),
+	context, err := json.Marshal(&struct {
+		Account  string `json:"account"`
+		Password string `json:"password"`
+		Email    string `json:"email"`
+	}{
+		Account:  userID.String(),
 		Password: userID.String(),
-		Email: userID.String(),
+		Email:    userID.String(),
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Error marshaling payload.")
@@ -107,15 +109,13 @@ func (s *ApiServer) RetrieveAddressFromWalletProvider(ctx context.Context, in *a
 	}
 
 	// Wallet provider api specification
-	context, err := (&protojson.MarshalOptions{
-		UseProtoNames:   true,
-		UseEnumNumbers:  true,
-		EmitUnpopulated: false,
-	}).Marshal(
-		&api.ProviderAddressRequest{
-			Account:   userID.String(),
-			ChainName: in.Chain,
-		})
+	context, err := json.Marshal(&struct {
+		Account   string `json:"account"`
+		ChainName string `json:"chainName"`
+	}{
+		Account:   userID.String(),
+		ChainName: in.Chain,
+	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Error marshaling payload.")
 	}
@@ -132,8 +132,12 @@ func (s *ApiServer) RetrieveAddressFromWalletProvider(ctx context.Context, in *a
 		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
 	}
-	response := &api.ProviderAddressResponse{}
-	err = (&protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(b, response)
+	response := struct {
+		Info struct {
+			Address string `json:"address"`
+		} `json:"info"`
+	}{}
+	err = json.Unmarshal(b, response)
 	if err != nil {
 		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")

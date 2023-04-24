@@ -34,7 +34,8 @@ import (
 	"github.com/gorilla/mux"
 	grpcgw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/heroiclabs/nakama/v3/console"
-	"gitlab.com/casino543/nakama-web/webgrpc"
+	console_0 "gitlab.com/casino543/nakama-api/apigrpc/console"
+	console_1 "gitlab.com/casino543/nakama-web/apigrpc/console"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -126,9 +127,9 @@ var restrictedMethods = map[string]console.UserRole{
 	"/nakama.console.Console/UnlinkSteam":               console.UserRole_USER_ROLE_MAINTAINER,
 
 	// Wallet
-	"/nakama.console.Console/GetWalletBalance":           console.UserRole_USER_ROLE_MAINTAINER,
-	"/nakama.console.Console/DepositFromWalletProvider":  console.UserRole_USER_ROLE_MAINTAINER,
-	"/nakama.console.Console/WithdrawFromWalletProvider": console.UserRole_USER_ROLE_MAINTAINER,
+	"/nakama.console.ext.Wallet/GetWalletBalance":           console.UserRole_USER_ROLE_MAINTAINER,
+	"/nakama.console.ext.Wallet/DepositFromWalletProvider":  console.UserRole_USER_ROLE_MAINTAINER,
+	"/nakama.console.ext.Wallet/WithdrawFromWalletProvider": console.UserRole_USER_ROLE_MAINTAINER,
 
 	// User
 	"/nakama.console.Console/AddUser":    console.UserRole_USER_ROLE_ADMIN,
@@ -142,8 +143,8 @@ type ctxConsoleRoleKey struct{}
 
 type ConsoleServer struct {
 	console.UnimplementedConsoleServer
-	webgrpc.UnimplementedConsoleProxyServer
-	console.UnimplementedWalletProviderServer
+	console_0.UnimplementedWalletServer
+	console_1.UnimplementedTunnelServer
 	logger               *zap.Logger
 	db                   *sql.DB
 	config               Config
@@ -226,8 +227,8 @@ func StartConsoleServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.D
 	}
 
 	console.RegisterConsoleServer(grpcServer, s)
-	webgrpc.RegisterConsoleProxyServer(grpcServer, s)
-	console.RegisterWalletProviderServer(grpcServer, s)
+	console_0.RegisterWalletServer(grpcServer, s)
+	console_1.RegisterTunnelServer(grpcServer, s)
 	startupLogger.Info("Starting Console server for gRPC requests", zap.Int("port", config.GetConsole().Port-3))
 	go func() {
 		listener, err := net.Listen("tcp", fmt.Sprintf("%v:%d", config.GetConsole().Address, config.GetConsole().Port-3))
@@ -270,10 +271,10 @@ func StartConsoleServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.D
 	if err := console.RegisterConsoleHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("Console server gateway registration failed", zap.Error(err))
 	}
-	if err := webgrpc.RegisterConsoleProxyHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+	if err := console_0.RegisterWalletHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("Console wallet server gateway registration failed", zap.Error(err))
 	}
-	if err := console.RegisterWalletProviderHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+	if err := console_1.RegisterTunnelHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("Console wallet server gateway registration failed", zap.Error(err))
 	}
 
@@ -468,8 +469,8 @@ func consoleInterceptorFunc(logger *zap.Logger, config Config, sessionCache Sess
 		if info.FullMethod == "/nakama.console.Console/AuthenticateLogout" {
 			return handler(ctx, req)
 		}
-		if strings.HasPrefix(info.FullMethod, "/nakama.web.ConsoleProxy/") {
-			// Skip authentication check for Console proxy endpoint.
+		if strings.HasPrefix(info.FullMethod, "/nakama.console.ext.Tunnel/") {
+			// Skip authentication check for Console tunnel endpoint.
 			return handler(ctx, req)
 		}
 

@@ -27,7 +27,6 @@ import (
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/heroiclabs/nakama-common/api"
 	webapi "gitlab.com/casino543/nakama-web/api"
-	"gitlab.com/casino543/nakama-web/webgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -334,7 +333,7 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 				if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID); err == sql.ErrNoRows {
 					if code, ok := email.Vars["verification"]; !ok {
 						return nil, status.Error(codes.InvalidArgument, "Require verification code.")
-					} else if _, err := s.VerifyVerificationCode(ctx, &webgrpc.VerifyVerificationCodeRequest{
+					} else if _, err := s.VerifyVerificationCode(ctx, &webapi.VerifyVerificationCodeRequest{
 						Email: cleanEmail, Code: code}); err != nil {
 						return nil, err
 					}
@@ -358,7 +357,7 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 				}
 				// Send email verification link.
 			} else if _, err := s.SendEmailVerificationLink(ctx,
-				&webapi.SendEmailVerificationRequest{Email: email.Email}); err != nil {
+				&webapi.Email{Email: email.Email}); err != nil {
 				s.logger.Error("Error forwarding request verification link.",
 					zap.String("user_id", dbUserID), zap.Error(err))
 			}

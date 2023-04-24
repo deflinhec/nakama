@@ -7,14 +7,14 @@ require (
 	github.com/blugelabs/bluge_segment_api v0.2.0
 	github.com/blugelabs/query_string v0.3.0
 	github.com/dop251/goja v0.0.0-20221003171542-5ea1285e6c91
-	github.com/gofrs/uuid v4.4.0+incompatible
-	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/gofrs/uuid v4.3.0+incompatible
+	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
 	github.com/hashicorp/consul/api v1.20.0
-	github.com/heroiclabs/nakama-common v1.26.1-0.20230321170403-7becee7153cf
+	github.com/heroiclabs/nakama-common v1.27.0
 	github.com/jackc/pgconn v1.13.0
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgtype v1.12.0
@@ -22,16 +22,14 @@ require (
 	github.com/rubenv/sql-migrate v1.2.0
 	github.com/stretchr/testify v1.8.0
 	github.com/uber-go/tally/v4 v4.1.3
-	gitlab.com/casino543/nakama-web v0.0.6
 	go.uber.org/atomic v1.10.0
-	go.uber.org/zap v1.24.0
+	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.0.0-20221012134737-56aed061732a
-	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094
-	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
+	golang.org/x/oauth2 v0.6.0
 	google.golang.org/grpc v1.50.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.2.0
 	google.golang.org/protobuf v1.28.1
-	gopkg.in/natefinch/lumberjack.v2 v2.2.1
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20190411184413-94d9e492cc53
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -50,7 +48,7 @@ require (
 	github.com/blugelabs/ice v1.0.0 // indirect
 	github.com/blugelabs/ice/v2 v2.0.1 // indirect
 	github.com/caio/go-tdigest v3.1.0+incompatible // indirect
-	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-metro v0.0.0-20180109044635-280f6062b5bc // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
@@ -59,7 +57,7 @@ require (
 	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/golang/glog v1.0.0 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/hashicorp/go-hclog v0.12.0 // indirect
@@ -86,9 +84,12 @@ require (
 	github.com/prometheus/common v0.26.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/twmb/murmur3 v1.1.5 // indirect
+	gitlab.com/casino543/nakama-api v0.1.3
+	gitlab.com/casino543/nakama-web v0.1.6
 	go.uber.org/multierr v1.6.0 // indirect
-	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/net v0.9.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
 )

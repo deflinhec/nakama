@@ -69,7 +69,7 @@ github.com/blugelabs/query_string
 # github.com/caio/go-tdigest v3.1.0+incompatible
 ## explicit
 github.com/caio/go-tdigest
-# github.com/cespare/xxhash/v2 v2.1.1
+# github.com/cespare/xxhash/v2 v2.2.0
 ## explicit; go 1.11
 github.com/cespare/xxhash/v2
 # github.com/davecgh/go-spew v1.1.1
@@ -105,16 +105,16 @@ github.com/go-gorp/gorp/v3
 ## explicit
 github.com/go-sourcemap/sourcemap
 github.com/go-sourcemap/sourcemap/internal/base64vlq
-# github.com/gofrs/uuid v4.4.0+incompatible
+# github.com/gofrs/uuid v4.3.0+incompatible
 ## explicit
 github.com/gofrs/uuid
-# github.com/golang-jwt/jwt/v4 v4.5.0
+# github.com/golang-jwt/jwt/v4 v4.4.2
 ## explicit; go 1.16
 github.com/golang-jwt/jwt/v4
 # github.com/golang/glog v1.0.0
 ## explicit; go 1.11
 github.com/golang/glog
-# github.com/golang/protobuf v1.5.2
+# github.com/golang/protobuf v1.5.3
 ## explicit; go 1.9
 github.com/golang/protobuf/descriptor
 github.com/golang/protobuf/jsonpb
@@ -173,7 +173,7 @@ github.com/hashicorp/golang-lru/simplelru
 # github.com/hashicorp/serf v0.10.1
 ## explicit; go 1.12
 github.com/hashicorp/serf/coordinate
-# github.com/heroiclabs/nakama-common v1.26.1-0.20230321170403-7becee7153cf
+# github.com/heroiclabs/nakama-common v1.27.0
 ## explicit; go 1.19
 github.com/heroiclabs/nakama-common/api
 github.com/heroiclabs/nakama-common/rtapi
@@ -275,18 +275,25 @@ github.com/twmb/murmur3
 github.com/uber-go/tally/v4
 github.com/uber-go/tally/v4/internal/identity
 github.com/uber-go/tally/v4/prometheus
-# gitlab.com/casino543/nakama-web v0.0.6
+# gitlab.com/casino543/nakama-api v0.1.3
+## explicit; go 1.19
+gitlab.com/casino543/nakama-api/api/casino
+gitlab.com/casino543/nakama-api/apigrpc/casino
+gitlab.com/casino543/nakama-api/apigrpc/console
+# gitlab.com/casino543/nakama-web v0.1.6
 ## explicit; go 1.19
 gitlab.com/casino543/nakama-web/api
-gitlab.com/casino543/nakama-web/webgrpc
+gitlab.com/casino543/nakama-web/apigrpc
+gitlab.com/casino543/nakama-web/apigrpc/console
+gitlab.com/casino543/nakama-web/apigrpc/console/api
 # go.uber.org/atomic v1.10.0
 ## explicit; go 1.18
 go.uber.org/atomic
 # go.uber.org/multierr v1.6.0
 ## explicit; go 1.12
 go.uber.org/multierr
-# go.uber.org/zap v1.24.0
-## explicit; go 1.19
+# go.uber.org/zap v1.23.0
+## explicit; go 1.18
 go.uber.org/zap
 go.uber.org/zap/buffer
 go.uber.org/zap/internal
@@ -300,17 +307,16 @@ go.uber.org/zap/zaptest/observer
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/pbkdf2
-# golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e
+# golang.org/x/net v0.9.0
 ## explicit; go 1.17
 golang.org/x/net/context
-golang.org/x/net/context/ctxhttp
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
-# golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094
+# golang.org/x/oauth2 v0.6.0
 ## explicit; go 1.17
 golang.org/x/oauth2
 golang.org/x/oauth2/authhandler
@@ -319,7 +325,7 @@ golang.org/x/oauth2/google/internal/externalaccount
 golang.org/x/oauth2/internal
 golang.org/x/oauth2/jws
 golang.org/x/oauth2/jwt
-# golang.org/x/sys v0.5.0
+# golang.org/x/sys v0.7.0
 ## explicit; go 1.17
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
@@ -458,8 +464,8 @@ google.golang.org/protobuf/types/known/structpb
 google.golang.org/protobuf/types/known/timestamppb
 google.golang.org/protobuf/types/known/wrapperspb
 google.golang.org/protobuf/types/pluginpb
-# gopkg.in/natefinch/lumberjack.v2 v2.2.1
-## explicit; go 1.13
+# gopkg.in/natefinch/lumberjack.v2 v2.0.0-20190411184413-94d9e492cc53
+## explicit
 gopkg.in/natefinch/lumberjack.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
