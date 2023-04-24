@@ -25,10 +25,10 @@
     "application/json"
   ],
   "paths": {
-    "/v2/console/account/{id}/logout": {
+    "/v2/console/account/{id}/kick": {
       "post": {
         "summary": "Get available features from web ui.",
-        "operationId": "ConsoleProxy_SessionLogout",
+        "operationId": "ConsoleProxy_KickAccount",
         "responses": {
           "200": {
             "description": "A successful response.",
