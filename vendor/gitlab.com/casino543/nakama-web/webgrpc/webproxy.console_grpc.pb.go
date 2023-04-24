@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ConsoleProxyClient interface {
 	// Get available features from web ui.
-	SessionLogout(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	KickAccount(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetMailConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Config, error)
 }
 
@@ -36,9 +36,9 @@ func NewConsoleProxyClient(cc grpc.ClientConnInterface) ConsoleProxyClient {
 	return &consoleProxyClient{cc}
 }
 
-func (c *consoleProxyClient) SessionLogout(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *consoleProxyClient) KickAccount(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/nakama.web.ConsoleProxy/SessionLogout", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/nakama.web.ConsoleProxy/KickAccount", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (c *consoleProxyClient) GetMailConfig(ctx context.Context, in *emptypb.Empt
 // for forward compatibility
 type ConsoleProxyServer interface {
 	// Get available features from web ui.
-	SessionLogout(context.Context, *AccountId) (*emptypb.Empty, error)
+	KickAccount(context.Context, *AccountId) (*emptypb.Empty, error)
 	GetMailConfig(context.Context, *emptypb.Empty) (*Config, error)
 	mustEmbedUnimplementedConsoleProxyServer()
 }
@@ -68,8 +68,8 @@ type ConsoleProxyServer interface {
 type UnimplementedConsoleProxyServer struct {
 }
 
-func (UnimplementedConsoleProxyServer) SessionLogout(context.Context, *AccountId) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SessionLogout not implemented")
+func (UnimplementedConsoleProxyServer) KickAccount(context.Context, *AccountId) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method KickAccount not implemented")
 }
 func (UnimplementedConsoleProxyServer) GetMailConfig(context.Context, *emptypb.Empty) (*Config, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMailConfig not implemented")
@@ -87,20 +87,20 @@ func RegisterConsoleProxyServer(s grpc.ServiceRegistrar, srv ConsoleProxyServer)
 	s.RegisterService(&ConsoleProxy_ServiceDesc, srv)
 }
 
-func _ConsoleProxy_SessionLogout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ConsoleProxy_KickAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AccountId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ConsoleProxyServer).SessionLogout(ctx, in)
+		return srv.(ConsoleProxyServer).KickAccount(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/nakama.web.ConsoleProxy/SessionLogout",
+		FullMethod: "/nakama.web.ConsoleProxy/KickAccount",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConsoleProxyServer).SessionLogout(ctx, req.(*AccountId))
+		return srv.(ConsoleProxyServer).KickAccount(ctx, req.(*AccountId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -131,8 +131,8 @@ var ConsoleProxy_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ConsoleProxyServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SessionLogout",
-			Handler:    _ConsoleProxy_SessionLogout_Handler,
+			MethodName: "KickAccount",
+			Handler:    _ConsoleProxy_KickAccount_Handler,
 		},
 		{
 			MethodName: "GetMailConfig",

@@ -80,8 +80,8 @@ message Config {
  */
 service ConsoleProxy {
   // Get available features from web ui.
-  rpc SessionLogout(AccountId) returns (google.protobuf.Empty) {
-    option (google.api.http).post = "/v2/console/account/{id}/logout";
+  rpc KickAccount(AccountId) returns (google.protobuf.Empty) {
+    option (google.api.http).post = "/v2/console/account/{id}/kick";
   }
 
   rpc GetMailConfig(google.protobuf.Empty) returns (Config) {
