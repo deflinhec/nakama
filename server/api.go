@@ -366,6 +366,8 @@ func forwardInterceptorFunc(logger *zap.Logger, config Config, ctx context.Conte
 							zap.String("method", info.FullMethod), zap.Error(err))
 						return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 					}
+					md, _ := metadata.FromIncomingContext(ctx)
+					ctx = metadata.NewOutgoingContext(ctx, md)
 					out := method.Func.Call([]reflect.Value{
 						reflect.ValueOf(client),
 						reflect.ValueOf(ctx),

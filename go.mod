@@ -86,7 +86,7 @@ require (
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/twmb/murmur3 v1.1.5 // indirect
 	gitlab.com/casino543/nakama-api v0.1.3
-	gitlab.com/casino543/nakama-web v0.1.6
+	gitlab.com/casino543/nakama-web v0.1.7
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect

@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -42,6 +43,8 @@ func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *api.Email
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 	}
+	md, _ := metadata.FromIncomingContext(ctx)
+	ctx = metadata.NewOutgoingContext(ctx, md)
 	return apigrpc.NewWebForwardClient(conn).SendEmailVerificationCode(ctx, in)
 }
 
@@ -58,6 +61,8 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.Email
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 	}
+	md, _ := metadata.FromIncomingContext(ctx)
+	ctx = metadata.NewOutgoingContext(ctx, md)
 	return apigrpc.NewWebForwardClient(conn).SendEmailVerificationLink(ctx, in)
 }
 
@@ -74,6 +79,8 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.Email) (
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 	}
+	md, _ := metadata.FromIncomingContext(ctx)
+	ctx = metadata.NewOutgoingContext(ctx, md)
 	return apigrpc.NewWebForwardClient(conn).SendPasswordResetEmail(ctx, in)
 }
 
@@ -89,5 +96,7 @@ func (s *ApiServer) VerifyVerificationCode(ctx context.Context, in *api.VerifyVe
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 	}
+	md, _ := metadata.FromIncomingContext(ctx)
+	ctx = metadata.NewOutgoingContext(ctx, md)
 	return webgrpc.NewWebProxyClient(conn).VerifyVerificationCode(ctx, in)
 }
