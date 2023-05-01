@@ -373,7 +373,10 @@ func forwardInterceptorFunc(logger *zap.Logger, config Config, ctx context.Conte
 						reflect.ValueOf(ctx),
 						reflect.ValueOf(req),
 					})
-					return out[0].Interface(), out[1].Interface().(error)
+					if err, _ := out[1].Interface().(error); ok {
+						return out[0].Interface(), err
+					}
+					return out[0].Interface(), nil
 				}
 			}
 			return res, err
