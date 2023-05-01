@@ -44,7 +44,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   };
   host: "127.0.0.1:7350";
   external_docs: {
-    url: "https://github.com/heroiclabs/nakama";
+    url: "https://heroiclabs.com/docs";
     description: "Nakama server documentation";
   }
   schemes: HTTP;

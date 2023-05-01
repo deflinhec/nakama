@@ -25,10 +25,10 @@ func (s *ApiServer) GetFeatures(ctx context.Context, in *emptypb.Empty) (*api.Fe
 	response := &api.Features{}
 	if s.config.GetMail().Verification.Enable {
 		response.Features = append(response.Features,
-			api.Features_EMAIL_VERIFICATION)
+			api.Feature_EMAIL_VERIFICATION)
 		if s.config.GetMail().Verification.Enforce {
 			response.Features = append(response.Features,
-				api.Features_VERIFICATION_CODE)
+				api.Feature_VERIFICATION_CODE)
 		}
 	}
 	return response, nil

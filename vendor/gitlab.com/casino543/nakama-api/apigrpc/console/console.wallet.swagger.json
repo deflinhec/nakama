@@ -1,0 +1,266 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Nakama console API v2",
+    "version": "2.0",
+    "contact": {
+      "name": "The Nakama Authors \u0026 Contributors",
+      "url": "https://github.com/heroiclabs/nakama",
+      "email": "hello@heroiclabs.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Wallet"
+    }
+  ],
+  "host": "127.0.0.1:7351",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v2/console/wallet/{currency}/deposit": {
+      "post": {
+        "summary": "Deposit amount of currency to user account.",
+        "operationId": "Wallet_DepositFromWalletProvider",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiBalanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "currency",
+            "description": "The currency type.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "description": "The user ID this wallet item belongs to."
+                },
+                "orderId": {
+                  "type": "string",
+                  "description": "The order id of transaction."
+                },
+                "amount": {
+                  "type": "string",
+                  "format": "int64",
+                  "description": "The amount to withdraw."
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "Wallet"
+        ],
+        "security": [
+          {
+            "BearerJwt": []
+          }
+        ]
+      }
+    },
+    "/v2/console/wallet/{currency}/withdraw": {
+      "post": {
+        "summary": "Withdraw amount of currency from user account.",
+        "operationId": "Wallet_WithdrawFromWalletProvider",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiBalanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "currency",
+            "description": "The currency type.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "description": "The user ID this wallet item belongs to."
+                },
+                "orderId": {
+                  "type": "string",
+                  "description": "The order id of transaction."
+                },
+                "amount": {
+                  "type": "string",
+                  "format": "int64",
+                  "description": "The amount to withdraw."
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "Wallet"
+        ],
+        "security": [
+          {
+            "BearerJwt": []
+          }
+        ]
+      }
+    },
+    "/v2/console/wallet/{currency}/{userId}": {
+      "get": {
+        "summary": "Get currency balance of from user account.",
+        "operationId": "Wallet_GetWalletBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiBalanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "currency",
+            "description": "The currency type.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "description": "The user ID this wallet item belongs to.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Wallet"
+        ],
+        "security": [
+          {
+            "BearerJwt": []
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiBalanceResponse": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The user ID this wallet item belongs to."
+        },
+        "orderId": {
+          "type": "string",
+          "description": "The order id of transaction."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency type."
+        },
+        "balance": {
+          "type": "string",
+          "format": "int64",
+          "description": "The amount to withdraw."
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "BasicAuth": {
+      "type": "basic"
+    },
+    "BearerJwt": {
+      "type": ""
+    },
+    "HttpKeyAuth": {
+      "type": "apiKey",
+      "name": "http_key",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "BearerJwt": []
+    }
+  ],
+  "externalDocs": {
+    "description": "Nakama server documentation",
+    "url": "https://heroiclabs.com/docs"
+  }
+}

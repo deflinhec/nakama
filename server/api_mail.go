@@ -6,12 +6,14 @@ import (
 	"net"
 	"strconv"
 
-	webapi "gitlab.com/casino543/nakama-web/api"
-	"gitlab.com/casino543/nakama-web/webgrpc"
+	"gitlab.com/casino543/nakama-web/api"
+	"gitlab.com/casino543/nakama-web/apigrpc"
+	webgrpc "gitlab.com/casino543/nakama-web/apigrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -29,7 +31,7 @@ func SplitHostPort(hostport string) (host string, port int, err error) {
 }
 
 // This function only handle internal calls, external calls go through forwardInterceptorFunc.
-func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *webapi.SendEmailVerificationRequest) (*emptypb.Empty, error) {
+func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *api.Email) (*emptypb.Empty, error) {
 	host, port, err := SplitHostPort(s.config.GetProxy().Web.Address)
 	if err != nil {
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
@@ -41,11 +43,13 @@ func (s *ApiServer) SendEmailVerificationCode(ctx context.Context, in *webapi.Se
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 	}
-	return webgrpc.NewWebForwardClient(conn).SendEmailVerificationCode(ctx, in)
+	md, _ := metadata.FromIncomingContext(ctx)
+	ctx = metadata.NewOutgoingContext(ctx, md)
+	return apigrpc.NewWebForwardClient(conn).SendEmailVerificationCode(ctx, in)
 }
 
 // This function only handle internal calls, external calls go through forwardInterceptorFunc.
-func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *webapi.SendEmailVerificationRequest) (*emptypb.Empty, error) {
+func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *api.Email) (*emptypb.Empty, error) {
 	host, port, err := SplitHostPort(s.config.GetProxy().Web.Address)
 	if err != nil {
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
@@ -57,11 +61,13 @@ func (s *ApiServer) SendEmailVerificationLink(ctx context.Context, in *webapi.Se
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 	}
-	return webgrpc.NewWebForwardClient(conn).SendEmailVerificationLink(ctx, in)
+	md, _ := metadata.FromIncomingContext(ctx)
+	ctx = metadata.NewOutgoingContext(ctx, md)
+	return apigrpc.NewWebForwardClient(conn).SendEmailVerificationLink(ctx, in)
 }
 
 // This function only handle internal calls, external calls go through forwardInterceptorFunc.
-func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *webapi.SendPasswordResetEmailRequest) (*emptypb.Empty, error) {
+func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *api.Email) (*emptypb.Empty, error) {
 	host, port, err := SplitHostPort(s.config.GetProxy().Web.Address)
 	if err != nil {
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
@@ -73,10 +79,12 @@ func (s *ApiServer) SendPasswordResetEmail(ctx context.Context, in *webapi.SendP
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 	}
-	return webgrpc.NewWebForwardClient(conn).SendPasswordResetEmail(ctx, in)
+	md, _ := metadata.FromIncomingContext(ctx)
+	ctx = metadata.NewOutgoingContext(ctx, md)
+	return apigrpc.NewWebForwardClient(conn).SendPasswordResetEmail(ctx, in)
 }
 
-func (s *ApiServer) VerifyVerificationCode(ctx context.Context, in *webgrpc.VerifyVerificationCodeRequest) (*emptypb.Empty, error) {
+func (s *ApiServer) VerifyVerificationCode(ctx context.Context, in *api.VerifyVerificationCodeRequest) (*emptypb.Empty, error) {
 	host, port, err := SplitHostPort(s.config.GetProxy().Web.Address)
 	if err != nil {
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
@@ -88,5 +96,7 @@ func (s *ApiServer) VerifyVerificationCode(ctx context.Context, in *webgrpc.Veri
 		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
 		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 	}
+	md, _ := metadata.FromIncomingContext(ctx)
+	ctx = metadata.NewOutgoingContext(ctx, md)
 	return webgrpc.NewWebProxyClient(conn).VerifyVerificationCode(ctx, in)
 }
