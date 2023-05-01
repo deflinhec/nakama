@@ -280,7 +280,7 @@ github.com/uber-go/tally/v4/prometheus
 gitlab.com/casino543/nakama-api/api/casino
 gitlab.com/casino543/nakama-api/apigrpc/casino
 gitlab.com/casino543/nakama-api/apigrpc/console
-# gitlab.com/casino543/nakama-web v0.1.7
+# gitlab.com/casino543/nakama-web v0.1.8
 ## explicit; go 1.19
 gitlab.com/casino543/nakama-web/api
 gitlab.com/casino543/nakama-web/apigrpc

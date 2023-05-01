@@ -579,8 +579,8 @@ github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxt
 github.com/ziutek/mymysql v1.5.4/go.mod h1:LMSpPZ6DbqWFxNCHW77HeMg9I646SAhApZ/wKdgO/C0=
 gitlab.com/casino543/nakama-api v0.1.3 h1:lNGVZrN98HXYjtJmzw2LX3ZcS6qczKvjztQEhZaALtM=
 gitlab.com/casino543/nakama-api v0.1.3/go.mod h1:SiEnKJTxdmAm8ckTYkDL52ioMWtW/64Ia8UGqybSEQY=
-gitlab.com/casino543/nakama-web v0.1.7 h1:5/h7kiVsHl+ANfDtpmtmGBqgjhRI4t26xJ7RgMXVyJU=
-gitlab.com/casino543/nakama-web v0.1.7/go.mod h1:ODg3zTEf6b19jnyAwgOytPk7M5sMrssMtuLzK2MubNg=
+gitlab.com/casino543/nakama-web v0.1.8 h1:Cw8j/pAQz7+G6CdqRzecWoTll0HpPVSm/zu3gLvBiZs=
+gitlab.com/casino543/nakama-web v0.1.8/go.mod h1:ODg3zTEf6b19jnyAwgOytPk7M5sMrssMtuLzK2MubNg=
 go.etcd.io/etcd/api/v3 v3.5.0/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.0/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=
 go.etcd.io/etcd/client/v2 v2.305.0/go.mod h1:h9puh54ZTgAKtEbut2oe9P4L/oqKCVB6xsXlzd7alYQ=
