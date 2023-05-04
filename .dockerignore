@@ -719,3 +719,6 @@ MigrationBackup/
 
 # Golang debug executable
 __debug_bin
+
+# Golang vendor directory
+!vendor/**
