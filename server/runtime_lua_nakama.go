@@ -300,6 +300,9 @@ func (n *RuntimeLuaNakamaModule) Loader(l *lua.LState) int {
 		"channel_messages_list":              n.channelMessagesList,
 		"channel_id_build":                   n.channelIdBuild,
 		"get_satori":                         n.getSatori,
+
+		"cardrank_evaluate": n.cardrankEvaluate,
+		"cardrank_format":   n.cardrankFormat,
 	}
 
 	mod := l.SetFuncs(l.CreateTable(0, len(functions)), functions)
