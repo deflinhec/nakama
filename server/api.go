@@ -34,6 +34,8 @@ import (
 	"strings"
 	"time"
 
+	apigrpc_0 "github.com/bcasino/nakama-api/apigrpc/casino"
+	apigrpc_1 "github.com/bcasino/nakama-web/apigrpc"
 	"github.com/gofrs/uuid"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/handlers"
@@ -42,8 +44,6 @@ import (
 	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama/v3/apigrpc"
 	"github.com/heroiclabs/nakama/v3/social"
-	apigrpc_0 "gitlab.com/casino543/nakama-api/apigrpc/casino"
-	apigrpc_1 "gitlab.com/casino543/nakama-web/apigrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

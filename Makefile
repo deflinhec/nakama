@@ -31,10 +31,10 @@ generate:
 	(cd console/ui && npm clean-install && npm run-script build)
 
 .PHONY: upgrade
-upgrade: export GOPRIVATE=gitlab.com/casino543
+upgrade: export GOPRIVATE=github.com/bcasino
 upgrade: 
-	go get gitlab.com/casino543/nakama-web && \
-	go get gitlab.com/casino543/nakama-api && \
+	go get github.com/bcasino/nakama-web && \
+	go get github.com/bcasino/nakama-api && \
 	go mod tidy && go mod vendor
 
 default: image plugin-builder-image

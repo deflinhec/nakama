@@ -6,9 +6,9 @@ import (
 	"net"
 	"strconv"
 
-	"gitlab.com/casino543/nakama-web/api"
-	"gitlab.com/casino543/nakama-web/apigrpc"
-	webgrpc "gitlab.com/casino543/nakama-web/apigrpc"
+	"github.com/bcasino/nakama-web/api"
+	"github.com/bcasino/nakama-web/apigrpc"
+	webgrpc "github.com/bcasino/nakama-web/apigrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

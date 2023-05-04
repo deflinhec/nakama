@@ -18,7 +18,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"gitlab.com/casino543/nakama-web/apigrpc/console/api"
+	"github.com/bcasino/nakama-web/apigrpc/console/api"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
