@@ -17,8 +17,8 @@ package server
 import (
 	"context"
 
+	"github.com/bcasino/nakama-web/apigrpc/console/api"
 	"github.com/gofrs/uuid"
-	"gitlab.com/casino543/nakama-web/apigrpc/console/api"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

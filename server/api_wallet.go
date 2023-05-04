@@ -24,7 +24,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	api "gitlab.com/casino543/nakama-api/api/casino"
+	api "github.com/bcasino/nakama-api/api/casino"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
