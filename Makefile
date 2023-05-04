@@ -1,5 +1,6 @@
 # Define
 VERSION=0.2.10
+PROJECT=casino-383511
 BUILD=$(shell git rev-parse HEAD)
 
 .PHONY: image
@@ -8,14 +9,9 @@ image:
 		--file build/Dockerfile.local \
 		--build-arg "version=$(VERSION)" \
 		--build-arg "commit=$(BUILD)" \
-		--tag registry.deflinhec.dev/nakama:v$(VERSION)
-	docker tag registry.deflinhec.dev/nakama:v$(VERSION) \
-		registry.deflinhec.dev/nakama:latest
-
-.PHONY: publish
-publish:
-	docker push registry.deflinhec.dev/nakama:v$(VERSION)
-	docker push registry.deflinhec.dev/nakama:latest
+		--tag gcr.io/$(PROJECT)/nakama:v$(VERSION)
+	docker tag gcr.io/$(PROJECT)/nakama:v$(VERSION) \
+		gcr.io/$(PROJECT)/nakama:latest
 
 .PHONY: pluginbuilder-image
 pluginbuilder-image:
@@ -23,7 +19,7 @@ pluginbuilder-image:
 		--file build/pluginbuilder/Dockerfile \
 		--build-arg "version=$(VERSION)" \
 		--build-arg "commit=$(BUILD)" \
-		--tag registry.deflinhec.dev/nakama-pluginbuilder:latest
+		--tag gcr.io/$(PROJECT)/nakama/pluginbuilder:latest
 
 .PHONY: generate
 generate:
