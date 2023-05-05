@@ -1,0 +1,6 @@
+*.txt
+*.exe
+*.wasm
+*.log
+*.out
+magic*
