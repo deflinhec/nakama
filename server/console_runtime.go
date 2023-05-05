@@ -34,6 +34,8 @@ func (s *ConsoleServer) GetRuntime(ctx context.Context, in *emptypb.Empty) (*con
 		return result
 	}
 
+	luaRuntimeModulePatchHistory.Refresh(s.runtimeInfo.LuaModules)
+
 	return &console.RuntimeInfo{
 		LuaRpcFunctions: s.runtimeInfo.LuaRpcFunctions,
 		GoRpcFunctions:  s.runtimeInfo.GoRpcFunctions,

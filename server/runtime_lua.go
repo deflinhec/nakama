@@ -268,6 +268,7 @@ func (mc *RuntimeLuaModuleCache) Watch(startupLogger, logger *zap.Logger,
 								continue
 							}
 							mc.Add(m)
+							luaRuntimeModulePatchHistory.Add(event.Name)
 							logger.Info("Lua runtime patched",
 								zap.String("module", name),
 								zap.Uint32("runtimes", completes))
