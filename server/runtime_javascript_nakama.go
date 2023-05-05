@@ -291,6 +291,9 @@ func (n *runtimeJavascriptNakamaModule) mappings(r *goja.Runtime) map[string]fun
 		"channelIdBuild":                  n.channelIdBuild(r),
 		"binaryToString":                  n.binaryToString(r),
 		"stringToBinary":                  n.stringToBinary(r),
+
+		"cardrankEvaluate": n.cardrankEvaluate(r),
+		"cardrankFormat":   n.cardrankFormat(r),
 	}
 }
 
