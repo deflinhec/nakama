@@ -751,6 +751,20 @@ end`,
 	}
 }
 
+func TestRuntimeCardrankEvaluate(t *testing.T) {
+	modules := map[string]string{
+		"test": `
+local nk = require("nakama")
+nk.cardrank_evaluate({{1,2},{3,4}}, {5,6,7,8,9})
+`,
+	}
+
+	_, _, err := runtimeWithModules(t, modules)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+}
+
 func TestRuntimeReqBeforeHook(t *testing.T) {
 	modules := map[string]string{
 		"test": `

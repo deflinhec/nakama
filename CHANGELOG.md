@@ -5,6 +5,18 @@ The format is based on [keep a changelog](http://keepachangelog.com) and this pr
 
 ## [Unreleased]
 
+## [3.16.0-0.3.0] - 2023-05-06
+### Added
+- Add cardrank evaluator, supports wild range of types for poker evaluation.
+- Add lua file header marker '---@disable-hotfix' to avoid hotfix on specific modules.
+- Automatic detect module changes and perform hotfix to lua files.
+- Automatic update last modified time after a successful hotfix to lua modules.
+
+### Changed
+- Remove inconvenience lua module hotfix feature from console ui.
+
+### Fixed
+- Fix possible race condition while performing lua module hotix.
 
 ## [3.16.0] - 2023-04-18
 ### Added
