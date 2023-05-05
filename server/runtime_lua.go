@@ -30,6 +30,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dietsche/rfsnotify"
 	"github.com/gofrs/uuid"
 	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama-common/rtapi"
@@ -40,9 +41,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
+	"gopkg.in/fsnotify.v1"
 )
 
 const LTSentinel = lua.LValueType(-1)
+
+const (
+	luaDisableHotfixMark = "---@disable-hotfix"
+)
 
 type LSentinelType struct {
 	lua.LNilType
@@ -136,16 +142,126 @@ func (a ModuleNames) Swap(i, j int) {
 }
 
 type RuntimeLuaModuleCache struct {
+	sync.RWMutex
 	Names   ModuleNames
-	Modules map[string]*RuntimeLuaModule
+	modules map[string]*RuntimeLuaModule
 }
 
 func (mc *RuntimeLuaModuleCache) Add(m *RuntimeLuaModule) {
+	mc.Lock()
+	defer mc.Unlock()
 	mc.Names = append(mc.Names, m.Name)
-	mc.Modules[m.Name] = m
+	mc.modules[m.Name] = m
 
 	// Process init scripts with ascending depth order before all other scripts.
 	sort.Sort(mc.Names)
+}
+
+func (mc *RuntimeLuaModuleCache) Get(name string) (*RuntimeLuaModule, bool) {
+	mc.Lock()
+	defer mc.Unlock()
+	if m, ok := mc.modules[name]; ok {
+		return m, ok
+	}
+	return nil, false
+}
+
+func (mc *RuntimeLuaModuleCache) Watch(startupLogger, logger *zap.Logger,
+	runtimeProviderLua *RuntimeProviderLua, modulePatchRegistry *LocalRuntimeLuaModulePatchRegistry) {
+	watcher, err := rfsnotify.NewWatcher()
+	if err != nil {
+		startupLogger.Fatal("Failed to create runtime directory watcher", zap.Error(err))
+	}
+	go func() {
+		ctx := context.Background()
+		for {
+			select {
+			case <-ctx.Done():
+				// Context cancelled
+				return
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+				switch event.Op {
+				case fsnotify.Create:
+					fallthrough
+				case fsnotify.Write:
+					if strings.ToLower(filepath.Ext(event.Name)) == ".lua" {
+						// Load the file contents into memory.
+						var err error
+						var content []byte
+						if content, err = os.ReadFile(event.Name); err != nil {
+							logger.Warn("An error occurred while reading lua module", zap.Error(err))
+						} else if !strings.HasPrefix(string(content), luaDisableHotfixMark) {
+							relPath, _ := filepath.Rel(lua.LuaLDir, event.Name)
+							name := strings.TrimSuffix(relPath, filepath.Ext(relPath))
+							// Make paths Lua friendly.
+							name = strings.Replace(name, string(os.PathSeparator), ".", -1)
+							m := &RuntimeLuaModule{
+								Name:    name,
+								Path:    event.Name,
+								Content: content,
+							}
+							counts := uint32(0)
+							// Loop through the pool and hotfix each runtime.
+						HotfixProcess:
+							for {
+								select {
+								case <-ctx.Done():
+									// Context cancelled
+									return
+								case r := <-runtimeProviderLua.poolCh:
+									runtimeProviderLua.poolCh <- r
+									// Discard hotfix if the first attempt fails.
+									if counts == 0 {
+										if err := m.Hotfix(r.vm); err != nil {
+											logger.Warn("An error occurred while patching lua module",
+												zap.String("module", name), zap.Error(err))
+											break HotfixProcess
+										}
+										// Post the hotfix to the registry.
+										modulePatchRegistry.Post(m)
+									} else if err := m.Patch(r.vm); err != nil {
+										logger.Warn("An error occurred while patching lua module",
+											zap.String("module", name), zap.Error(err))
+										break HotfixProcess
+									}
+									counts++
+									if counts < runtimeProviderLua.currentCount.Load() {
+										continue
+									}
+									mc.Lock()
+									// Replace or add the module to the cache.
+									if _, ok := mc.modules[name]; ok {
+										mc.modules[name] = m
+									} else {
+										mc.Add(m)
+									}
+									mc.Unlock()
+									logger.Info("Lua runtime patched",
+										zap.String("module", name),
+										zap.Uint32("runtimes", counts))
+									break HotfixProcess
+								default:
+									time.Sleep(100 * time.Millisecond)
+								}
+							}
+						}
+					}
+				}
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				logger.Error("An error occurred while watching directory", zap.Error(err))
+			}
+		}
+	}()
+	if err = watcher.AddRecursive(lua.LuaLDir); err != nil {
+		startupLogger.Fatal("An error occurred while watching directory", zap.Error(err))
+	}
+	startupLogger.Info("Watching runtime directory", zap.String("path", lua.LuaLDir))
 }
 
 type RuntimeProviderLua struct {
@@ -1217,44 +1333,47 @@ func NewRuntimeProviderLua(logger, startupLogger *zap.Logger, db *sql.DB, protoj
 		return nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, err
 	}
 
+	moduleCache.Watch(startupLogger, logger, runtimeProviderLua, modulePatchRegistry)
+
 	// Perform module hotfix.
 	moduleHotfixFunction = func(ctx context.Context, module string) error {
-		counts := uint32(0)
-		name := strings.ReplaceAll(module, filepath.Ext(module), "")
-		name = strings.ReplaceAll(name, string(os.PathSeparator), ".")
-		m, ok := moduleCache.Modules[name]
-		if !ok {
-			return fmt.Errorf("module '%v' not found", module)
-		}
-		// Loop through the pool and hotfix each runtime.
-		for {
-			select {
-			case <-ctx.Done():
-				// Context cancelled
-				return ctx.Err()
-			case r := <-runtimeProviderLua.poolCh:
-				runtimeProviderLua.poolCh <- r
-				// Discard hotfix if the first attempt fails.
-				if counts == 0 {
-					if err := m.Hotfix(r.vm); err != nil {
-						return err
-					}
-					// Post the hotfix to the registry.
-					modulePatchRegistry.Post(m)
-				} else if err := m.Patch(r.vm); err != nil {
-					startupLogger.Warn("Failed to patch module",
-						zap.String("module", module), zap.Error(err))
-				}
-				counts++
-				if counts >= runtimeProviderLua.currentCount.Load() {
-					startupLogger.Info("Lua runtime pool patched",
-						zap.String("module", module), zap.Uint32("count", counts))
-					return nil
-				}
-			default:
-				time.Sleep(100 * time.Millisecond)
-			}
-		}
+		// counts := uint32(0)
+		// name := strings.ReplaceAll(module, filepath.Ext(module), "")
+		// name = strings.ReplaceAll(name, string(os.PathSeparator), ".")
+		// m, ok := moduleCache.Modules[name]
+		// if !ok {
+		// 	return fmt.Errorf("module '%v' not found", module)
+		// }
+		// // Loop through the pool and hotfix each runtime.
+		// for {
+		// 	select {
+		// 	case <-ctx.Done():
+		// 		// Context cancelled
+		// 		return ctx.Err()
+		// 	case r := <-runtimeProviderLua.poolCh:
+		// 		runtimeProviderLua.poolCh <- r
+		// 		// Discard hotfix if the first attempt fails.
+		// 		if counts == 0 {
+		// 			if err := m.Hotfix(r.vm); err != nil {
+		// 				return err
+		// 			}
+		// 			// Post the hotfix to the registry.
+		// 			modulePatchRegistry.Post(m)
+		// 		} else if err := m.Patch(r.vm); err != nil {
+		// 			startupLogger.Warn("Failed to patch module",
+		// 				zap.String("module", module), zap.Error(err))
+		// 		}
+		// 		counts++
+		// 		if counts >= runtimeProviderLua.currentCount.Load() {
+		// 			startupLogger.Info("Lua runtime pool patched",
+		// 				zap.String("module", module), zap.Uint32("count", counts))
+		// 			return nil
+		// 		}
+		// 	default:
+		// 		time.Sleep(100 * time.Millisecond)
+		// 	}
+		// }
+		return nil
 	}
 
 	if config.GetRuntime().GetLuaReadOnlyGlobals() {
@@ -1351,7 +1470,7 @@ func CheckRuntimeProviderLua(logger *zap.Logger, config Config, version string, 
 func openLuaModules(logger *zap.Logger, rootPath string, paths []string) (*RuntimeLuaModuleCache, []string, map[string]lua.LGFunction, error) {
 	moduleCache := &RuntimeLuaModuleCache{
 		Names:   make([]string, 0),
-		Modules: make(map[string]*RuntimeLuaModule, 0),
+		modules: make(map[string]*RuntimeLuaModule, 0),
 	}
 	modulePaths := make([]string, 0)
 
@@ -2208,7 +2327,7 @@ func (r *RuntimeLua) loadModules(moduleCache *RuntimeLuaModuleCache) error {
 	preload := r.vm.GetField(r.vm.GetField(r.vm.Get(lua.EnvironIndex), "package"), "preload")
 	fns := make(map[string]*lua.LFunction)
 	for _, name := range moduleCache.Names {
-		module, ok := moduleCache.Modules[name]
+		module, ok := moduleCache.Get(name)
 		if !ok {
 			r.logger.Fatal("Failed to find named module in cache", zap.String("name", name))
 		}
@@ -2407,7 +2526,7 @@ func checkRuntimeLuaVM(logger *zap.Logger, config Config, version string, stdLib
 
 	preload := vm.GetField(vm.GetField(vm.Get(lua.EnvironIndex), "package"), "preload")
 	for _, name := range moduleCache.Names {
-		module, ok := moduleCache.Modules[name]
+		module, ok := moduleCache.Get(name)
 		if !ok {
 			logger.Fatal("Failed to find named module in cache", zap.String("name", name))
 		}
