@@ -5,6 +5,10 @@ The format is based on [keep a changelog](http://keepachangelog.com) and this pr
 
 ## [Unreleased]
 
+## [3.16.0-0.4.0] - 2023-05-08
+### Added
+- Implement Lua script encryption.
+
 ## [3.16.0-0.3.0] - 2023-05-06
 ### Added
 - Add cardrank evaluator, supports wild range of types for poker evaluation.

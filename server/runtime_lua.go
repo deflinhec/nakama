@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -35,6 +34,7 @@ import (
 	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama-common/rtapi"
 	lua "github.com/heroiclabs/nakama/v3/internal/gopher-lua"
+	"github.com/heroiclabs/nakama/v3/secure"
 	"github.com/heroiclabs/nakama/v3/social"
 	"go.uber.org/atomic"
 	"go.uber.org/zap"
@@ -85,11 +85,7 @@ func (m *RuntimeLuaModule) Hotfix(vm *lua.LState) error {
 	vm.Push(lua.LString(lua.StringLibName))
 	vm.Call(1, 0)
 
-	content, err := ioutil.ReadFile(m.Path)
-	if err != nil {
-		return err
-	}
-	f, err := vm.Load(bytes.NewReader(content), m.Name)
+	f, err := vm.Load(bytes.NewReader(m.Content), m.Name)
 	if err != nil {
 		return err
 	}
@@ -97,7 +93,6 @@ func (m *RuntimeLuaModule) Hotfix(vm *lua.LState) error {
 	if err = vm.PCall(0, -1, nil); err != nil {
 		return err
 	}
-	m.Content = content
 	return nil
 }
 
@@ -227,7 +222,7 @@ func (mc *RuntimeLuaModuleCache) Watch(startupLogger, logger *zap.Logger,
 					}
 					fallthrough
 				case fsnotify.Create:
-					content, err := os.ReadFile(event.Name)
+					content, err := secure.ReadFile(event.Name)
 					if err != nil {
 						logger.Warn("An error occurred while reading lua module", zap.Error(err))
 						break
@@ -1473,7 +1468,7 @@ func openLuaModules(logger *zap.Logger, rootPath string, paths []string) (*Runti
 		// Load the file contents into memory.
 		var content []byte
 		var err error
-		if content, err = os.ReadFile(path); err != nil {
+		if content, err = secure.ReadFile(path); err != nil {
 			logger.Error("Could not read Lua module", zap.String("path", path), zap.Error(err))
 			return nil, nil, nil, err
 		}

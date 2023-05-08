@@ -377,6 +377,10 @@ func CheckConfig(logger *zap.Logger, config Config) map[string]string {
 		logger.Warn("WARNING: deprecated configuration parameter", zap.String("deprecated", "runtime.read_only_globals"), zap.String("param", "runtime.lua_read_only_globals"))
 		configWarnings["runtime.read_only_globals"] = "Deprecated configuration parameter"
 	}
+	if config.GetRuntime().EncryptionKey != "" {
+		logger.Warn("WARNING: insecure default parameter value, change this for production!", zap.String("param", "runtime.encryption_key"))
+		configWarnings["runtime.encryption_key"] = "Insecure default parameter value, change this for production!"
+	}
 
 	if l := len(config.GetSocket().ResponseHeaders); l > 0 {
 		config.GetSocket().Headers = make(map[string]string, l)
@@ -866,6 +870,7 @@ type RuntimeConfig struct {
 	JsReadOnlyGlobals  bool              `yaml:"js_read_only_globals" json:"js_read_only_globals" usage:"When enabled marks all Javascript runtime globals as read-only to reduce memory footprint. Default true."`
 	LuaApiStacktrace   bool              `yaml:"lua_api_stacktrace" json:"lua_api_stacktrace" usage:"Include the Lua stacktrace in error responses returned to the client. Default false."`
 	JsEntrypoint       string            `yaml:"js_entrypoint" json:"js_entrypoint" usage:"Specifies the location of the bundled JavaScript runtime source code."`
+	EncryptionKey      string            `yaml:"encryption_key" json:"encryption_key" usage:"Encryption key used to encrypt runtime data."`
 }
 
 // Function to allow backwards compatibility for MinCount config
@@ -926,6 +931,7 @@ func NewRuntimeConfig() *RuntimeConfig {
 		LuaReadOnlyGlobals: true,
 		JsReadOnlyGlobals:  true,
 		LuaApiStacktrace:   false,
+		EncryptionKey:      "",
 	}
 }
 
