@@ -4,6 +4,8 @@ All notable changes to this project are documented below.
 The format is based on [keep a changelog](http://keepachangelog.com) and this project uses [semantic versioning](http://semver.org).
 
 ## [Unreleased]
+### Added
+- Implement Lua script encryption.
 
 ## [3.16.0-0.3.0] - 2023-05-06
 ### Added

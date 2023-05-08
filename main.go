@@ -20,6 +20,7 @@ import (
 	"encoding/binary"
 	"flag"
 	"fmt"
+	"io/fs"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -35,6 +36,7 @@ import (
 	"github.com/heroiclabs/nakama/v3/console"
 	"github.com/heroiclabs/nakama/v3/ga"
 	"github.com/heroiclabs/nakama/v3/migrate"
+	"github.com/heroiclabs/nakama/v3/secure"
 	"github.com/heroiclabs/nakama/v3/server"
 	"github.com/heroiclabs/nakama/v3/social"
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -93,12 +95,49 @@ func main() {
 				os.Exit(1)
 			}
 			return
+		case "encrypt":
+			// Parse any command line args to look up runtime path.
+			// Use full config structure even if not all of its options are available in this command.
+			config := server.NewConfig(tmpLogger)
+			var runtimePath, encryptionKey, outputPath string
+			flags := flag.NewFlagSet("encrypt", flag.ExitOnError)
+			flags.StringVar(&runtimePath, "runtime.path", filepath.Join(config.GetDataDir(), "modules"), "Path for the server to scan for Lua and Go library files.")
+			flags.StringVar(&encryptionKey, "runtime.encryption_key", "defaultencryptionkey", "Encryption key used to encrypt runtime data.")
+			flags.StringVar(&outputPath, "output", filepath.Join(config.GetDataDir(), "modules"), "Encrypted runtime data output path.")
+			if err := flags.Parse(os.Args[2:]); err != nil {
+				tmpLogger.Fatal("Could not parse encrypt flags.")
+			}
+			// Use runtime encryption key.
+			secure.UseKey(encryptionKey)
+			// Walk runtime path and encrypt all Lua files.
+			filepath.WalkDir(runtimePath, func(path string, d fs.DirEntry, err error) error {
+				if d.IsDir() || err != nil {
+					return err
+				}
+				if strings.ToLower(filepath.Ext(path)) != ".lua" {
+					return nil
+				}
+				b, err := os.ReadFile(path)
+				if err != nil {
+					tmpLogger.Fatal("Could not encrypt file.", zap.String("path", path), zap.Error(err))
+					return err
+				}
+				relPath, _ := filepath.Rel(runtimePath, path)
+				path = filepath.Join(outputPath, relPath)
+				os.MkdirAll(filepath.Dir(path), os.ModePerm)
+				secure.WriteFile(path, b, os.ModePerm)
+				return nil
+			})
+			return
 		}
 	}
 
 	config := server.ParseArgs(tmpLogger, os.Args)
 	logger, startupLogger := server.SetupLogging(tmpLogger, config)
 	configWarnings := server.CheckConfig(logger, config)
+
+	// Use runtime encryption key.
+	secure.UseKey(config.GetRuntime().EncryptionKey)
 
 	startupLogger.Info("Nakama starting")
 	startupLogger.Info("Node", zap.String("name", config.GetName()), zap.String("version", semver), zap.String("runtime", runtime.Version()), zap.Int("cpu", runtime.NumCPU()), zap.Int("proc", runtime.GOMAXPROCS(0)))
