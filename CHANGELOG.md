@@ -5,6 +5,11 @@ The format is based on [keep a changelog](http://keepachangelog.com) and this pr
 
 ## [Unreleased]
 
+## [3.16.0-0.4.1] - 2023-05-09
+### Fixed
+- Correctly use of runtime module encryption key.
+- Fix race condition of accessing runtime module encryption key.
+
 ## [3.16.0-0.4.0] - 2023-05-08
 ### Added
 - Implement Lua script encryption.
