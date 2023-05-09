@@ -136,9 +136,6 @@ func main() {
 	logger, startupLogger := server.SetupLogging(tmpLogger, config)
 	configWarnings := server.CheckConfig(logger, config)
 
-	// Use runtime encryption key.
-	secure.UseKey(config.GetRuntime().EncryptionKey)
-
 	startupLogger.Info("Nakama starting")
 	startupLogger.Info("Node", zap.String("name", config.GetName()), zap.String("version", semver), zap.String("runtime", runtime.Version()), zap.Int("cpu", runtime.NumCPU()), zap.Int("proc", runtime.GOMAXPROCS(0)))
 	startupLogger.Info("Data directory", zap.String("path", config.GetDataDir()))
@@ -150,6 +147,12 @@ func main() {
 		seed = time.Now().UnixNano()
 	}
 	rand.Seed(seed)
+
+	// Use runtime encryption key.
+	if len(config.GetRuntime().EncryptionKey) > 0 {
+		secure.UseKey(config.GetRuntime().EncryptionKey)
+		startupLogger.Info("Runtime module encryption enabled")
+	}
 
 	redactedAddresses := make([]string, 0, 1)
 	for _, address := range config.GetDatabase().Addresses {
