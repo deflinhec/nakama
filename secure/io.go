@@ -24,18 +24,24 @@ import (
 	"io/fs"
 	"os"
 	"strings"
+
+	"go.uber.org/atomic"
 )
 
-var encryptionKey string
+var encryptionKey *atomic.String
 
 func UseKey(key string) {
-	encryptionKey = fmt.Sprintf("%32s", key)
+	key = fmt.Sprintf("%32s", key)
+	if encryptionKey == nil {
+		encryptionKey = atomic.NewString(key)
+	} else {
+		encryptionKey.Store(key)
+	}
 }
 
 func ReadFile(path string) ([]byte, error) {
 	content, err := os.ReadFile(path)
-	switch {
-	case len(encryptionKey) == 0:
+	if encryptionKey == nil {
 		return content, err
 	}
 
@@ -48,7 +54,7 @@ func ReadFile(path string) ([]byte, error) {
 		return nil, errors.New("input too short")
 	}
 
-	block, err := aes.NewCipher([]byte(encryptionKey))
+	block, err := aes.NewCipher([]byte(encryptionKey.Load()))
 	if err != nil {
 		return nil, err
 	}
@@ -60,12 +66,11 @@ func ReadFile(path string) ([]byte, error) {
 	stream := cipher.NewCFBDecrypter(block, iv)
 	stream.XORKeyStream(cipherText, cipherText)
 
-	return []byte(cipherText), nil
+	return cipherText, nil
 }
 
 func WriteFile(path string, content []byte, mode fs.FileMode) error {
-	switch {
-	case len(encryptionKey) == 0:
+	if encryptionKey == nil {
 		return os.WriteFile(path, content, os.ModePerm)
 	}
 	input := string(content)
@@ -74,10 +79,7 @@ func WriteFile(path string, content []byte, mode fs.FileMode) error {
 		input += strings.Repeat(" ", 4-maybePad)
 	}
 
-	if len(encryptionKey) != 32 {
-		encryptionKey = fmt.Sprintf("%32s", encryptionKey)
-	}
-	block, err := aes.NewCipher([]byte(encryptionKey))
+	block, err := aes.NewCipher([]byte(encryptionKey.Load()))
 	if err != nil {
 		return err
 	}
