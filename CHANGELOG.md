@@ -5,6 +5,10 @@ The format is based on [keep a changelog](http://keepachangelog.com) and this pr
 
 ## [Unreleased]
 
+## [3.16.0-0.4.2] - 2023-05-10
+### Fixed
+- Regression fix for healthcheck endpoints.
+
 ## [3.16.0-0.4.1] - 2023-05-09
 ### Fixed
 - Correctly use of runtime module encryption key.

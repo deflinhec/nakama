@@ -1,5 +1,5 @@
 # Define
-VERSION=0.4.1
+VERSION=0.4.2
 PROJECT=casino-383511
 COMMIT=$(shell git rev-parse HEAD)
 BUILD=$(shell git rev-parse --short HEAD)
