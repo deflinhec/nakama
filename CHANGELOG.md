@@ -4,6 +4,8 @@ All notable changes to this project are documented below.
 The format is based on [keep a changelog](http://keepachangelog.com) and this project uses [semantic versioning](http://semver.org).
 
 ## [Unreleased]
+
+## [3.16.0-0.4.2] - 2023-05-10
 ### Fixed
 - Regression fix for healthcheck endpoints.
 
