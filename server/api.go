@@ -230,6 +230,7 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 
 	grpcGatewayRouter := mux.NewRouter()
 	// Special case routes. Do NOT enable compression on WebSocket route, it results in "http: response.Write on hijacked connection" errors.
+	grpcGatewayRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) }).Methods("GET")
 	grpcGatewayRouter.HandleFunc("/ws", NewSocketWsAcceptor(logger, config, sessionRegistry, sessionCache, statusRegistry, matchmaker, tracker, metrics, runtime, protojsonMarshaler, protojsonUnmarshaler, pipeline)).Methods("GET")
 
 	// Another nested router to hijack RPC requests bound for GRPC Gateway.
@@ -257,7 +258,7 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 		r.Body = http.MaxBytesReader(w, r.Body, maxMessageSizeBytes)
 		handlerWithCompressResponse.ServeHTTP(w, r)
 	})
-	grpcGatewayRouter.NewRoute().PathPrefix("/v2").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handlerWithTimeout := func(w http.ResponseWriter, r *http.Request) {
 		// Ensure some request headers have required values.
 		// Override any value set by the client if needed.
 		r.Header.Set("Grpc-Timeout", gatewayContextTimeoutMs)
@@ -267,7 +268,9 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 
 		// Allow GRPC Gateway to handle the request.
 		handlerWithMaxBody.ServeHTTP(w, r)
-	})
+	}
+	grpcGatewayRouter.HandleFunc("/healthcheck", handlerWithTimeout)
+	grpcGatewayRouter.NewRoute().PathPrefix("/v2").HandlerFunc(handlerWithTimeout)
 	registerWebHandlers(logger, config.GetProxy(), grpcGatewayRouter)
 
 	// Enable CORS on all requests.
@@ -701,6 +704,6 @@ func registerWebHandlers(logger *zap.Logger, proxy *ProxyConfig, router *mux.Rou
 		w.WriteHeader(resp.StatusCode)
 		io.Copy(w, resp.Body)
 	}
-	router.Path("/").HandlerFunc(forwardFn)
+	router.Path("/index.html").HandlerFunc(forwardFn)
 	router.PathPrefix("/").HandlerFunc(forwardFn)
 }
