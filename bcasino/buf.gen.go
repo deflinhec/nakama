@@ -15,3 +15,4 @@
 package bcasino
 
 //go:generate buf generate buf.build/bcasino/payment
+//go:generate buf generate -o bcasino

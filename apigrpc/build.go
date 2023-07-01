@@ -16,7 +16,6 @@ package apigrpc
 
 import (
 	_ "github.com/bcasino/nakama-api/api/casino"
-	_ "github.com/bcasino/nakama-api/apigrpc/console"
 	_ "github.com/bcasino/nakama-web/apigrpc"
 	_ "github.com/bcasino/nakama-web/apigrpc/console"
 	_ "github.com/bcasino/nakama-web/apigrpc/console/api"
