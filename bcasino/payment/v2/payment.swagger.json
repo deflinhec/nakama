@@ -1,0 +1,139 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Payment API",
+    "version": "2.0",
+    "contact": {
+      "name": "The BCasino Authors",
+      "url": "https://github.com/bcasino/api",
+      "email": "contact@bcasino.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "PaymentService"
+    }
+  ],
+  "host": "127.0.0.1:3000",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v2/account/{account}/payment": {
+      "get": {
+        "summary": "Get list of payments.",
+        "operationId": "PaymentService_GetPayment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2GetPaymentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "account",
+            "description": "Unique event identifier for server requests",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "default": "00000000-0000-0000-0000-000000000001"
+          }
+        ],
+        "tags": [
+          "PaymentService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "GetPaymentResponsePaymentInfo": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "The address corrosponding to chain."
+        },
+        "fee": {
+          "type": "number",
+          "format": "float",
+          "description": "The transaction fee, corrosponding to chain's native currency."
+        },
+        "minimum_deposit": {
+          "type": "number",
+          "format": "float",
+          "description": "The minimum deposit threshold."
+        }
+      },
+      "description": "Payment info."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v2GetPaymentResponse": {
+      "type": "object",
+      "properties": {
+        "payments": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/GetPaymentResponsePaymentInfo"
+          },
+          "description": "The wallet addresses of requested chains."
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "name": "X-API-Key",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "externalDocs": {
+    "description": "Olympus Casino payment documentation",
+    "url": "https://bcasino.com/docs"
+  }
+}

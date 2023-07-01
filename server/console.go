@@ -28,13 +28,13 @@ import (
 	"strings"
 	"time"
 
-	console_0 "github.com/bcasino/nakama-api/apigrpc/console"
 	console_1 "github.com/bcasino/nakama-web/apigrpc/console"
 	"github.com/gofrs/uuid"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	grpcgw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	walletv2 "github.com/heroiclabs/nakama/v3/bcasino/wallet/v2"
 	"github.com/heroiclabs/nakama/v3/console"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -126,9 +126,9 @@ var restrictedMethods = map[string]console.UserRole{
 	"/nakama.console.Console/UnlinkSteam":               console.UserRole_USER_ROLE_MAINTAINER,
 
 	// Wallet
-	"/nakama.console.ext.Wallet/GetWalletBalance":           console.UserRole_USER_ROLE_MAINTAINER,
-	"/nakama.console.ext.Wallet/DepositFromWalletProvider":  console.UserRole_USER_ROLE_MAINTAINER,
-	"/nakama.console.ext.Wallet/WithdrawFromWalletProvider": console.UserRole_USER_ROLE_MAINTAINER,
+	"/bcasino.wallet.v2.WalletService/GetBalance": console.UserRole_USER_ROLE_READONLY,
+	"/bcasino.wallet.v2.WalletService/Deposit":    console.UserRole_USER_ROLE_MAINTAINER,
+	"/bcasino.wallet.v2.WalletService/Withdraw":   console.UserRole_USER_ROLE_MAINTAINER,
 
 	// User
 	"/nakama.console.Console/AddUser":    console.UserRole_USER_ROLE_ADMIN,
@@ -142,8 +142,8 @@ type ctxConsoleRoleKey struct{}
 
 type ConsoleServer struct {
 	console.UnimplementedConsoleServer
-	console_0.UnimplementedWalletServer
 	console_1.UnimplementedTunnelServer
+	walletv2.UnimplementedWalletServiceServer
 	logger               *zap.Logger
 	db                   *sql.DB
 	config               Config
@@ -224,8 +224,8 @@ func StartConsoleServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.D
 	}
 
 	console.RegisterConsoleServer(grpcServer, s)
-	console_0.RegisterWalletServer(grpcServer, s)
 	console_1.RegisterTunnelServer(grpcServer, s)
+	walletv2.RegisterWalletServiceServer(grpcServer, s)
 	startupLogger.Info("Starting Console server for gRPC requests", zap.Int("port", config.GetConsole().Port-3))
 	go func() {
 		listener, err := net.Listen("tcp", fmt.Sprintf("%v:%d", config.GetConsole().Address, config.GetConsole().Port-3))
@@ -268,7 +268,7 @@ func StartConsoleServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.D
 	if err := console.RegisterConsoleHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("Console server gateway registration failed", zap.Error(err))
 	}
-	if err := console_0.RegisterWalletHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+	if err := walletv2.RegisterWalletServiceHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("Console wallet server gateway registration failed", zap.Error(err))
 	}
 	if err := console_1.RegisterTunnelHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
