@@ -113,14 +113,8 @@ func (s *ConsoleServer) extractApiCallContext(ctx context.Context, in *console.C
 	apiPrefix := "/nakama.api.Nakama/"
 	if _, ok := reflect.TypeOf(s.api.UnimplementedWebForwardServer).MethodByName(in.Method); ok {
 		apiPrefix = "/nakama.web.WebForward/"
-	} else if _, ok := reflect.TypeOf(s.api.UnimplementedWalletServer).MethodByName(in.Method); ok {
-		apiPrefix = "/nakama.casino.Wallet/"
-	}
-
-	switch apiPrefix + in.Method {
-	case "/nakama.casino.Wallet/QueryChainsFromWalletProvider":
-		callCtx = context.WithValue(ctx, ctxFullMethodKey{}, apiPrefix+in.Method)
-		return callCtx, nil
+	} else if _, ok := reflect.TypeOf(s.api.UnimplementedPaymentServiceServer).MethodByName(in.Method); ok {
+		apiPrefix = "/bcasino.payment.v2.PaymentService/"
 	}
 
 	if apiPrefix == "/nakama.web.WebForward/" {
