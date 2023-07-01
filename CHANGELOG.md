@@ -6,9 +6,15 @@ The format is based on [keep a changelog](http://keepachangelog.com) and this pr
 ## [Unreleased]
 
 ## [3.16.0-0.5.0] - 2023-07-01
+
+### Fixed
+- Storage object save behaviour under Json Editor tree view.
+
 ### Changed
 - Implement payment service.
 - Refine wallet api endpoints.
+- Replace Ace editor to Json Editor.
+- Make Json Editor default to text view.
 
 ## [3.16.0-0.4.3] - 2023-05-18
 ### Fixed
