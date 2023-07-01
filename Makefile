@@ -1,5 +1,5 @@
 # Define
-VERSION=0.4.3
+VERSION=0.5.0
 PROJECT=casino-383511
 COMMIT=$(shell git rev-parse HEAD)
 BUILD=$(shell git rev-parse --short HEAD)
@@ -29,7 +29,7 @@ generate:
 
 .PHONY: upgrade
 upgrade: export GOPRIVATE=github.com/bcasino
-upgrade: 
+upgrade:
 	go get github.com/bcasino/nakama-web && \
 	go get github.com/bcasino/nakama-api && \
 	go mod tidy && go mod vendor
