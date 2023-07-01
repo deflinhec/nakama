@@ -5,6 +5,11 @@ The format is based on [keep a changelog](http://keepachangelog.com) and this pr
 
 ## [Unreleased]
 
+## [3.16.0-0.5.0] - 2023-07-01
+### Changed
+- Implement payment service.
+- Refine wallet api endpoints.
+
 ## [3.16.0-0.4.3] - 2023-05-18
 ### Fixed
 - Lua modulo from yuin/gopher-lua #412.
