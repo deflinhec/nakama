@@ -15,27 +15,26 @@
 package server
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"io/ioutil"
-	"net/http"
-	"net/url"
 
 	"github.com/gofrs/uuid"
+	paymentv2 "github.com/heroiclabs/nakama/v3/bcasino/payment/v2"
 
-	api "github.com/bcasino/nakama-api/api/casino"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *ApiServer) AuthorizeWalletProvider(ctx context.Context, in *emptypb.Empty) (*emptypb.Empty, error) {
+func (s *ApiServer) GetPayment(ctx context.Context, in *paymentv2.GetPaymentRequest) (*paymentv2.GetPaymentResponse, error) {
 	userID, ok := ctx.Value(ctxUserIDKey{}).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Unauthenticated, "User ID missing from context.")
+	}
+
+	if in.Account != userID.String() {
+		return nil, status.Error(codes.InvalidArgument, "Account ID does not match authenticated user.")
 	}
 
 	_, err := GetAccount(ctx, s.logger, s.db, s.statusRegistry, userID)
@@ -46,101 +45,34 @@ func (s *ApiServer) AuthorizeWalletProvider(ctx context.Context, in *emptypb.Emp
 		return nil, status.Error(codes.Internal, "Error retrieving user account.")
 	}
 
-	// Wallet provider api specification
-	context, err := json.Marshal(&struct {
-		Account  string `json:"account"`
-		Password string `json:"password"`
-		Email    string `json:"email"`
-	}{
-		Account:  userID.String(),
-		Password: userID.String(),
-		Email:    userID.String(),
-	})
-	if err != nil {
-		return nil, status.Error(codes.Internal, "Error marshaling payload.")
+	// Logout and disconnect.
+	var response *paymentv2.GetPaymentResponse
+	if conn, err := grpc.DialContext(ctx, s.config.GetWallet().Address,
+		grpc.WithTransportCredentials(insecure.NewCredentials())); err != nil {
+		s.logger.Warn("Error retrieving address info from wallet provider",
+			zap.String("user_id", userID.String()),
+			zap.Error(err))
+		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
+	} else if response, err = paymentv2.NewPaymentServiceClient(conn).GetPayment(
+		ctx, &paymentv2.GetPaymentRequest{Account: userID.String()}); err != nil {
+		s.logger.Warn("Error retrieving address info from wallet provider",
+			zap.String("user_id", userID.String()),
+			zap.Error(err))
+		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
+	} else if response == nil {
+		s.logger.Warn("Error retrieving address info from wallet provider",
+			zap.String("user_id", userID.String()),
+			zap.Error(err))
+		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
 	}
-	_, err = http.Post((&url.URL{
-		Scheme: "http", Path: "/registerAccount",
-		Host: s.config.GetWallet().Address,
-	}).String(), "application/json", bytes.NewReader(context))
-	if err != nil {
-		s.logger.Warn("Error authorize wallet provider.", zap.Error(err))
-		return nil, status.Error(codes.Internal, "Error authorize wallet provider.")
-	}
-	return &emptypb.Empty{}, nil
-}
 
-func (s *ApiServer) QueryChainsFromWalletProvider(ctx context.Context, in *emptypb.Empty) (*api.ChainResponse, error) {
-	// Wallet provider api specification
-	res, err := http.Get((&url.URL{
-		Scheme: "http", Path: "/getChainList",
-		Host: s.config.GetWallet().Address,
-	}).String())
-	if err != nil {
-		s.logger.Warn("Error retrieving chain info from wallet provider.", zap.Error(err))
-		return nil, status.Error(codes.Internal, "Error retrieving chain info from wallet provider.")
+	for chain, payment := range response.Payments {
+		s.logger.Info("Payment info",
+			zap.String("chain", chain),
+			zap.Float32("fee", payment.GetFee()),
+			zap.String("address", payment.GetAddress()),
+			zap.Float32("minimum_deposit", payment.GetMinimumDeposit()))
 	}
-	b, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		s.logger.Warn("Error retrieving chain info from wallet provider.", zap.Error(err))
-		return nil, status.Error(codes.Internal, "Error retrieving chain info from wallet provider.")
-	}
-	response := &api.ChainResponse{}
-	err = (&protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(b, response)
-	if err != nil {
-		s.logger.Warn("Error retrieving chain info from wallet provider.", zap.Error(err))
-		return nil, status.Error(codes.Internal, "Error retrieving chain info from wallet provider.")
-	}
+
 	return response, nil
-}
-
-func (s *ApiServer) RetrieveAddressFromWalletProvider(ctx context.Context, in *api.AddressRequest) (*api.AddressResponse, error) {
-	userID, ok := ctx.Value(ctxUserIDKey{}).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Unauthenticated, "User ID missing from context.")
-	}
-
-	_, err := GetAccount(ctx, s.logger, s.db, s.statusRegistry, userID)
-	if err != nil {
-		if err == ErrAccountNotFound {
-			return nil, status.Error(codes.NotFound, "Account not found.")
-		}
-		return nil, status.Error(codes.Internal, "Error retrieving user account.")
-	}
-
-	// Wallet provider api specification
-	context, err := json.Marshal(&struct {
-		Account   string `json:"account"`
-		ChainName string `json:"chainName"`
-	}{
-		Account:   userID.String(),
-		ChainName: in.Chain,
-	})
-	if err != nil {
-		return nil, status.Error(codes.Internal, "Error marshaling payload.")
-	}
-	res, err := http.Post((&url.URL{
-		Scheme: "http", Path: "/getWalletInfo",
-		Host: s.config.GetWallet().Address,
-	}).String(), "application/json", bytes.NewReader(context))
-	if err != nil {
-		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
-		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
-	}
-	b, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
-		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
-	}
-	response := struct {
-		Info struct {
-			Address string `json:"address"`
-		} `json:"info"`
-	}{}
-	err = json.Unmarshal(b, response)
-	if err != nil {
-		s.logger.Warn("Error retrieving address info from wallet provider.", zap.Error(err))
-		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
-	}
-	return &api.AddressResponse{Address: response.Info.Address}, nil
 }
