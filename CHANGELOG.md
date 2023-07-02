@@ -5,7 +5,11 @@ The format is based on [keep a changelog](http://keepachangelog.com) and this pr
 
 ## [Unreleased]
 
-## [3.16.0-0.5.0] - 2023-07-01s
+## [3.16.0-0.5.0] - 2023-07-02
+### Changed
+- Change buf.build codegen folder structure.
+
+## [3.16.0-0.5.0] - 2023-07-01
 ### Fixed
 - Storage object save behaviour under Json Editor tree view.
 
