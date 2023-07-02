@@ -5,7 +5,7 @@ The format is based on [keep a changelog](http://keepachangelog.com) and this pr
 
 ## [Unreleased]
 
-## [3.16.0-0.5.0] - 2023-07-02
+## [3.16.0-0.5.1] - 2023-07-02
 ### Changed
 - Change buf.build codegen folder structure.
 
