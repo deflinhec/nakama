@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package bcasino
+package main
 
 //go:generate buf generate buf.build/bcasino/payment
-//go:generate buf generate -o bcasino
+//go:generate buf generate proto
