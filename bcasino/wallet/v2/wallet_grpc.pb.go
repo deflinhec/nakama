@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             (unknown)
-// source: wallet/v2/wallet.proto
+// source: bcasino/wallet/v2/wallet.proto
 
 package walletv2
 
@@ -179,5 +179,5 @@ var WalletService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "wallet/v2/wallet.proto",
+	Metadata: "bcasino/wallet/v2/wallet.proto",
 }
