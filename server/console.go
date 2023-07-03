@@ -35,6 +35,7 @@ import (
 	grpcgw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	apictrl "github.com/heroiclabs/nakama/v3/apigrpc/control/v2"
 	apiwallet "github.com/heroiclabs/nakama/v3/apigrpc/wallet/v2"
+	apiweb "github.com/heroiclabs/nakama/v3/apigrpc/webapp/v2"
 	"github.com/heroiclabs/nakama/v3/console"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -133,6 +134,9 @@ var restrictedMethods = map[string]console.UserRole{
 	// Control
 	"/elysiumrealms.control.v2.ControlService/KickAccount": console.UserRole_USER_ROLE_MAINTAINER,
 
+	// WebApp
+	"/elysiumrealms.webapp.v2.WebApp/ListFeatures": console.UserRole_USER_ROLE_READONLY,
+
 	// User
 	"/nakama.console.Console/AddUser":    console.UserRole_USER_ROLE_ADMIN,
 	"/nakama.console.Console/DeleteUser": console.UserRole_USER_ROLE_ADMIN,
@@ -147,6 +151,7 @@ type ConsoleServer struct {
 	console.UnimplementedConsoleServer
 	apictrl.UnimplementedControlServiceServer
 	apiwallet.UnimplementedWalletServiceServer
+	apiweb.UnimplementedWebAppServer
 	logger               *zap.Logger
 	db                   *sql.DB
 	config               Config
@@ -229,6 +234,7 @@ func StartConsoleServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.D
 	console.RegisterConsoleServer(grpcServer, s)
 	apictrl.RegisterControlServiceServer(grpcServer, s)
 	apiwallet.RegisterWalletServiceServer(grpcServer, s)
+	apiweb.RegisterWebAppServer(grpcServer, s)
 	startupLogger.Info("Starting Console server for gRPC requests", zap.Int("port", config.GetConsole().Port-3))
 	go func() {
 		listener, err := net.Listen("tcp", fmt.Sprintf("%v:%d", config.GetConsole().Address, config.GetConsole().Port-3))
@@ -275,6 +281,9 @@ func StartConsoleServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.D
 		startupLogger.Fatal("Console wallet server gateway registration failed", zap.Error(err))
 	}
 	if err := apictrl.RegisterControlServiceHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+		startupLogger.Fatal("Console wallet server gateway registration failed", zap.Error(err))
+	}
+	if err := apiweb.RegisterWebAppHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("Console wallet server gateway registration failed", zap.Error(err))
 	}
 
@@ -469,8 +478,12 @@ func consoleInterceptorFunc(logger *zap.Logger, config Config, sessionCache Sess
 		if info.FullMethod == "/nakama.console.Console/AuthenticateLogout" {
 			return handler(ctx, req)
 		}
-		if strings.HasPrefix(info.FullMethod, "/elysiumrealms.control.v2.ControlService/") {
-			// Skip authentication check for Console tunnel endpoint.
+		if strings.HasPrefix(info.FullMethod, "/elysiumrealms.control") {
+			// Skip authentication check for Console Control endpoint.
+			return handler(ctx, req)
+		}
+		if strings.HasPrefix(info.FullMethod, "/elysiumrealms.webapp") {
+			// Skip authentication check for Console WebApp endpoint.
 			return handler(ctx, req)
 		}
 
