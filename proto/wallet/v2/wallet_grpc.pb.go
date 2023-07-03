@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             (unknown)
-// source: bcasino/wallet/v2/wallet.proto
+// source: wallet/v2/wallet.proto
 
 package walletv2
 
@@ -40,7 +40,7 @@ func NewWalletServiceClient(cc grpc.ClientConnInterface) WalletServiceClient {
 
 func (c *walletServiceClient) Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositResponse, error) {
 	out := new(DepositResponse)
-	err := c.cc.Invoke(ctx, "/bcasino.wallet.v2.WalletService/Deposit", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/elysiumrealms.wallet.v2.WalletService/Deposit", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (c *walletServiceClient) Deposit(ctx context.Context, in *DepositRequest, o
 
 func (c *walletServiceClient) Withdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*WithdrawResponse, error) {
 	out := new(WithdrawResponse)
-	err := c.cc.Invoke(ctx, "/bcasino.wallet.v2.WalletService/Withdraw", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/elysiumrealms.wallet.v2.WalletService/Withdraw", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *walletServiceClient) Withdraw(ctx context.Context, in *WithdrawRequest,
 
 func (c *walletServiceClient) GetBalance(ctx context.Context, in *GetBalanceRequest, opts ...grpc.CallOption) (*GetBalanceResponse, error) {
 	out := new(GetBalanceResponse)
-	err := c.cc.Invoke(ctx, "/bcasino.wallet.v2.WalletService/GetBalance", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/elysiumrealms.wallet.v2.WalletService/GetBalance", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func _WalletService_Deposit_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bcasino.wallet.v2.WalletService/Deposit",
+		FullMethod: "/elysiumrealms.wallet.v2.WalletService/Deposit",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(WalletServiceServer).Deposit(ctx, req.(*DepositRequest))
@@ -132,7 +132,7 @@ func _WalletService_Withdraw_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bcasino.wallet.v2.WalletService/Withdraw",
+		FullMethod: "/elysiumrealms.wallet.v2.WalletService/Withdraw",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(WalletServiceServer).Withdraw(ctx, req.(*WithdrawRequest))
@@ -150,7 +150,7 @@ func _WalletService_GetBalance_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bcasino.wallet.v2.WalletService/GetBalance",
+		FullMethod: "/elysiumrealms.wallet.v2.WalletService/GetBalance",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(WalletServiceServer).GetBalance(ctx, req.(*GetBalanceRequest))
@@ -162,7 +162,7 @@ func _WalletService_GetBalance_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var WalletService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "bcasino.wallet.v2.WalletService",
+	ServiceName: "elysiumrealms.wallet.v2.WalletService",
 	HandlerType: (*WalletServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -179,5 +179,5 @@ var WalletService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "bcasino/wallet/v2/wallet.proto",
+	Metadata: "wallet/v2/wallet.proto",
 }

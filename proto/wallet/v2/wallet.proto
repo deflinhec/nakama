@@ -14,7 +14,7 @@
 
 syntax = "proto3";
 
-package bcasino.wallet.v2;
+package elysiumrealms.wallet.v2;
 
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -24,15 +24,15 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     title: "Wallet API v2";
     version: "2.0";
     contact: {
-      name: "The BCasino Authors";
-      url: "https://github.com/bcasino/api";
-      email: "contact@bcasino.com";
+      name: "The Elysium Realms Authors";
+      url: "https://elysiumrealms.co/contact";
+      email: "contact@mail.elysiumrealms.co";
     };
   };
   host: "127.0.0.1:7351";
   external_docs: {
-    url: "https://bcasino.com/docs"
-    description: "Olympus Casino payment documentation"
+    url: "https://elysiumrealms.co/docs/wallet"
+    description: "Elysium Realms wallet documentation"
   };
   schemes: HTTP;
   consumes: "application/json";

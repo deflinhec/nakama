@@ -34,8 +34,8 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	grpcgw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	walletv2 "github.com/heroiclabs/nakama/v3/bcasino/wallet/v2"
 	"github.com/heroiclabs/nakama/v3/console"
+	walletv2 "github.com/heroiclabs/nakama/v3/proto/wallet/v2"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -126,9 +126,9 @@ var restrictedMethods = map[string]console.UserRole{
 	"/nakama.console.Console/UnlinkSteam":               console.UserRole_USER_ROLE_MAINTAINER,
 
 	// Wallet
-	"/bcasino.wallet.v2.WalletService/GetBalance": console.UserRole_USER_ROLE_READONLY,
-	"/bcasino.wallet.v2.WalletService/Deposit":    console.UserRole_USER_ROLE_MAINTAINER,
-	"/bcasino.wallet.v2.WalletService/Withdraw":   console.UserRole_USER_ROLE_MAINTAINER,
+	"/elysiumrealms.wallet.v2.WalletService/GetBalance": console.UserRole_USER_ROLE_READONLY,
+	"/elysiumrealms.wallet.v2.WalletService/Deposit":    console.UserRole_USER_ROLE_MAINTAINER,
+	"/elysiumrealms.wallet.v2.WalletService/Withdraw":   console.UserRole_USER_ROLE_MAINTAINER,
 
 	// User
 	"/nakama.console.Console/AddUser":    console.UserRole_USER_ROLE_ADMIN,

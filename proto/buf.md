@@ -1,3 +1,3 @@
-## BCasino Wallet APIs
+## Elysium Realms Wallet APIs
 
-This module contains all the APIs required to interact with the `Wallet service`.
+This module contains all the APIs required to interact with the `WalletService`.
