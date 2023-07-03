@@ -1,0 +1,286 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Wallet API v2",
+    "version": "2.0",
+    "contact": {
+      "name": "The Elysium Realms Authors",
+      "url": "https://elysiumrealms.co/contact",
+      "email": "contact@mail.elysiumrealms.co"
+    }
+  },
+  "tags": [
+    {
+      "name": "WalletService"
+    }
+  ],
+  "host": "127.0.0.1:7351",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v2/console/wallet/{currency}/deposit": {
+      "post": {
+        "summary": "Deposit amount of currency to user account.",
+        "operationId": "WalletService_Deposit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2DepositResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "currency",
+            "description": "The currency type.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "The user ID this wallet item belongs to."
+                },
+                "order_id": {
+                  "type": "string",
+                  "description": "The order id of transaction."
+                },
+                "amount": {
+                  "type": "string",
+                  "format": "int64",
+                  "description": "The amount to deposit."
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "WalletService"
+        ]
+      }
+    },
+    "/v2/console/wallet/{currency}/withdraw": {
+      "post": {
+        "summary": "Withdraw amount of currency from user account.",
+        "operationId": "WalletService_Withdraw",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2WithdrawResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "currency",
+            "description": "The currency type.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "string",
+                  "description": "The user ID this wallet item belongs to."
+                },
+                "order_id": {
+                  "type": "string",
+                  "description": "The order id of transaction."
+                },
+                "amount": {
+                  "type": "string",
+                  "format": "int64",
+                  "description": "The amount to withdraw."
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "WalletService"
+        ]
+      }
+    },
+    "/v2/console/wallet/{currency}/{user_id}": {
+      "get": {
+        "summary": "Get currency balance of from user account.",
+        "operationId": "WalletService_GetBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2GetBalanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "currency",
+            "description": "The currency type.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user_id",
+            "description": "The user ID this wallet item belongs to.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "WalletService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v2Balance": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "type": "string",
+          "description": "The currency type."
+        },
+        "balance": {
+          "type": "string",
+          "format": "int64",
+          "description": "The amount to withdraw."
+        }
+      }
+    },
+    "v2DepositResponse": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "The user ID this wallet item belongs to."
+        },
+        "order_id": {
+          "type": "string",
+          "description": "The order id of transaction."
+        },
+        "balance": {
+          "$ref": "#/definitions/v2Balance",
+          "description": "The balance after deposit."
+        }
+      }
+    },
+    "v2GetBalanceResponse": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "type": "string",
+          "description": "The currency type."
+        },
+        "balance": {
+          "type": "string",
+          "format": "int64",
+          "description": "The amount to withdraw."
+        }
+      }
+    },
+    "v2WithdrawResponse": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "The user ID this wallet item belongs to."
+        },
+        "order_id": {
+          "type": "string",
+          "description": "The order id of transaction."
+        },
+        "balance": {
+          "$ref": "#/definitions/v2Balance",
+          "description": "The balance after withdraw."
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "BasicAuth": {
+      "type": "basic"
+    },
+    "BearerJwt": {
+      "type": ""
+    }
+  },
+  "security": [
+    {
+      "BearerJwt": []
+    }
+  ],
+  "externalDocs": {
+    "description": "Elysium Realms wallet documentation",
+    "url": "https://elysiumrealms.co/docs/wallet"
+  }
+}

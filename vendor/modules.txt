@@ -11,16 +11,6 @@ github.com/armon/go-metrics
 # github.com/axiomhq/hyperloglog v0.0.0-20191112132149-a4c4c47bc57f
 ## explicit; go 1.12
 github.com/axiomhq/hyperloglog
-# github.com/bcasino/nakama-api v0.1.3
-## explicit; go 1.19
-github.com/bcasino/nakama-api/api/casino
-github.com/bcasino/nakama-api/apigrpc/console
-# github.com/bcasino/nakama-web v0.1.9
-## explicit; go 1.19
-github.com/bcasino/nakama-web/api
-github.com/bcasino/nakama-web/apigrpc
-github.com/bcasino/nakama-web/apigrpc/console
-github.com/bcasino/nakama-web/apigrpc/console/api
 # github.com/beorn7/perks v1.0.1
 ## explicit; go 1.11
 github.com/beorn7/perks/quantile

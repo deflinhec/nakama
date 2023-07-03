@@ -1,14 +1,11 @@
 version: v1
-name: buf.build/bcasino/wallet
+name: buf.build/elysiumrealms/nakama
 deps:
   - buf.build/googleapis/googleapis
   - buf.build/grpc-ecosystem/grpc-gateway
 breaking:
   use:
     - FILE
-build:
-  excludes:
-    - payment/
 lint:
   use:
     - DEFAULT
