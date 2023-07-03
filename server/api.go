@@ -34,7 +34,6 @@ import (
 	"strings"
 	"time"
 
-	apigrpc_1 "github.com/bcasino/nakama-web/apigrpc"
 	"github.com/gofrs/uuid"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/handlers"
@@ -42,7 +41,8 @@ import (
 	grpcgw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama/v3/apigrpc"
-	paymentv2 "github.com/heroiclabs/nakama/v3/bcasino/payment/v2"
+	apipay "github.com/heroiclabs/nakama/v3/apigrpc/payment/v2"
+	apiweb "github.com/heroiclabs/nakama/v3/apigrpc/webapp/v2"
 	"github.com/heroiclabs/nakama/v3/social"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -70,8 +70,8 @@ type ctxFullMethodKey struct{}
 
 type ApiServer struct {
 	apigrpc.UnimplementedNakamaServer
-	apigrpc_1.UnimplementedWebForwardServer
-	paymentv2.UnimplementedPaymentServiceServer
+	apiweb.UnimplementedWebAppServer
+	apipay.UnimplementedPaymentServiceServer
 	logger               *zap.Logger
 	db                   *sql.DB
 	config               Config
@@ -146,8 +146,8 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 
 	// Register and start GRPC server.
 	apigrpc.RegisterNakamaServer(grpcServer, s)
-	apigrpc_1.RegisterWebForwardServer(grpcServer, s)
-	paymentv2.RegisterPaymentServiceServer(grpcServer, s)
+	apiweb.RegisterWebAppServer(grpcServer, s)
+	apipay.RegisterPaymentServiceServer(grpcServer, s)
 	startupLogger.Info("Starting API server for gRPC requests", zap.Int("port", config.GetSocket().Port-1))
 	go func() {
 		listener, err := net.Listen("tcp", fmt.Sprintf("%v:%d", config.GetSocket().Address, config.GetSocket().Port-1))
@@ -218,10 +218,10 @@ func StartApiServer(logger *zap.Logger, startupLogger *zap.Logger, db *sql.DB, p
 	if err := apigrpc.RegisterNakamaHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("API server gateway registration failed", zap.Error(err))
 	}
-	if err := apigrpc_1.RegisterWebForwardHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+	if err := apiweb.RegisterWebAppHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("API web server gateway registration failed", zap.Error(err))
 	}
-	if err := paymentv2.RegisterPaymentServiceHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
+	if err := apipay.RegisterPaymentServiceHandlerFromEndpoint(ctx, grpcGateway, dialAddr, dialOpts); err != nil {
 		startupLogger.Fatal("API payment server gateway registration failed", zap.Error(err))
 	}
 	//if err := apigrpc.RegisterNakamaHandlerServer(ctx, grpcGateway, s); err != nil {
@@ -361,7 +361,7 @@ func forwardInterceptorFunc(logger *zap.Logger, config Config, ctx context.Conte
 							zap.String("method", info.FullMethod), zap.Error(err))
 						return nil, status.Error(codes.Unavailable, "Service unavaliable.")
 					}
-					client := apigrpc_1.NewWebForwardClient(conn)
+					client := apiweb.NewWebAppClient(conn)
 					fnName := strings.TrimPrefix(info.FullMethod, "/nakama.web.WebForward/")
 					method, ok := reflect.TypeOf(client).MethodByName(fnName)
 					if !ok {

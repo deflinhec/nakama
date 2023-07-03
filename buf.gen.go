@@ -14,5 +14,6 @@
 
 package main
 
-//go:generate buf generate buf.build/bcasino/payment
+//go:generate buf generate buf.build/elysiumrealms/nakamahub
+//go:generate buf generate buf.build/elysiumrealms/payment-gateway
 //go:generate buf generate proto
