@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/gofrs/uuid"
-	paymentv2 "github.com/heroiclabs/nakama/v3/proto/payment/v2"
+	apipay "github.com/heroiclabs/nakama/v3/apigrpc/payment/v2"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -27,7 +27,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *ApiServer) GetPayment(ctx context.Context, in *paymentv2.GetPaymentRequest) (*paymentv2.GetPaymentResponse, error) {
+func (s *ApiServer) GetPayment(ctx context.Context, in *apipay.GetPaymentRequest) (*apipay.GetPaymentResponse, error) {
 	userID, ok := ctx.Value(ctxUserIDKey{}).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Unauthenticated, "User ID missing from context.")
@@ -46,15 +46,15 @@ func (s *ApiServer) GetPayment(ctx context.Context, in *paymentv2.GetPaymentRequ
 	}
 
 	// Logout and disconnect.
-	var response *paymentv2.GetPaymentResponse
+	var response *apipay.GetPaymentResponse
 	if conn, err := grpc.DialContext(ctx, s.config.GetWallet().Address,
 		grpc.WithTransportCredentials(insecure.NewCredentials())); err != nil {
 		s.logger.Warn("Error retrieving address info from wallet provider",
 			zap.String("user_id", userID.String()),
 			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
-	} else if response, err = paymentv2.NewPaymentServiceClient(conn).GetPayment(
-		ctx, &paymentv2.GetPaymentRequest{Account: userID.String()}); err != nil {
+	} else if response, err = apipay.NewPaymentServiceClient(conn).GetPayment(
+		ctx, &apipay.GetPaymentRequest{Account: userID.String()}); err != nil {
 		s.logger.Warn("Error retrieving address info from wallet provider",
 			zap.String("user_id", userID.String()),
 			zap.Error(err))
@@ -64,14 +64,6 @@ func (s *ApiServer) GetPayment(ctx context.Context, in *paymentv2.GetPaymentRequ
 			zap.String("user_id", userID.String()),
 			zap.Error(err))
 		return nil, status.Error(codes.Internal, "Error retrieving address info from wallet provider.")
-	}
-
-	for chain, payment := range response.Payments {
-		s.logger.Info("Payment info",
-			zap.String("chain", chain),
-			zap.Float32("fee", payment.GetFee()),
-			zap.String("address", payment.GetAddress()),
-			zap.Float32("minimum_deposit", payment.GetMinimumDeposit()))
 	}
 
 	return response, nil

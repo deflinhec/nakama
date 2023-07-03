@@ -1,20 +1,17 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Nakama web API v2",
+    "title": "WebApp API v2",
     "version": "2.0",
     "contact": {
-      "name": "Deflinhec \u0026 Contributors",
-      "url": "https://github.com/heroiclabs/nakama",
-      "email": "hello@deflinhec.dev"
+      "name": "The Elysium Realms Authors",
+      "url": "https://elysiumrealms.co/contact",
+      "email": "contact@mail.elysiumrealms.co"
     }
   },
   "tags": [
     {
-      "name": "Web"
-    },
-    {
-      "name": "WebForward"
+      "name": "WebApp"
     }
   ],
   "host": "127.0.0.1:8350",
@@ -28,34 +25,10 @@
     "application/json"
   ],
   "paths": {
-    "/healthcheck": {
-      "get": {
-        "summary": "A healthcheck which load balancers can use to check the service.",
-        "operationId": "Web_Healthcheck",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {}
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "tags": [
-          "Web"
-        ]
-      }
-    },
     "/v2/account/password/renew": {
       "post": {
-        "summary": "Verfiy password from web ui.",
-        "operationId": "WebForward_VerifyPasswordRenewal",
+        "summary": "Verfiy password renewal.",
+        "operationId": "WebApp_VerifyPasswordReset",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -74,23 +47,23 @@
         "parameters": [
           {
             "name": "body",
-            "description": "Verfiy password after verfied.",
+            "description": "Verfiy password reset request.",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiVerifyPasswordRenewalRequest"
+              "$ref": "#/definitions/v2VerifyPasswordResetRequest"
             }
           }
         ],
         "tags": [
-          "WebForward"
+          "WebApp"
         ]
       }
     },
     "/v2/account/password/reset": {
       "post": {
         "summary": "Send password reset email.",
-        "operationId": "WebForward_SendPasswordResetEmail",
+        "operationId": "WebApp_SendPasswordResetLink",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -109,23 +82,23 @@
         "parameters": [
           {
             "name": "body",
-            "description": "Submit a email verification request.",
+            "description": "An email request.",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiEmail"
+              "$ref": "#/definitions/v2EmailRequest"
             }
           }
         ],
         "tags": [
-          "WebForward"
+          "WebApp"
         ]
       }
     },
     "/v2/account/verify/code": {
       "post": {
-        "summary": "Send email verification.",
-        "operationId": "WebForward_SendEmailVerificationCode",
+        "summary": "Send email register code.",
+        "operationId": "WebApp_SendEmailRegisterCode",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -144,23 +117,63 @@
         "parameters": [
           {
             "name": "body",
-            "description": "Submit a email verification request.",
+            "description": "An email request.",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiEmail"
+              "$ref": "#/definitions/v2EmailRequest"
             }
           }
         ],
         "tags": [
-          "WebForward"
+          "WebApp"
+        ]
+      }
+    },
+    "/v2/account/verify/code/{code}": {
+      "post": {
+        "summary": "Verfiy verification code.",
+        "operationId": "WebApp_VerifyRegisterCode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "code",
+            "description": "The code which sent towards the email.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "description": "The email address.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "WebApp"
         ]
       }
     },
     "/v2/account/verify/link": {
       "post": {
-        "summary": "Send email verification.",
-        "operationId": "WebForward_SendEmailVerificationLink",
+        "summary": "Send email verify link.",
+        "operationId": "WebApp_SendEmailVerifyLink",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -179,23 +192,23 @@
         "parameters": [
           {
             "name": "body",
-            "description": "Submit a email verification request.",
+            "description": "An email request.",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiEmail"
+              "$ref": "#/definitions/v2EmailRequest"
             }
           }
         ],
         "tags": [
-          "WebForward"
+          "WebApp"
         ]
       }
     },
     "/v2/account/verify/{token}": {
       "delete": {
-        "summary": "Verfiy email address from web ui.",
-        "operationId": "WebForward_VerifyEmailAddress",
+        "summary": "Verfiy token which sent toward the email.",
+        "operationId": "WebApp_VerifyEmail",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -214,26 +227,26 @@
         "parameters": [
           {
             "name": "token",
-            "description": "The user credentials.",
+            "description": "The token which sent towards the email.",
             "in": "path",
             "required": true,
             "type": "string"
           }
         ],
         "tags": [
-          "WebForward"
+          "WebApp"
         ]
       }
     },
     "/v2/features": {
       "get": {
         "summary": "Get available features from web ui.",
-        "operationId": "WebForward_GetFeatures",
+        "operationId": "WebApp_GetFeatures",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiFeatures"
+              "$ref": "#/definitions/v2Features"
             }
           },
           "default": {
@@ -244,58 +257,12 @@
           }
         },
         "tags": [
-          "WebForward"
+          "WebApp"
         ]
       }
     }
   },
   "definitions": {
-    "apiEmail": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string",
-          "description": "The email address."
-        }
-      },
-      "description": "Submit a email verification request."
-    },
-    "apiFeature": {
-      "type": "string",
-      "enum": [
-        "EMAIL_VERIFICATION",
-        "VERIFICATION_CODE"
-      ],
-      "default": "EMAIL_VERIFICATION",
-      "description": "Feature.\n\n - EMAIL_VERIFICATION: Email verification.\n - VERIFICATION_CODE: Verification code."
-    },
-    "apiFeatures": {
-      "type": "object",
-      "properties": {
-        "features": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/apiFeature"
-          },
-          "description": "List of features."
-        }
-      },
-      "description": "Get avaliable features response."
-    },
-    "apiVerifyPasswordRenewalRequest": {
-      "type": "object",
-      "properties": {
-        "token": {
-          "type": "string",
-          "description": "The user credentials."
-        },
-        "password": {
-          "type": "string",
-          "description": "The renewed password."
-        }
-      },
-      "description": "Verfiy password after verfied."
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -322,6 +289,52 @@
           }
         }
       }
+    },
+    "v2EmailRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email address."
+        }
+      },
+      "description": "An email request."
+    },
+    "v2Feature": {
+      "type": "string",
+      "enum": [
+        "EMAIL_VERIFICATION",
+        "VERIFICATION_CODE"
+      ],
+      "default": "EMAIL_VERIFICATION",
+      "description": "Feature.\n\n - EMAIL_VERIFICATION: Email verification.\n - VERIFICATION_CODE: Verification code."
+    },
+    "v2Features": {
+      "type": "object",
+      "properties": {
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v2Feature"
+          },
+          "description": "List of features."
+        }
+      },
+      "description": "Get avaliable features response."
+    },
+    "v2VerifyPasswordResetRequest": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "The token which sent towards the email."
+        },
+        "password": {
+          "type": "string",
+          "description": "The renewed password."
+        }
+      },
+      "description": "Verfiy password reset request."
     }
   },
   "securityDefinitions": {
@@ -338,7 +351,7 @@
     }
   ],
   "externalDocs": {
-    "description": "Nakama server documentation",
-    "url": "https://github.com/heroiclabs/nakama"
+    "description": "Elysium Realms WebApp documentation",
+    "url": "https://elysiumrealms.co/docs/webapp"
   }
 }

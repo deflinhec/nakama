@@ -27,13 +27,6 @@ generate:
 	go generate -x ./... && \
 	(cd console/ui && npm clean-install && npm run-script build)
 
-.PHONY: upgrade
-upgrade: export GOPRIVATE=github.com/bcasino
-upgrade:
-	go get github.com/bcasino/nakama-web && \
-	go get github.com/bcasino/nakama-api && \
-	go mod tidy && go mod vendor
-
 default: image plugin-builder-image
 
 

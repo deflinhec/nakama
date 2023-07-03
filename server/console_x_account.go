@@ -17,16 +17,16 @@ package server
 import (
 	"context"
 
-	"github.com/bcasino/nakama-web/apigrpc/console/api"
 	"github.com/gofrs/uuid"
+	apictrl "github.com/heroiclabs/nakama/v3/apigrpc/control/v2"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *ConsoleServer) KickAccount(ctx context.Context, in *api.AccountId) (*emptypb.Empty, error) {
-	userID, err := uuid.FromString(in.Id)
+func (s *ConsoleServer) KickAccount(ctx context.Context, in *apictrl.AccountRequest) (*emptypb.Empty, error) {
+	userID, err := uuid.FromString(in.Account)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "Requires a valid user ID.")
 	}

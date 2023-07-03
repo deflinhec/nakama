@@ -1,20 +1,20 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Nakama web API v2",
+    "title": "Control API v2",
     "version": "2.0",
     "contact": {
-      "name": "Deflinhec \u0026 Contributors",
-      "url": "https://github.com/heroiclabs/nakama",
-      "email": "hello@deflinhec.dev"
+      "name": "The Elysium Realms Authors",
+      "url": "https://elysiumrealms.co/contact",
+      "email": "contact@mail.elysiumrealms.co"
     }
   },
   "tags": [
     {
-      "name": "WebProxy"
+      "name": "ControlService"
     }
   ],
-  "host": "127.0.0.1:8350",
+  "host": "127.0.0.1:7351",
   "schemes": [
     "http"
   ],
@@ -25,10 +25,10 @@
     "application/json"
   ],
   "paths": {
-    "/v2/account/verify/code/{code}": {
+    "/v2/console/account/{account}/kick": {
       "post": {
-        "summary": "Get available features from web ui.",
-        "operationId": "WebProxy_VerifyVerificationCode",
+        "summary": "Kick account.",
+        "operationId": "ControlService_KickAccount",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -46,22 +46,15 @@
         },
         "parameters": [
           {
-            "name": "code",
-            "description": "The email verification code.",
+            "name": "account",
+            "description": "The account name.",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "email",
-            "description": "The email address.",
-            "in": "query",
-            "required": false,
             "type": "string"
           }
         ],
         "tags": [
-          "WebProxy"
+          "ControlService"
         ]
       }
     }
@@ -109,7 +102,7 @@
     }
   ],
   "externalDocs": {
-    "description": "Nakama server documentation",
-    "url": "https://github.com/heroiclabs/nakama"
+    "description": "Elysium Realms control documentation",
+    "url": "https://elysiumrealms.co/docs/control"
   }
 }

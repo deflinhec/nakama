@@ -9,7 +9,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/heroiclabs/nakama-common/api"
-	walletv2 "github.com/heroiclabs/nakama/v3/proto/wallet/v2"
+	apiwallet "github.com/heroiclabs/nakama/v3/apigrpc/wallet/v2"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -17,7 +17,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s *ConsoleServer) GetBalance(ctx context.Context, in *walletv2.GetBalanceRequest) (*walletv2.GetBalanceResponse, error) {
+func (s *ConsoleServer) GetBalance(ctx context.Context, in *apiwallet.GetBalanceRequest) (*apiwallet.GetBalanceResponse, error) {
 	uid, err := uuid.FromString(in.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "Requires a valid user ID when provided.")
@@ -37,13 +37,13 @@ func (s *ConsoleServer) GetBalance(ctx context.Context, in *walletv2.GetBalanceR
 		return nil, status.Error(codes.Internal, "failed to convert wallet: "+err.Error())
 	}
 
-	return &walletv2.GetBalanceResponse{
+	return &apiwallet.GetBalanceResponse{
 		Currency: in.Currency,
 		Balance:  wallet[strings.ToLower(in.Currency)],
 	}, nil
 }
 
-func (s *ConsoleServer) Withdraw(ctx context.Context, in *walletv2.WithdrawRequest) (*walletv2.WithdrawResponse, error) {
+func (s *ConsoleServer) Withdraw(ctx context.Context, in *apiwallet.WithdrawRequest) (*apiwallet.WithdrawResponse, error) {
 	uid, err := uuid.FromString(in.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "Requires a valid user ID when provided.")
@@ -85,10 +85,10 @@ func (s *ConsoleServer) Withdraw(ctx context.Context, in *walletv2.WithdrawReque
 		"execution": "withdraw",
 	}, in.Amount)
 
-	response := &walletv2.WithdrawResponse{
+	response := &apiwallet.WithdrawResponse{
 		OrderId: in.OrderId,
 		UserId:  in.UserId,
-		Balance: &walletv2.Balance{
+		Balance: &apiwallet.Balance{
 			Currency: in.Currency,
 			Balance:  results[0].Updated[currency],
 		},
@@ -107,7 +107,7 @@ func (s *ConsoleServer) Withdraw(ctx context.Context, in *walletv2.WithdrawReque
 	return response, nil
 }
 
-func (s *ConsoleServer) Deposit(ctx context.Context, in *walletv2.DepositRequest) (*walletv2.DepositResponse, error) {
+func (s *ConsoleServer) Deposit(ctx context.Context, in *apiwallet.DepositRequest) (*apiwallet.DepositResponse, error) {
 	uid, err := uuid.FromString(in.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "Requires a valid user ID when provided.")
@@ -149,10 +149,10 @@ func (s *ConsoleServer) Deposit(ctx context.Context, in *walletv2.DepositRequest
 		"execution": "deposit",
 	}, in.Amount)
 
-	response := &walletv2.DepositResponse{
+	response := &apiwallet.DepositResponse{
 		OrderId: in.OrderId,
 		UserId:  in.UserId,
-		Balance: &walletv2.Balance{
+		Balance: &apiwallet.Balance{
 			Currency: in.Currency,
 			Balance:  results[0].Updated[currency],
 		},
