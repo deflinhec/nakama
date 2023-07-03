@@ -28,22 +28,17 @@ func SplitHostPort(hostport string) (host string, port int, err error) {
 	return host, port, nil
 }
 
-// This function only handle internal calls, external calls go through forwardInterceptorFunc.
-func (s *ApiServer) GetFeatures(ctx context.Context, in *emptypb.Empty) (*apiweb.Features, error) {
-	host, port, err := SplitHostPort(s.config.GetProxy().Web.Address)
-	if err != nil {
-		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
-		return nil, status.Error(codes.Internal, "Service unavaliable.")
+func (s *ApiServer) ListFeatures(ctx context.Context, in *emptypb.Empty) (*apiweb.FeatureResponse, error) {
+	response := &apiweb.FeatureResponse{}
+	if s.config.GetMail().Verification.Enable {
+		response.Features = append(response.Features,
+			apiweb.Feature_EMAIL_VERIFY)
+		if s.config.GetMail().Verification.Enforce {
+			response.Features = append(response.Features,
+				apiweb.Feature_REGISTER_CODE)
+		}
 	}
-	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%d", host, port-1),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		s.logger.Error("An error occurred while forwarding request", zap.Error(err))
-		return nil, status.Error(codes.Unavailable, "Service unavaliable.")
-	}
-	md, _ := metadata.FromIncomingContext(ctx)
-	ctx = metadata.NewOutgoingContext(ctx, md)
-	return apiweb.NewWebAppClient(conn).GetFeatures(ctx, in)
+	return response, nil
 }
 
 // This function only handle internal calls, external calls go through forwardInterceptorFunc.

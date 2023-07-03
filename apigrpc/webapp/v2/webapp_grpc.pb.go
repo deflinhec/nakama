@@ -23,8 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WebAppClient interface {
-	// Get available features from web ui.
-	GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Features, error)
+	// List available features from web ui.
+	ListFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*FeatureResponse, error)
 	// Send email register code.
 	SendEmailRegisterCode(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Send email verify link.
@@ -47,9 +47,9 @@ func NewWebAppClient(cc grpc.ClientConnInterface) WebAppClient {
 	return &webAppClient{cc}
 }
 
-func (c *webAppClient) GetFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Features, error) {
-	out := new(Features)
-	err := c.cc.Invoke(ctx, "/elysiumrealms.webapp.v2.WebApp/GetFeatures", in, out, opts...)
+func (c *webAppClient) ListFeatures(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*FeatureResponse, error) {
+	out := new(FeatureResponse)
+	err := c.cc.Invoke(ctx, "/elysiumrealms.webapp.v2.WebApp/ListFeatures", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -114,8 +114,8 @@ func (c *webAppClient) VerifyRegisterCode(ctx context.Context, in *VerifyRegiste
 // All implementations must embed UnimplementedWebAppServer
 // for forward compatibility
 type WebAppServer interface {
-	// Get available features from web ui.
-	GetFeatures(context.Context, *emptypb.Empty) (*Features, error)
+	// List available features from web ui.
+	ListFeatures(context.Context, *emptypb.Empty) (*FeatureResponse, error)
 	// Send email register code.
 	SendEmailRegisterCode(context.Context, *EmailRequest) (*emptypb.Empty, error)
 	// Send email verify link.
@@ -135,8 +135,8 @@ type WebAppServer interface {
 type UnimplementedWebAppServer struct {
 }
 
-func (UnimplementedWebAppServer) GetFeatures(context.Context, *emptypb.Empty) (*Features, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFeatures not implemented")
+func (UnimplementedWebAppServer) ListFeatures(context.Context, *emptypb.Empty) (*FeatureResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListFeatures not implemented")
 }
 func (UnimplementedWebAppServer) SendEmailRegisterCode(context.Context, *EmailRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendEmailRegisterCode not implemented")
@@ -169,20 +169,20 @@ func RegisterWebAppServer(s grpc.ServiceRegistrar, srv WebAppServer) {
 	s.RegisterService(&WebApp_ServiceDesc, srv)
 }
 
-func _WebApp_GetFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _WebApp_ListFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WebAppServer).GetFeatures(ctx, in)
+		return srv.(WebAppServer).ListFeatures(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/elysiumrealms.webapp.v2.WebApp/GetFeatures",
+		FullMethod: "/elysiumrealms.webapp.v2.WebApp/ListFeatures",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WebAppServer).GetFeatures(ctx, req.(*emptypb.Empty))
+		return srv.(WebAppServer).ListFeatures(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -303,8 +303,8 @@ var WebApp_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*WebAppServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetFeatures",
-			Handler:    _WebApp_GetFeatures_Handler,
+			MethodName: "ListFeatures",
+			Handler:    _WebApp_ListFeatures_Handler,
 		},
 		{
 			MethodName: "SendEmailRegisterCode",

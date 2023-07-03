@@ -240,13 +240,13 @@
     },
     "/v2/features": {
       "get": {
-        "summary": "Get available features from web ui.",
-        "operationId": "WebApp_GetFeatures",
+        "summary": "List available features from web ui.",
+        "operationId": "WebApp_ListFeatures",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v2Features"
+              "$ref": "#/definitions/v2FeatureResponse"
             }
           },
           "default": {
@@ -303,13 +303,14 @@
     "v2Feature": {
       "type": "string",
       "enum": [
-        "EMAIL_VERIFICATION",
-        "VERIFICATION_CODE"
+        "FEATURE_UNSPECIFIED",
+        "EMAIL_VERIFY",
+        "REGISTER_CODE"
       ],
-      "default": "EMAIL_VERIFICATION",
-      "description": "Feature.\n\n - EMAIL_VERIFICATION: Email verification.\n - VERIFICATION_CODE: Verification code."
+      "default": "FEATURE_UNSPECIFIED",
+      "description": "Feature.\n\n - FEATURE_UNSPECIFIED: UNSPECIFIED.\n - EMAIL_VERIFY: Email verify.\n - REGISTER_CODE: Register code."
     },
-    "v2Features": {
+    "v2FeatureResponse": {
       "type": "object",
       "properties": {
         "features": {
