@@ -1,0 +1,35 @@
+version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/heroiclabs/nakama/v3/apigen
+    except:
+      - buf.build/googleapis/googleapis
+      - buf.build/grpc-ecosystem/grpc-gateway
+plugins:
+  - name: protoc-gen-openapiv2
+    path: ["go", "run", "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"]
+    out: apigrpc
+    opt:
+      - logtostderr=true
+      - allow_delete_body=true
+      - json_names_for_fields=false
+  - name: protoc-gen-grpc-gateway
+    path: ["go", "run", "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"]
+    out: apigrpc
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
+      - logtostderr=true
+  - name: protoc-gen-go
+    path: ["go", "run", "google.golang.org/protobuf/cmd/protoc-gen-go"]
+    out: apigrpc
+    opt:
+      - paths=source_relative
+  - plugin: protoc-gen-go-grpc
+    path: ["go", "run", "google.golang.org/grpc/cmd/protoc-gen-go-grpc"]
+    out: apigrpc
+    opt:
+      - paths=source_relative
+
+

@@ -23,7 +23,7 @@ import {
 } from '../../console.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot} from '@angular/router';
 import {AuthenticationService} from '../../authentication.service';
-import {JSONEditor, TextContent} from 'vanilla-jsoneditor';
+import {JSONEditor, Mode, toTextContent} from 'vanilla-jsoneditor';
 import {Observable} from 'rxjs';
 
 @Component({
@@ -95,6 +95,7 @@ export class WalletComponent implements OnInit, AfterViewInit {
     this.jsonEditor = new JSONEditor({
       target: this.editor.nativeElement,
       props: {
+        mode: Mode.text,
         readOnly: !this.updateAllowed(),
         content:{text:this.account.wallet},
       },
@@ -108,7 +109,7 @@ export class WalletComponent implements OnInit, AfterViewInit {
 
     let wallet = '';
     try {
-      wallet = (this.jsonEditor.get() as TextContent).text;
+      wallet = toTextContent(this.jsonEditor.get()).text;
     } catch (e) {
       this.error = e;
       this.updating = false;

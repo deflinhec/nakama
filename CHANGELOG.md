@@ -5,6 +5,24 @@ The format is based on [keep a changelog](http://keepachangelog.com) and this pr
 
 ## [Unreleased]
 
+## [3.16.0-0.6.0] - 2023-07-03
+### Changed
+- Change buf.build repository.
+
+## [3.16.0-0.5.1] - 2023-07-02
+### Changed
+- Change buf.build codegen folder structure.
+
+## [3.16.0-0.5.0] - 2023-07-01
+### Fixed
+- Storage object save behaviour under Json Editor tree view.
+
+### Changed
+- Implement payment service.
+- Refine wallet api endpoints.
+- Replace Ace editor to Json Editor.
+- Make Json Editor default to text view.
+
 ## [3.16.0-0.4.3] - 2023-05-18
 ### Fixed
 - Lua modulo from yuin/gopher-lua #412.

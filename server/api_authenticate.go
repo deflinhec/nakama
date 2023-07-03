@@ -23,7 +23,8 @@ import (
 	"strings"
 	"time"
 
-	webapi "github.com/bcasino/nakama-web/api"
+	apiweb "github.com/heroiclabs/nakama/v3/apigrpc/webapp/v2"
+
 	"github.com/gofrs/uuid"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/heroiclabs/nakama-common/api"
@@ -333,7 +334,7 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 				if err := s.db.QueryRowContext(ctx, query, cleanEmail).Scan(&dbUserID); err == sql.ErrNoRows {
 					if code, ok := email.Vars["verification"]; !ok {
 						return nil, status.Error(codes.InvalidArgument, "Require verification code.")
-					} else if _, err := s.VerifyVerificationCode(ctx, &webapi.VerifyVerificationCodeRequest{
+					} else if _, err := s.VerifyRegisterCode(ctx, &apiweb.VerifyRegisterCodeRequest{
 						Email: cleanEmail, Code: code}); err != nil {
 						return nil, err
 					}
@@ -356,8 +357,8 @@ func (s *ApiServer) AuthenticateEmail(ctx context.Context, in *api.AuthenticateE
 						zap.String("user_id", dbUserID), zap.Error(err))
 				}
 				// Send email verification link.
-			} else if _, err := s.SendEmailVerificationLink(ctx,
-				&webapi.Email{Email: email.Email}); err != nil {
+			} else if _, err := s.SendEmailVerifyLink(ctx,
+				&apiweb.EmailRequest{Email: email.Email}); err != nil {
 				s.logger.Error("Error forwarding request verification link.",
 					zap.String("user_id", dbUserID), zap.Error(err))
 			}
