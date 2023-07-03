@@ -9,7 +9,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/heroiclabs/nakama-common/api"
-	walletv2 "github.com/heroiclabs/nakama/v3/bcasino/wallet/v2"
+	walletv2 "github.com/heroiclabs/nakama/v3/proto/wallet/v2"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

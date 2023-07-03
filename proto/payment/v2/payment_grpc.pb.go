@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             (unknown)
-// source: bcasino/payment/v2/payment.proto
+// source: payment/v2/payment.proto
 
 package paymentv2
 
@@ -36,7 +36,7 @@ func NewPaymentServiceClient(cc grpc.ClientConnInterface) PaymentServiceClient {
 
 func (c *paymentServiceClient) GetPayment(ctx context.Context, in *GetPaymentRequest, opts ...grpc.CallOption) (*GetPaymentResponse, error) {
 	out := new(GetPaymentResponse)
-	err := c.cc.Invoke(ctx, "/bcasino.payment.v2.PaymentService/GetPayment", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/elysiumrealms.payment.v2.PaymentService/GetPayment", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func _PaymentService_GetPayment_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bcasino.payment.v2.PaymentService/GetPayment",
+		FullMethod: "/elysiumrealms.payment.v2.PaymentService/GetPayment",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PaymentServiceServer).GetPayment(ctx, req.(*GetPaymentRequest))
@@ -94,7 +94,7 @@ func _PaymentService_GetPayment_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PaymentService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "bcasino.payment.v2.PaymentService",
+	ServiceName: "elysiumrealms.payment.v2.PaymentService",
 	HandlerType: (*PaymentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -103,5 +103,5 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "bcasino/payment/v2/payment.proto",
+	Metadata: "payment/v2/payment.proto",
 }

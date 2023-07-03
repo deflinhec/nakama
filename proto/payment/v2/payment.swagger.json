@@ -1,12 +1,12 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Payment API",
+    "title": "Payment API v2",
     "version": "2.0",
     "contact": {
-      "name": "The BCasino Authors",
-      "url": "https://github.com/bcasino/api",
-      "email": "contact@bcasino.com"
+      "name": "The Elysium Realms Authors",
+      "url": "https://elysiumrealms.co/contact",
+      "email": "contact@mail.elysiumrealms.co"
     }
   },
   "tags": [
@@ -133,7 +133,7 @@
     }
   ],
   "externalDocs": {
-    "description": "Olympus Casino payment documentation",
-    "url": "https://bcasino.com/docs"
+    "description": "Elysium Realms payment documentation",
+    "url": "https://elysiumrealms.co/docs/payment"
   }
 }

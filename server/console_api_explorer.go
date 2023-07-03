@@ -114,7 +114,7 @@ func (s *ConsoleServer) extractApiCallContext(ctx context.Context, in *console.C
 	if _, ok := reflect.TypeOf(s.api.UnimplementedWebForwardServer).MethodByName(in.Method); ok {
 		apiPrefix = "/nakama.web.WebForward/"
 	} else if _, ok := reflect.TypeOf(s.api.UnimplementedPaymentServiceServer).MethodByName(in.Method); ok {
-		apiPrefix = "/bcasino.payment.v2.PaymentService/"
+		apiPrefix = "/elysiumrealms.payment.v2.PaymentService/"
 	}
 
 	if apiPrefix == "/nakama.web.WebForward/" {

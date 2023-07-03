@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/gofrs/uuid"
-	paymentv2 "github.com/heroiclabs/nakama/v3/bcasino/payment/v2"
+	paymentv2 "github.com/heroiclabs/nakama/v3/proto/payment/v2"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

@@ -42,7 +42,7 @@ import (
 	grpcgw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama/v3/apigrpc"
-	paymentv2 "github.com/heroiclabs/nakama/v3/bcasino/payment/v2"
+	paymentv2 "github.com/heroiclabs/nakama/v3/proto/payment/v2"
 	"github.com/heroiclabs/nakama/v3/social"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
