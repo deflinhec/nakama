@@ -28,7 +28,6 @@ import (
 	"strings"
 	"time"
 
-	console_1 "github.com/bcasino/nakama-web/apigrpc/console"
 	"github.com/gofrs/uuid"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/handlers"
@@ -146,7 +145,6 @@ type ctxConsoleRoleKey struct{}
 
 type ConsoleServer struct {
 	console.UnimplementedConsoleServer
-	console_1.UnimplementedTunnelServer
 	apictrl.UnimplementedControlServiceServer
 	apiwallet.UnimplementedWalletServiceServer
 	logger               *zap.Logger
@@ -471,7 +469,7 @@ func consoleInterceptorFunc(logger *zap.Logger, config Config, sessionCache Sess
 		if info.FullMethod == "/nakama.console.Console/AuthenticateLogout" {
 			return handler(ctx, req)
 		}
-		if strings.HasPrefix(info.FullMethod, "/nakama.console.ext.Tunnel/") {
+		if strings.HasPrefix(info.FullMethod, "/elysiumrealms.control.v2.ControlService/") {
 			// Skip authentication check for Console tunnel endpoint.
 			return handler(ctx, req)
 		}
