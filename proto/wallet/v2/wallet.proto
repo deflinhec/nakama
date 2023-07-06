@@ -69,6 +69,14 @@ service WalletService {
       post: "/v2/console/wallet/{currency}/deposit",
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "BasicAuth";
+          value: {};
+        }
+      }
+    };
   }
 
   // Withdraw amount of currency from user account.
@@ -77,11 +85,27 @@ service WalletService {
       post: "/v2/console/wallet/{currency}/withdraw",
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "BasicAuth";
+          value: {};
+        }
+      }
+    };
   }
 
   // Get currency balance of from user account.
   rpc GetBalance (GetBalanceRequest) returns (GetBalanceResponse) {
     option (google.api.http).get = "/v2/console/wallet/{currency}/{user_id}";
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "BasicAuth";
+          value: {};
+        }
+      }
+    };
   }
 }
 
