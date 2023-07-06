@@ -18,6 +18,7 @@ import (
 	"context"
 	"crypto"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"math"
@@ -37,6 +38,7 @@ import (
 	apiwallet "github.com/heroiclabs/nakama/v3/apigrpc/wallet/v2"
 	apiweb "github.com/heroiclabs/nakama/v3/apigrpc/webapp/v2"
 	"github.com/heroiclabs/nakama/v3/console"
+	"github.com/heroiclabs/nakama/v3/protosign"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -469,6 +471,20 @@ func (s *ConsoleServer) Stop() {
 	s.grpcServer.GracefulStop()
 }
 
+func checkSign(req interface{}, md metadata.MD, key string) (bool, error) {
+	b, err := protosign.JsonFmt(req, key)
+	if err != nil {
+		return false, err
+	}
+	sign := hex.EncodeToString(b)
+	for _, v := range md.Get("X-Signature") {
+		if v == sign {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func consoleInterceptorFunc(logger *zap.Logger, config Config, sessionCache SessionCache, loginAttmeptCache LoginAttemptCache) func(context.Context, interface{}, *grpc.UnaryServerInfo, grpc.UnaryHandler) (interface{}, error) {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if info.FullMethod == "/nakama.console.Console/Authenticate" {
@@ -491,6 +507,14 @@ func consoleInterceptorFunc(logger *zap.Logger, config Config, sessionCache Sess
 		if !ok {
 			logger.Error("Cannot extract metadata from incoming context")
 			return nil, status.Error(codes.FailedPrecondition, "Cannot extract metadata from incoming context")
+		}
+		if strings.HasPrefix(info.FullMethod, "/elysiumrealms.wallet") {
+			if ok, err := checkSign(req, md, config.GetWallet().SigningKey); err != nil {
+				return nil, err
+			} else if !ok {
+				return nil, status.Error(codes.Unauthenticated, "Invalid signature")
+			}
+			logger.Info("Wallet request", zap.String("method", info.FullMethod))
 		}
 		auth, ok := md["authorization"]
 		if !ok {
