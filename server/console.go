@@ -509,7 +509,7 @@ func consoleInterceptorFunc(logger *zap.Logger, config Config, sessionCache Sess
 			return nil, status.Error(codes.FailedPrecondition, "Cannot extract metadata from incoming context")
 		}
 		if strings.HasPrefix(info.FullMethod, "/elysiumrealms.wallet") {
-			if ok, err := checkSign(req, md, config.GetWallet().SigningKey); err != nil {
+			if ok, err := protosign.Verify(&md, req, config.GetWallet().SigningKey); err != nil {
 				return nil, err
 			} else if !ok {
 				return nil, status.Error(codes.Unauthenticated, "Invalid signature")
