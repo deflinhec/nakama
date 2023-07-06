@@ -20,6 +20,29 @@
             }
         },
         {
+          "label": "Launch service (nakama)",
+          "type":"shell",
+          "command": "go",
+          "args": [
+              "run", "main.go",
+              "--name=nakama1",
+              "--metrics.prometheus_port=9100",
+              "--socket.server_key=deficasino",
+              "--session.single_socket=true",
+              "--database.address=root@localhost:26257",
+              "--logger.level=debug",
+              "--session.token_expiry_sec=7200",
+              "--mail.verification.enable=true"
+          ],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "group": {
+              "kind": "build",
+              "isDefault": true,
+          }
+        },
+        {
             "label": "Migrate up",
             "type":"shell",
             "command": "go",
@@ -68,7 +91,7 @@
         {
             "label": "Build Images",
             "dependsOn": [
-                "Build Image (nakama)", 
+                "Build Image (nakama)",
                 "Build Image (nakama-pluginbuilder)"
             ]
         },

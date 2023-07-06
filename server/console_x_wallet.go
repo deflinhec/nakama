@@ -85,6 +85,13 @@ func (s *ConsoleServer) Withdraw(ctx context.Context, in *apiwallet.WithdrawRequ
 		"execution": "withdraw",
 	}, in.Amount)
 
+	s.logger.Info("withdraw",
+		zap.String("order_id", in.OrderId),
+		zap.String("user_id", in.UserId),
+		zap.String("currency", in.Currency),
+		zap.Int64("amount", in.Amount),
+	)
+
 	response := &apiwallet.WithdrawResponse{
 		OrderId: in.OrderId,
 		UserId:  in.UserId,
@@ -148,6 +155,13 @@ func (s *ConsoleServer) Deposit(ctx context.Context, in *apiwallet.DepositReques
 	s.metrics.CustomCounter(currency, map[string]string{
 		"execution": "deposit",
 	}, in.Amount)
+
+	s.logger.Info("deposit",
+		zap.String("order_id", in.OrderId),
+		zap.String("user_id", in.UserId),
+		zap.String("currency", in.Currency),
+		zap.Int64("amount", in.Amount),
+	)
 
 	response := &apiwallet.DepositResponse{
 		OrderId: in.OrderId,
