@@ -1047,12 +1047,14 @@ func NewConsulConfig() *ConsulConfig {
 }
 
 type WalletConfig struct {
-	Address string `yaml:"address" json:"address" usage:"The IP address of the wallet server. Default localhost."`
+	SigningKey string `yaml:"signing_key" json:"signing_key" usage:"Key used to sign wallet message."`
+	Address    string `yaml:"address" json:"address" usage:"The IP address of the wallet server. Default localhost."`
 }
 
 func NewWalletConfig() *WalletConfig {
 	return &WalletConfig{
-		Address: "localhost:3001",
+		Address:    "localhost:3001",
+		SigningKey: "defaultsigningkey",
 	}
 }
 

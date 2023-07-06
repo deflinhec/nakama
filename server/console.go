@@ -37,6 +37,7 @@ import (
 	apiwallet "github.com/heroiclabs/nakama/v3/apigrpc/wallet/v2"
 	apiweb "github.com/heroiclabs/nakama/v3/apigrpc/webapp/v2"
 	"github.com/heroiclabs/nakama/v3/console"
+	"github.com/heroiclabs/nakama/v3/protosign"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -491,6 +492,14 @@ func consoleInterceptorFunc(logger *zap.Logger, config Config, sessionCache Sess
 		if !ok {
 			logger.Error("Cannot extract metadata from incoming context")
 			return nil, status.Error(codes.FailedPrecondition, "Cannot extract metadata from incoming context")
+		}
+		if strings.HasPrefix(info.FullMethod, "/elysiumrealms.wallet") {
+			if ok, err := protosign.Verify(&md, req, config.GetWallet().SigningKey); err != nil {
+				return nil, err
+			} else if !ok {
+				return nil, status.Error(codes.Unauthenticated, "Invalid signature")
+			}
+			logger.Info("Wallet request", zap.String("method", info.FullMethod))
 		}
 		auth, ok := md["authorization"]
 		if !ok {
