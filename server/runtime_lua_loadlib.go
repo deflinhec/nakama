@@ -59,7 +59,8 @@ func OpenPackage(moduleCache *RuntimeLuaModuleCache) func(L *lua.LState) int {
 			dir := lua.LuaLDir + lua.LuaDirSep
 			for _, path := range strings.Split(lua.LuaPathDefault, ";") {
 				path = strings.TrimPrefix(path, dir)
-				path = strings.ReplaceAll(path, "?.lua", name)
+				path = strings.TrimSuffix(path, ".lua")
+				path = strings.ReplaceAll(path, "?", name)
 				path = strings.ReplaceAll(path, lua.LuaDirSep, ".")
 				if module, ok = moduleCache.Modules[path]; ok {
 					break
