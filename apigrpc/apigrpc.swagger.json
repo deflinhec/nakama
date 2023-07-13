@@ -1754,6 +1754,39 @@
         "tags": [
           "Nakama"
         ]
+      },
+      "put": {
+        "summary": "Update fields in a given group.",
+        "operationId": "Nakama_UpdateGroup2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Update fields in a given group.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiUpdateGroupRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Nakama"
+        ]
       }
     },
     "/v2/group/{groupId}": {

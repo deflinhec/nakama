@@ -662,7 +662,11 @@ service Nakama {
   rpc UpdateGroup (api.UpdateGroupRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/v2/group/{group_id}",
-      body: "*"
+      body: "*",
+      additional_bindings {
+        put: "/v2/group",
+        body: "*",
+      }
     };
   }
 
